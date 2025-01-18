@@ -1,3 +1,9 @@
+
+export const metadata = {
+  title: 'GeoEvent',
+  description: 'GeoEvent - Coming soon!',
+}
+
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white gap-5">
