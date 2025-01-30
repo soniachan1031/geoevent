@@ -1,5 +1,5 @@
 import { IUser } from "@/types/user.types";
-import { createContext } from "react";
+import { createContext, useContext } from "react";
 
 export interface TAuthContext {
   user: IUser | null;
@@ -18,5 +18,7 @@ const AuthContext = createContext<TAuthContext>({
   setAuthLoading: () => {},
   setAuthError: () => {},
 });
+
+export const useAuthContext = () => useContext(AuthContext);
 
 export default AuthContext;

@@ -1,3 +1,4 @@
+
 import { ECookieName } from "@/types/api.types";
 import { EAuthStatus, EUserRole, IUser } from "@/types/user.types";
 import {
@@ -10,6 +11,27 @@ import { ParsedUrlQuery } from "querystring";
 import stringifyAndParse from "../stringifyAndParse";
 import { removeAuthCookie } from "./cookieHandlerForServerSideProps";
 
+/**
+ * A higher-order function that handles server-side props for Next.js pages,
+ * providing user authentication and authorization checks.
+ *
+ * @param {Object} params - The parameters for the handler.
+ * @param {EUserRole | EAuthStatus} params.access - The required access level for the page.
+ * @param {Function} [params.fn] - An optional function to execute if the user has access.
+ * @param {GetServerSidePropsContext<ParsedUrlQuery, PreviewData>} params.fn.ctx - The context object provided by Next.js.
+ * @param {IUser | null} params.fn.user - The authenticated user object or null if not authenticated.
+ * @returns {GetServerSideProps} A function to be used as `getServerSideProps` in Next.js pages.
+ *
+ * @example
+ * // Usage in a Next.js page
+ * export const getServerSideProps = serverSidePropsHandler({
+ *   access: EUserRole.ADMIN,
+ *   fn: async (ctx, user) => {
+ *     // Custom logic here
+ *     return { props: { customData: 'example' } };
+ *   },
+ * });
+ */
 const serverSidePropsHandler = ({
   access,
   fn,
@@ -26,7 +48,8 @@ const serverSidePropsHandler = ({
       user &&
       (user.role === EUserRole.ADMIN ||
         user.role === access ||
-        access == EAuthStatus.AUTHENTICATED);
+        access == EAuthStatus.AUTHENTICATED ||
+        access == EAuthStatus.ANY);
     let redirectPath = "/";
 
     if (!user) {

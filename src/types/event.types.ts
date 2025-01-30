@@ -1,0 +1,61 @@
+import { TLocation } from "./location.types";
+import { IUser } from "./user.types";
+
+export enum EEventCategory {
+  MUSIC = "Music",
+  SPORTS = "Sports",
+  ARTS = "Arts",
+  SCIENCE = "Science",
+  FOOD_DRINK = "Food & Drink",
+  CHARITY = "Charity",
+  SCIENCE_TECH = "Science & Tech",
+  COMMUNITY = "Community",
+  FASHION = "Fashion",
+  GOVERNMENT = "Government",
+  FITNESS = "Fitness",
+  HOLIDAYS = "Holidays",
+  OTHER = "Other",
+}
+
+export enum EEventFormat {
+  ONLINE = "Online",
+  OFFLINE = "Offline",
+  HYBRID = "Hybrid",
+}
+
+export enum EEventLanguage {
+  ENGLISH = "English",
+  SPANISH = "Spanish",
+  FRENCH = "French",
+  GERMAN = "German",
+  ITALIAN = "Italian",
+  DUTCH = "Dutch",
+  PORTUGESE = "Portugese",
+  SWEDISH = "Swedish",
+  HINDI = "Hindi",
+}
+
+export type TEventAgenda = {
+  time: string;
+  activity: string;
+};
+
+export interface IEvent {
+  _id: string;
+  title: string;
+  description: string;
+  location: TLocation;
+  date: Date | string;
+  duration?: number; // in minutes
+  category: EEventCategory;
+  format: EEventFormat;
+  language: EEventLanguage;
+  capacity?: number;
+  tags?: string[];
+  registrationDeadline?: Date | string;
+  image?: string;
+  agenda?: TEventAgenda[];
+  email: string;
+  phone: number;
+  organizer: string | IUser;
+}

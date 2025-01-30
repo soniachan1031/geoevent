@@ -17,5 +17,5 @@ export default function Home() {
 }
 
 export const getServerSideProps = serverSidePropsHandler({
-  access: EAuthStatus.AUTHENTICATED,
+  access: EAuthStatus.ANY,
 });

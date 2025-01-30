@@ -8,7 +8,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <AuthProvider user={pageProps.user}>
       <ToastComponent />
-      <Layout user={pageProps.user}>
+      <Layout>
         <Component {...pageProps} />
       </Layout>
     </AuthProvider>

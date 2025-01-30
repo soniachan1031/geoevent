@@ -4,6 +4,7 @@ import { Document } from "mongoose";
 export enum EAuthStatus {
   UNAUTHENTICATED = "unauthenticated",
   AUTHENTICATED = "authenticated",
+  ANY = "any",
 }
 
 // user roles

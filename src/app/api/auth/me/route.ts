@@ -3,10 +3,7 @@ import catchAsync from "@/lib/server/catchAsync";
 import { guard } from "@/lib/server/middleware/guard";
 import AppResponse from "@/lib/server/AppResponse";
 import { uploadProfilePic } from "@/lib/server/s3UploadHandler";
-import { EUserRole, IUser } from "@/types/user.types";
-import AppError from "@/lib/server/AppError";
-import { verifyEncryptedString } from "@/lib/server/encryptionHandler";
-import { removeAuthCookie } from "@/lib/server/cookieHandler";
+import { IUser } from "@/types/user.types";
 
 // get user
 export const GET = catchAsync(async (req) => {
@@ -20,7 +17,7 @@ export const GET = catchAsync(async (req) => {
 // update user
 export const PATCH = catchAsync(async (req) => {
   // guard
-  const user = await guard(req, EUserRole.ADMIN);
+  const user = await guard(req);
 
   const formData = await req.formData();
   const data = JSON.parse(formData.get("data") as string);
@@ -60,40 +57,4 @@ export const PATCH = catchAsync(async (req) => {
 
   // send response
   return new AppResponse(200, "profile updated", { doc: updatedUser });
-});
-
-// delete user
-export const DELETE = catchAsync(async (req) => {
-  // guard
-  const user = await guard(req, EUserRole.ADMIN); // only admin can delete themselve
-
-  const userWithPassword = await User.findById(user._id).select("password");
-
-  if (!userWithPassword) throw new AppError(404, "user not found");
-
-  // get data from request url
-  const url = new URL(req.url);
-  const { password } = Object.fromEntries(url.searchParams.entries());
-
-  // if password is not provided, throw error
-  if (!password) throw new AppError(400, "password is required");
-
-  // check password
-  if (!password) throw new AppError(400, "password is required");
-  const passwordVerified = await verifyEncryptedString(
-    password,
-    userWithPassword.password as string
-  );
-
-  // if not verified, throw error
-  if (!passwordVerified) throw new AppError(401, "invalid credentials");
-
-  // delete user
-  await User.findByIdAndDelete(user._id);
-
-  // remove auth cookie
-  removeAuthCookie();
-
-  // send response
-  return new AppResponse(200, "user deleted");
 });
