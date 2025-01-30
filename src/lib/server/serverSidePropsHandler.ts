@@ -1,4 +1,3 @@
-
 import { ECookieName } from "@/types/api.types";
 import { EAuthStatus, EUserRole, IUser } from "@/types/user.types";
 import {
@@ -41,15 +40,15 @@ const serverSidePropsHandler = ({
     ctx: GetServerSidePropsContext<ParsedUrlQuery, PreviewData>,
     user: IUser | null
   ) => Promise<{ [key: string]: any } | void>;
-}) => {
+}): GetServerSideProps => {
   const getServerSideProps: GetServerSideProps = async (ctx) => {
     const user = await getUser(ctx.req.cookies[ECookieName.AUTH]);
     const hasAccess =
-      user &&
-      (user.role === EUserRole.ADMIN ||
-        user.role === access ||
-        access == EAuthStatus.AUTHENTICATED ||
-        access == EAuthStatus.ANY);
+      access === EAuthStatus.ANY ||
+      (user &&
+        (user.role === EUserRole.ADMIN ||
+          user.role === access ||
+          access == EAuthStatus.AUTHENTICATED));
     let redirectPath = "/";
 
     if (!user) {
@@ -69,7 +68,7 @@ const serverSidePropsHandler = ({
         : handleRedirect();
     }
 
-    if (!user) {
+    if (!user && access != EAuthStatus.ANY) {
       return handleRedirect();
     }
 
