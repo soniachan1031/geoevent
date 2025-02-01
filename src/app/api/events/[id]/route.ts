@@ -9,7 +9,10 @@ import AppError from "@/lib/server/AppError";
 
 // update event
 export const PATCH = catchAsync(
-  async (req, { params: { id } }: { params: { id: string } }) => {
+  async (req, { params }: { params: Promise<{ id: string }> }) => {
+    // extract id
+    const { id } = await params;
+
     // guard
     const user = await guard(req);
 
@@ -91,7 +94,10 @@ export const PATCH = catchAsync(
 
 // delete event
 export const DELETE = catchAsync(
-  async (req, { params: { id } }: { params: { id: string } }) => {
+  async (req, { params }: { params: Promise<{ id: string }> }) => {
+    // extract id
+    const { id } = await params;
+
     // guard
     const user = await guard(req);
 
