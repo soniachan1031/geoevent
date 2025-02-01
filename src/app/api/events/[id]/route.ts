@@ -5,23 +5,18 @@ import { IEvent } from "@/types/event.types";
 import { clearS3Folder, uploadImage } from "@/lib/server/s3UploadHandler";
 import Event from "@/mongoose/models/Event";
 import { EUserRole } from "@/types/user.types";
+import AppError from "@/lib/server/AppError";
 
 // update event
 export const PATCH = catchAsync(
-  async (req, context: { params: { id: string } }) => {
+  async (req, { params: { id } }: { params: { id: string } }) => {
     // guard
     const user = await guard(req);
-
-    // extract id
-    if (!context.params?.id) {
-      return new AppResponse(400, "id is required");
-    }
-    const { id } = context.params;
 
     // check if event exists
     const event = await Event.findById(id);
     if (!event) {
-      return new AppResponse(404, "event not found");
+      throw new AppError(404, "event not found");
     }
 
     // check if user is the organizer or admin
@@ -29,7 +24,7 @@ export const PATCH = catchAsync(
       String(event.organizer) !== user._id.toString() &&
       user.role !== EUserRole.ADMIN
     ) {
-      return new AppResponse(403, "forbidden");
+      throw new AppError(403, "forbidden");
     }
 
     const formData = await req.formData();
@@ -96,20 +91,14 @@ export const PATCH = catchAsync(
 
 // delete event
 export const DELETE = catchAsync(
-  async (req, context: { params?: { id: string } }) => {
+  async (req, { params: { id } }: { params: { id: string } }) => {
     // guard
     const user = await guard(req);
-
-    // extract id
-    if (!context.params?.id) {
-      return new AppResponse(400, "id is required");
-    }
-    const { id } = context.params;
 
     // check if event exists
     const event = await Event.findById(id);
     if (!event) {
-      return new AppResponse(404, "event not found");
+      throw new AppError(404, "event not found");
     }
 
     // check if user is the organizer or admin
@@ -117,7 +106,7 @@ export const DELETE = catchAsync(
       String(event.organizer) !== user._id.toString() &&
       user.role !== EUserRole.ADMIN
     ) {
-      return new AppResponse(403, "forbidden");
+      throw new AppError(403, "forbidden");
     }
 
     // delete event
