@@ -2,7 +2,7 @@ import User from "@/mongoose/models/User";
 import catchAsync from "@/lib/server/catchAsync";
 import { guard } from "@/lib/server/middleware/guard";
 import AppResponse from "@/lib/server/AppResponse";
-import { uploadProfilePic } from "@/lib/server/s3UploadHandler";
+import { uploadImage } from "@/lib/server/s3UploadHandler";
 import { IUser } from "@/types/user.types";
 
 // get user
@@ -37,9 +37,11 @@ export const PATCH = catchAsync(async (req) => {
   // handle image
   if (photo?.size > 0) {
     // upload image
-    const url = await uploadProfilePic({
+    const url = await uploadImage({
       file: photo,
-      docId: user._id,
+      folder: `users/${user._id}/profile-pic`,
+      width: 100,
+      height: 100,
     });
 
     // update data

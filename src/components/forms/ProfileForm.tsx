@@ -38,7 +38,9 @@ const formSchema = z.object({
 function ProfileForm() {
   const { authLoading, setAuthLoading, user, setUser } =
     useContext(AuthContext);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(
+    user?.photo?.url ?? null
+  );
 
   const form = useForm({
     resolver: zodResolver(formSchema),

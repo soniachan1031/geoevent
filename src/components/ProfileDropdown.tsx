@@ -32,13 +32,13 @@ export default function ProfileDropdown() {
           <Link href="/profile">Profile</Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <Link href="/hosted-events">Hosted Events</Link>
+          <Link href="/my-hosted-events">Hosted Events</Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <Link href="/my-events">My Events</Link>
+          <Link href="/my-registered-events">Registered Events</Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <Link href="/saved-events">Saved Events</Link>
+          <Link href="/my-saved-events">Saved Events</Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={(e) => e.preventDefault()}>
           <LogoutBtn />

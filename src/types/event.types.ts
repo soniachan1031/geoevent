@@ -40,6 +40,11 @@ export type TEventAgenda = {
   activity: string;
 };
 
+export type TEventContact = {
+  email: string;
+  phone: number;
+}
+
 export interface IEvent {
   _id: string;
   title: string;
@@ -51,11 +56,9 @@ export interface IEvent {
   format: EEventFormat;
   language: EEventLanguage;
   capacity?: number;
-  tags?: string[];
   registrationDeadline?: Date | string;
   image?: string;
   agenda?: TEventAgenda[];
-  email: string;
-  phone: number;
+  contact: TEventContact;
   organizer: string | IUser;
 }

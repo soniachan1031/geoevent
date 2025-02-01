@@ -1,4 +1,4 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, Types } from "mongoose";
 import {
   EEventCategory,
   EEventFormat,
@@ -9,7 +9,22 @@ import defaultSchemaOptions from "../defaultSchemaOptions";
 import locationSchema from "../locationSchema";
 import eventAgendaSchema from "./eventAgendaSchema";
 import User from "@/mongoose/models/User";
-import isEmail from "@/lib/isEmail";
+import eventContactSchema from "./eventContactSchema";
+import { isAfter, startOfDay } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+
+const timeZone = "UTC"; // Ensure dates are treated as UTC
+const startOfUTC = () =>
+  startOfDay(
+    new Date(
+      Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        new Date().getUTCDate()
+      )
+    )
+  );
+
 
 const eventSchema = new Schema<IEvent>(
   {
@@ -33,8 +48,30 @@ const eventSchema = new Schema<IEvent>(
       type: Date,
       required: [true, "Event date is required"],
       validate: {
-        validator: (date: Date) => date >= new Date(),
+        validator: (date: Date) => {
+          const inputDate = startOfDay(toZonedTime(date, timeZone)); // Convert input date to UTC
+          const today = startOfUTC(); // Convert today's date to UTC
+
+          return (
+            isAfter(inputDate, today) || inputDate.getTime() === today.getTime()
+          );
+        },
         message: "Event date must be today or in the future",
+      },
+    },
+
+    registrationDeadline: {
+      type: Date,
+      validate: {
+        validator: function (this: IEvent, deadline: Date) {
+          if (!this.date) return true; // Skip validation if event date is not set
+
+          const deadlineDate = startOfDay(toZonedTime(deadline, timeZone));
+          const eventDate = startOfDay(toZonedTime(this.date, timeZone));
+
+          return deadlineDate <= eventDate;
+        },
+        message: "Registration deadline must be on or before the event date",
       },
     },
     duration: {
@@ -60,19 +97,7 @@ const eventSchema = new Schema<IEvent>(
       type: Number,
       min: [1, "Event capacity must be at least 1 person"],
     },
-    tags: {
-      type: [String],
-      default: [],
-    },
-    registrationDeadline: {
-      type: Date,
-      validate: {
-        validator: function (this: IEvent, date: Date) {
-          return date < new Date(this.date);
-        },
-        message: "Registration deadline must be before the event date",
-      },
-    },
+
     image: {
       type: String,
       validate: {
@@ -85,21 +110,10 @@ const eventSchema = new Schema<IEvent>(
       type: [eventAgendaSchema],
       default: [],
     },
-    email: {
-      type: String,
-      required: [true, "Contact email is required"],
-      validate: {
-        validator: (email: string) => isEmail(email),
-        message: "Invalid email format",
-      },
-    },
-    phone: {
-      type: Number,
-      cast: "Not a valid phone number",
-      validate: {
-        validator: (number: number) => number.toString().length === 10,
-        message: "Phone number must be 10 digits long",
-      },
+    contact: {
+      type: eventContactSchema,
+      required: [true, "Event contact is required"],
+      cast: "Invalid contact format",
     },
     organizer: {
       type: Types.ObjectId,
@@ -110,4 +124,4 @@ const eventSchema = new Schema<IEvent>(
   defaultSchemaOptions
 );
 
-export default model("Event", eventSchema);
+export default eventSchema;

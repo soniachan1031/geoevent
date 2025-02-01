@@ -30,8 +30,8 @@ export const uploadImageToS3 = async ({
   file: File;
   key: string;
   resize?: {
-    width: number;
-    height: number;
+    width?: number;
+    height?: number;
   };
   limit?: number;
 }): Promise<string> => {
@@ -130,25 +130,25 @@ export const clearS3Folder = async (folder: string) => {
 };
 
 /**
- * Uploads a profile picture to Amazon S3.
+ * Uploads an image to Amazon S3.
  *
  * @param options - The options for uploading the profile picture.
- * @param options.file - The profile picture file to be uploaded.
+ * @param options.file - The picture to be uploaded.
  * @param  options.docId - The ID of the user.
- * @param options.width - The desired width of the profile picture. defaults to 100.
- * @param  options.height - The desired height of the profile picture. defaults to 100.
- * @return  The key of the uploaded profile picture.
+ * @param options.width - The desired width of the picture.
+ * @param  options.height - The desired height of the picture.
+ * @return  The key of the uploaded picture.
  * @throws If the file type is invalid.
  */
 
-export const uploadProfilePic = async ({
+export const uploadImage = async ({
   file,
-  docId,
-  width = 100,
-  height = 100,
+  folder,
+  width,
+  height,
 }: {
   file: File;
-  docId: string;
+  folder: string;
   width?: number;
   height?: number;
 }) => {
@@ -166,9 +166,6 @@ export const uploadProfilePic = async ({
   if (!ex || !acceptedEx.includes(ex)) {
     throw new AppResponse(400, "invalid file type");
   }
-
-  // folder to upload to
-  const folder = `users/${docId}/profile-pic`;
 
   // clear folder before upload
   await clearS3Folder(folder);

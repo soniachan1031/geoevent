@@ -29,7 +29,7 @@ const emailBodyTemplateContainer = ({
                     <img
                       src="${logoUrl}" 
                       alt="b-nestor logo" 
-                      title="b-nestor logo" 
+                      title="GeoEvent logo" 
                       style="display: block; margin: 0 auto;" 
                       width="250"
                       height="100"

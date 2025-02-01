@@ -8,11 +8,9 @@ const locationSchema = new Schema<TLocation>({
   },
   city: {
     type: String,
-    required: [true, "City is required"],
   },
   state: {
     type: String,
-    required: [true, "State is required"],
   },
   country: {
     type: String,
