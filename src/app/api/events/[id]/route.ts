@@ -93,7 +93,7 @@ export const DELETE = catchAsync(
   async (req, { params: { id } }: { params: { id: string } }) => {
     // guard
     const user = await guard(req);
-
+ 
     // check if event exists
     const event = await Event.findById(id);
     if (!event) {
