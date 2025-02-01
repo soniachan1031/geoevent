@@ -8,9 +8,15 @@ import { EUserRole } from "@/types/user.types";
 
 // update event
 export const PATCH = catchAsync(
-  async (req, { params: { id } }: { params: { id: string } }) => {
+  async (req, context: { params: { id: string } }) => {
     // guard
     const user = await guard(req);
+
+    // extract id
+    if (!context.params?.id) {
+      return new AppResponse(400, "id is required");
+    }
+    const { id } = context.params;
 
     // check if event exists
     const event = await Event.findById(id);
@@ -90,10 +96,16 @@ export const PATCH = catchAsync(
 
 // delete event
 export const DELETE = catchAsync(
-  async (req, { params: { id } }: { params: { id: string } }) => {
+  async (req, context: { params?: { id: string } }) => {
     // guard
     const user = await guard(req);
- 
+
+    // extract id
+    if (!context.params?.id) {
+      return new AppResponse(400, "id is required");
+    }
+    const { id } = context.params;
+
     // check if event exists
     const event = await Event.findById(id);
     if (!event) {
