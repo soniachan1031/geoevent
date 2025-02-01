@@ -142,7 +142,7 @@ export default function EventForm({ event }: Readonly<{ event?: IEvent }>) {
     try {
       setLoading(true);
       const url = event ? `api/events/${event._id}` : "api/events";
-      const method = event ? "put" : "post";
+      const method = event ? "patch" : "post";
 
       const formData = new FormData();
       formData.append("data", JSON.stringify(values));

@@ -7,7 +7,7 @@ import Event from "@/mongoose/models/Event";
 import { EUserRole } from "@/types/user.types";
 
 // update event
-export const PUT = catchAsync(
+export const PATCH = catchAsync(
   async (req, { params: { id } }: { params: { id: string } }) => {
     // guard
     const user = await guard(req);
@@ -18,7 +18,6 @@ export const PUT = catchAsync(
       return new AppResponse(404, "event not found");
     }
 
-    console.log(String(event.organizer), user._id.toString());
     // check if user is the organizer or admin
     if (
       String(event.organizer) !== user._id.toString() &&
