@@ -5,11 +5,12 @@ import { format } from "date-fns";
 
 interface EventCardProps {
   event: IEvent;
+  link: string;
 }
 
-export default function EventCard({ event }: Readonly<EventCardProps>) {
+export default function EventCard({ event, link }: Readonly<EventCardProps>) {
   return (
-    <Link href={`/my-hosted-events/${event._id}`} className="group block">
+    <Link href={link} className="group block">
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
         {/* Event Image */}
         {event.image && (

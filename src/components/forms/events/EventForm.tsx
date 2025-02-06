@@ -36,6 +36,7 @@ import LocationInput from "@/components/ui/LocationInput";
 import { TLocation } from "@/types/location.types";
 import extractDate from "@/lib/extractDate";
 import { useRouter } from "next/router";
+import { eventTimeRegex } from "@/lib/regex";
 
 const formSchema = z
   .object({
@@ -64,6 +65,7 @@ const formSchema = z
         message: "Event date must be today or in the future",
       }
     ),
+    time: z.string().regex(eventTimeRegex, "Invalid time format, e.g. 11:00"),
     registrationDeadline: z.string().optional(),
     duration: z
       .number()
@@ -121,6 +123,7 @@ export default function EventForm({ event }: Readonly<{ event?: IEvent }>) {
         lng: event?.location?.lng ?? 0,
       },
       date: event?.date ? extractDate(event?.date as string) : "",
+      time: event?.time ?? "",
       registrationDeadline: event?.registrationDeadline
         ? extractDate(event?.registrationDeadline as string)
         : "",
@@ -253,6 +256,7 @@ export default function EventForm({ event }: Readonly<{ event?: IEvent }>) {
               <FormLabel>Location</FormLabel>
               <FormControl>
                 <LocationInput
+                  name={field.name}
                   onChange={field.onChange}
                   value={field.value as TLocation}
                 />
@@ -270,6 +274,20 @@ export default function EventForm({ event }: Readonly<{ event?: IEvent }>) {
               <FormLabel>Event Date</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="time"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Event Time</FormLabel>
+              <FormControl>
+                <Input type="time" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -8,3 +8,9 @@ export type TLocation = {
   lat: number;
   lng: number;
 };
+
+export type TSearchLocation = {
+  city?: string;
+  state?: string;
+  country: string;
+};

@@ -43,7 +43,7 @@ export type TEventAgenda = {
 export type TEventContact = {
   email: string;
   phone: number;
-}
+};
 
 export interface IEvent {
   _id: string;
@@ -51,6 +51,7 @@ export interface IEvent {
   description: string;
   location: TLocation;
   date: Date | string;
+  time: string;
   duration?: number; // in minutes
   category: EEventCategory;
   format: EEventFormat;
@@ -61,4 +62,18 @@ export interface IEvent {
   agenda?: TEventAgenda[];
   contact: TEventContact;
   organizer: string | IUser;
+}
+
+export interface ISavedEvent {
+  _id: string;
+  user: string | IUser;
+  event: string | IEvent;
+  date: Date;
+}
+
+export interface IEventRegistration {
+  _id: string;
+  user: string | IUser;
+  event: string | IEvent;
+  date: Date;
 }

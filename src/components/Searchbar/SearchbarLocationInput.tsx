@@ -1,25 +1,25 @@
 import { Autocomplete, LoadScript, Libraries } from "@react-google-maps/api";
 import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
-import { TLocation } from "@/types/location.types";
 import { GOOGLE_MAPS_API_KEY } from "@/lib/credentials";
+import { TSearchLocation } from "@/types/location.types";
 
 const libraries: Libraries = ["places"];
 
-interface LocationInputProps {
-  name: string;
-  onChange: (location: TLocation) => void;
-  value?: TLocation;
+interface SearchbarLocationInputProps {
+  onChange?: (location: TSearchLocation) => void;
+  value?: TSearchLocation;
 }
 
-export default function LocationInput({
-  name,
+export default function SearchbarLocationInput({
   onChange,
   value,
-}: Readonly<LocationInputProps>) {
+}: Readonly<SearchbarLocationInputProps>) {
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
-  const [inputValue, setInputValue] = useState(value?.address ?? "");
+  const [inputValue, setInputValue] = useState(
+    value?.city ?? value?.state ?? value?.country ?? ""
+  );
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const onPlaceChanged = () => {
@@ -31,59 +31,55 @@ export default function LocationInput({
       return;
     }
 
-    // Extract address components
+    // Extract relevant location details
     const components: Record<string, string> = {};
     place.address_components.forEach((component) => {
       const type = component.types[0];
       components[type] = component.long_name;
     });
 
-    // Structure location object
-    const newLocation: TLocation = {
-      address: place.formatted_address ?? "",
+    // Structure the location object
+    const newLocation: TSearchLocation = {
       city: components.locality ?? components.sublocality ?? "",
       state: components.administrative_area_level_1 ?? "",
       country: components.country ?? "",
-      lat: place.geometry.location?.lat() ?? 0,
-      lng: place.geometry.location?.lng() ?? 0,
     };
 
-    onChange(newLocation);
-    setInputValue(newLocation.address);
+    onChange?.(newLocation);
+    setInputValue(newLocation.city ?? newLocation.state ?? newLocation.country);
   };
 
   const clearInput = () => {
     setInputValue("");
-    onChange({
-      address: "",
-      city: "",
-      state: "",
-      country: "",
-      lat: 0,
-      lng: 0,
-    });
+    onChange?.({ city: "", state: "", country: "" });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
 
-    // Reset timeout if the user keeps typing
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     timeoutRef.current = setTimeout(() => {
       if (!autocomplete?.getPlace()?.geometry) {
         clearInput();
       }
-    }, 1500); // Check after 1.5 seconds of inactivity
+    }, 1500);
   };
 
   return (
     <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={libraries}>
-      <Autocomplete onLoad={setAutocomplete} onPlaceChanged={onPlaceChanged}>
+      <Autocomplete
+        onLoad={setAutocomplete}
+        onPlaceChanged={onPlaceChanged}
+        options={{
+          types: ["(cities)"], // Prioritize city results
+        }}
+      >
         <Input
           type="text"
-          name={name}
-          placeholder="Enter event location"
+          name="location.city"
+          placeholder="Search city"
+          className="py-1 px-3 border-none"
           value={inputValue}
           onChange={handleInputChange}
           onBlur={clearInput}

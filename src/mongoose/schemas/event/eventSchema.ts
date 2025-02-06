@@ -12,6 +12,7 @@ import User from "@/mongoose/models/User";
 import eventContactSchema from "./eventContactSchema";
 import { isAfter, startOfDay } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
+import { eventTimeRegex } from "@/lib/regex";
 
 const timeZone = "UTC"; // Ensure dates are treated as UTC
 const startOfUTC = () =>
@@ -24,7 +25,6 @@ const startOfUTC = () =>
       )
     )
   );
-
 
 const eventSchema = new Schema<IEvent>(
   {
@@ -59,7 +59,14 @@ const eventSchema = new Schema<IEvent>(
         message: "Event date must be today or in the future",
       },
     },
-
+    time: {
+      type: String,
+      required: [true, "Event time is required"],
+      validate: {
+        validator: (time: string) => eventTimeRegex.test(time),
+        message: "Invalid time format",
+      },
+    },
     registrationDeadline: {
       type: Date,
       validate: {

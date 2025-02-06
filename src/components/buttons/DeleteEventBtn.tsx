@@ -51,22 +51,22 @@ const DeleteEventBtn: React.FC<{
           loading={loading}
           loaderProps={{ color: "white" }}
         >
-          Delete Event
+          Cancel Event
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the event
-            and all of its data.
+            This action cannot be undone. This will permanently cancel and
+            delete the event and all of its data.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={() => handleEventDelete()} asChild>
             <Button variant="destructive" loading={loading}>
-              Delete Event
+              Cancel Event
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

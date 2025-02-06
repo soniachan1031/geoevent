@@ -56,7 +56,7 @@ export const removeCookie = async (name: ECookieName): Promise<void> => {
  * @param {string} data - The data to be stored in the cookie.
  */
 export const setAuthCookie = async (data: string) => {
-  await setCookie(ECookieName.AUTH, data, true);
+  await setCookie(ECookieName.AUTH, data);
 };
 
 /**
