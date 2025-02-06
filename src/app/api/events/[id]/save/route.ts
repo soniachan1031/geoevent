@@ -33,9 +33,9 @@ export const POST = catchAsync(
 
 // Unsave event for user
 export const DELETE = catchAsync(
-  async (req, { params }: { params: { id: string } }) => {
+  async (req, { params }: { params: Promise<{ id: string }> }) => {
     // Extract event ID
-    const { id } = params;
+    const { id } = await params;
 
     // Authenticate user
     const user = await guard(req);

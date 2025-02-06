@@ -11,9 +11,9 @@ import EventRegistration from "@/mongoose/models/EventRegistration";
 
 // Register for an event (upsert)
 export const POST = catchAsync(
-  async (req, { params }: { params: { id: string } }) => {
+  async (req, { params }: { params: Promise<{ id: string }> }) => {
     // Extract event ID from params
-    const { id } = params;
+    const { id } = await params;
 
     // Authenticate user
     const user = await guard(req);
@@ -79,9 +79,9 @@ export const POST = catchAsync(
 
 // Unregister from an event
 export const DELETE = catchAsync(
-  async (req, { params }: { params: { id: string } }) => {
+  async (req, { params }: { params: Promise<{ id: string }> }) => {
     // Extract event ID from params
-    const { id } = params;
+    const { id } = await params;
 
     // Authenticate user
     const user = await guard(req);
