@@ -28,7 +28,7 @@ const emailBodyTemplateContainer = ({
                   <td style="text-align: center; padding-bottom: 10px;">
                     <img
                       src="${logoUrl}" 
-                      alt="b-nestor logo" 
+                      alt="GeoEvent logo" 
                       title="GeoEvent logo" 
                       style="display: block; margin: 0 auto;" 
                       width="250"
