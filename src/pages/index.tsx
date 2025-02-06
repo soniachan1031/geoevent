@@ -99,7 +99,7 @@ export default function Home() {
               dateFrom: extractDate(e.target.value),
             }))
           }
-          className="p-1"
+          className="p-1 shadow"
         />
 
         <span className="text-black">To</span>
@@ -110,7 +110,7 @@ export default function Home() {
           onChange={(e) =>
             setSearchOptions({ dateTo: extractDate(e.target.value) })
           }
-          className="p-1"
+          className="p-1 shadow"
         />
       </div>
       {loading ? (

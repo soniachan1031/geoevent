@@ -14,7 +14,7 @@ export const getSiteURL = (req: IApiRequest) => {
 };
 
 export const getLogoURL = (req: IApiRequest) => {
-  return `${getSiteURL(req)}/images/logo.svg`;
+  return `${getSiteURL(req)}/images/logo.jpg`;
 };
 
 export const getLoginURL = (req: IApiRequest) => {
