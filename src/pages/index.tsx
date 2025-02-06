@@ -35,7 +35,6 @@ export default function Home() {
     <div className="flex flex-col items-center  min-h-screen gap-5">
       <h1 className="text-3xl font-semibold">GeoEvent</h1>
       <div className="flex gap-5 items-center">
-
         <select
           value={searchOptions.category ?? ""}
           onChange={(e) =>
@@ -108,7 +107,10 @@ export default function Home() {
           type="date"
           value={searchOptions.dateTo ?? ""}
           onChange={(e) =>
-            setSearchOptions({ dateTo: extractDate(e.target.value) })
+            setSearchOptions((prev) => ({
+              ...prev,
+              dateTo: extractDate(e.target.value),
+            }))
           }
           className="p-1 shadow"
         />

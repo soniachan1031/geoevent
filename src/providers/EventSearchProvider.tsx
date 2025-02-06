@@ -38,8 +38,22 @@ function EventSearchProvider({
         setError(null);
 
         // Fetch events using searchOptions
+
+        const options = newSearchOptions ?? searchOptions;
+
+        // copy location object
+        const location = {...options.location};
+
+        // remove location from options
+        delete options.location;
+
+        // flatten and merge location with options
+        const modifiedOptions = {
+          ...options,
+          ...location,
+        };
         const res = await axiosInstance().get("api/events", {
-          params: newSearchOptions ?? searchOptions,
+          params: modifiedOptions,
         });
 
         const { docs, pagination } = (await res.data.data) as {
