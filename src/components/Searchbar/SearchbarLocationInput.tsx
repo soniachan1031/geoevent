@@ -1,4 +1,4 @@
-import { Autocomplete, LoadScript, Libraries } from "@react-google-maps/api";
+import { Autocomplete, Libraries, useLoadScript } from "@react-google-maps/api";
 import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { GOOGLE_MAPS_API_KEY } from "@/lib/credentials";
@@ -15,6 +15,11 @@ export default function SearchbarLocationInput({
   onChange,
   value,
 }: Readonly<SearchbarLocationInputProps>) {
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
+
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
   const [inputValue, setInputValue] = useState(
@@ -22,6 +27,7 @@ export default function SearchbarLocationInput({
   );
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Function to handle place selection
   const onPlaceChanged = () => {
     if (!autocomplete) return;
 
@@ -66,25 +72,37 @@ export default function SearchbarLocationInput({
     }, 1500);
   };
 
+  // Prevent rendering if the Google Maps API failed to load
+  if (loadError) {
+    console.error("Google Maps API failed to load:", loadError);
+    return (
+      <Input type="text" placeholder="Location search unavailable" disabled />
+    );
+  }
+
   return (
-    <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={libraries}>
-      <Autocomplete
-        onLoad={setAutocomplete}
-        onPlaceChanged={onPlaceChanged}
-        options={{
-          types: ["(cities)"], // Prioritize city results
-        }}
-      >
-        <Input
-          type="text"
-          name="location.city"
-          placeholder="Search city"
-          className="py-1 px-3 border-none"
-          value={inputValue}
-          onChange={handleInputChange}
-          onBlur={clearInput}
-        />
-      </Autocomplete>
-    </LoadScript>
+    <div>
+      {isLoaded ? (
+        <Autocomplete
+          onLoad={setAutocomplete}
+          onPlaceChanged={onPlaceChanged}
+          options={{
+            types: ["(cities)"], // Prioritize city results
+          }}
+        >
+          <Input
+            type="text"
+            name="location.city"
+            placeholder="Search city"
+            className="py-1 px-3 border-none"
+            value={inputValue}
+            onChange={handleInputChange}
+            onBlur={clearInput}
+          />
+        </Autocomplete>
+      ) : (
+        <Input type="text" placeholder="Loading location search..." disabled />
+      )}
+    </div>
   );
 }
