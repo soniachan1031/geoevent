@@ -9,6 +9,7 @@ import { MAIL_SMTP_PASSWORD, MAIL_SMTP_USERNAME } from "@/lib/credentials";
 import eventSuccessTemplate from "@/lib/server/email/templates/eventSuccessTemplate";
 import { getSiteURL } from "@/lib/server/urlGenerator";
 import { TEventSearchPagination } from "@/context/EventSearchContext";
+import connectDB from "@/lib/server/connectDB";
 
 // create event
 export const POST = catchAsync(async (req) => {
@@ -130,6 +131,9 @@ export const GET = catchAsync(async (req) => {
   if (category) filters.category = category;
   if (format) filters.format = format;
   if (language) filters.language = language;
+
+  // connect database
+  await connectDB();
 
   // Count total matching events (for pagination)
   const total = await Event.countDocuments(filters);
