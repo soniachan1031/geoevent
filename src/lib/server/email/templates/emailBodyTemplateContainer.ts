@@ -31,8 +31,8 @@ const emailBodyTemplateContainer = ({
                       alt="GeoEvent logo" 
                       title="GeoEvent logo" 
                       style="display: block; margin: 0 auto;" 
-                      width="250"
-                      height="392"
+                      width="127"
+                      height="200"
                     />
                   </td>
                 </tr>
