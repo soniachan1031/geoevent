@@ -156,7 +156,7 @@ export default function EventPage({
       {/* Buttons: Save & Register */}
       <div className="flex gap-5 items-center mt-6">
         <Button
-          variant="secondary"
+          variant="outline"
           onClick={handleBookMark}
           loading={bookMarkEventLoading}
         >
