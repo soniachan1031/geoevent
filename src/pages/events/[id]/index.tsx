@@ -4,16 +4,7 @@ import stringifyAndParse from "@/lib/stringifyAndParse";
 import Event from "@/mongoose/models/Event";
 import { IEvent } from "@/types/event.types";
 import { GetServerSideProps } from "next";
-import {
-  Calendar,
-  Clock,
-  MapPin,
-  User,
-  Phone,
-  Mail,
-  BookmarkCheck,
-  Bookmark,
-} from "lucide-react";
+import { Calendar, Clock, MapPin, User, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
@@ -36,37 +27,12 @@ type EventPageProps = {
 
 export default function EventPage({
   event,
-  saved: savedEvent = false,
   registered: registeredEvent = false,
 }: Readonly<EventPageProps>) {
   const router = useRouter();
   const { user } = useAuthContext();
-  const [saved, setSaved] = useState(savedEvent);
   const [registered, setRegistered] = useState(registeredEvent);
-  const [saveEventLoading, setSaveEventLoading] = useState(false);
   const [registerEventLoading, setRegisterEventLoading] = useState(false);
-
-  const handleSaveEvent = async () => {
-    try {
-      if (!user) return router.push("/login");
-      setSaveEventLoading(true);
-
-      // save or unsave event for user
-      if (saved) {
-        await axiosInstance().delete(`api/events/${event._id}/save`);
-        setSaved(false);
-        toast.success("Event unsaved successfully");
-      } else {
-        await axiosInstance().post(`api/events/${event._id}/save`);
-        setSaved(true);
-        toast.success("Event saved successfully");
-      }
-      setSaveEventLoading(false);
-    } catch (error: any) {
-      setSaveEventLoading(false);
-      toast.error(getErrorMsg(error));
-    }
-  };
 
   const handleRegister = async () => {
     try {
@@ -185,24 +151,10 @@ export default function EventPage({
           : event.organizer) && (
         <div className="flex gap-4 mt-6">
           <Button
-            loading={saveEventLoading}
-            variant={saved ? "secondary" : "outline"}
-            onClick={handleSaveEvent}
-            className="flex items-center gap-2"
-          >
-            {saved ? (
-              <BookmarkCheck className="w-5 h-5" />
-            ) : (
-              <Bookmark className="w-5 h-5" />
-            )}
-            {saved ? "Saved" : "Save Event"}
-          </Button>
-
-          <Button
             variant={registered ? "destructive" : "default"}
             loading={registerEventLoading}
             onClick={handleRegister}
-            loaderProps={{color: "white"}}
+            loaderProps={{ color: "white" }}
           >
             {registered ? "Unregister" : "Register"}
           </Button>
