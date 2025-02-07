@@ -28,21 +28,21 @@ function EventSearchProvider({
   const searchEvents: TEventSearchContext["searchEvents"] = useCallback(
     async (newSearchOptions) => {
       try {
+        // Set loading and error to null
+        setLoading(true);
+        setError(null);
+
         // navigate to homepage if not already there
         if (router.pathname !== "/") {
           await router.push("/");
         }
-
-        // Set loading and error to null
-        setLoading(true);
-        setError(null);
 
         // Fetch events using searchOptions
 
         const options = newSearchOptions ?? searchOptions;
 
         // copy location object
-        const location = {...options.location};
+        const location = { ...options.location };
 
         // remove location from options
         delete options.location;
@@ -52,6 +52,8 @@ function EventSearchProvider({
           ...options,
           ...location,
         };
+
+        // Fetch events
         const res = await axiosInstance().get("api/events", {
           params: modifiedOptions,
         });
@@ -61,9 +63,9 @@ function EventSearchProvider({
           pagination: TEventSearchPagination;
         };
 
+        // Set events and pagination
         setEvents(docs);
         setPagination(pagination);
-        // Set events
       } catch (error) {
         setError(getErrorMsg(error));
         toast.error(getErrorMsg(error));
