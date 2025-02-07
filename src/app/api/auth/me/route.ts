@@ -60,3 +60,13 @@ export const PATCH = catchAsync(async (req) => {
   // send response
   return new AppResponse(200, "profile updated", { doc: updatedUser });
 });
+
+// delete user
+export const DELETE = catchAsync(async (req) => {
+  // guard
+  const user = await guard(req);
+  // delete user
+  await User.findByIdAndDelete(user._id);
+  // send response
+  return new AppResponse(200, "user deleted");
+});
