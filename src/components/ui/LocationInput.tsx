@@ -1,4 +1,4 @@
-import { Autocomplete, LoadScript, Libraries } from "@react-google-maps/api";
+import { Autocomplete, Libraries, useLoadScript } from "@react-google-maps/api";
 import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { TLocation } from "@/types/location.types";
@@ -17,11 +17,17 @@ export default function LocationInput({
   onChange,
   value,
 }: Readonly<LocationInputProps>) {
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
+
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
   const [inputValue, setInputValue] = useState(value?.address ?? "");
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Handle Place Selection
   const onPlaceChanged = () => {
     if (!autocomplete) return;
 
@@ -52,6 +58,7 @@ export default function LocationInput({
     setInputValue(newLocation.address);
   };
 
+  // Clears input if no valid place is selected
   const clearInput = () => {
     setInputValue("");
     onChange({
@@ -64,31 +71,43 @@ export default function LocationInput({
     });
   };
 
+  // Handle manual input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
 
-    // Reset timeout if the user keeps typing
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     timeoutRef.current = setTimeout(() => {
       if (!autocomplete?.getPlace()?.geometry) {
         clearInput();
       }
-    }, 1500); // Check after 1.5 seconds of inactivity
+    }, 1500); // Clear input if no selection after 1.5 seconds
   };
 
+  // Prevent rendering if Google Maps API failed to load
+  if (loadError) {
+    console.error("Google Maps API failed to load:", loadError);
+    return (
+      <Input type="text" placeholder="Location search unavailable" disabled />
+    );
+  }
+
   return (
-    <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={libraries}>
-      <Autocomplete onLoad={setAutocomplete} onPlaceChanged={onPlaceChanged}>
-        <Input
-          type="text"
-          name={name}
-          placeholder="Enter event location"
-          value={inputValue}
-          onChange={handleInputChange}
-          onBlur={clearInput}
-        />
-      </Autocomplete>
-    </LoadScript>
+    <div>
+      {isLoaded ? (
+        <Autocomplete onLoad={setAutocomplete} onPlaceChanged={onPlaceChanged}>
+          <Input
+            type="text"
+            name={name}
+            placeholder="Enter event location"
+            value={inputValue}
+            onChange={handleInputChange}
+            onBlur={clearInput}
+          />
+        </Autocomplete>
+      ) : (
+        <Input type="text" placeholder="Loading location search..." disabled />
+      )}
+    </div>
   );
 }

@@ -19,6 +19,7 @@ export default function EventCard({ event, link }: Readonly<EventCardProps>) {
             alt={event.title}
             width={300}
             height={300}
+            priority={false}
             className="object-cover group-hover:opacity-90"
           />
         )}
