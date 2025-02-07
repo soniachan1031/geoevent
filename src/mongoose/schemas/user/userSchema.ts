@@ -59,6 +59,7 @@ const userSchema = new Schema<IUser>(
     },
     bio: { type: String },
     disabled: { type: Boolean, default: false },
+    subscribeToEmails: { type: Boolean, default: false },
   },
   defaultSchemaOptions
 );

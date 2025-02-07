@@ -32,6 +32,7 @@ export interface IUser {
   photo?: IUserPhoto;
   bio?: string;
   disabled?: boolean;
+  subscribeToEmails: boolean;
 }
 
 // interface of user document from mongoose
