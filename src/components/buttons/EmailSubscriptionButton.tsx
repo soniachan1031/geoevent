@@ -29,8 +29,9 @@ export default function EmailSubscriptionButton({
 
       // update user in context
       setUser(doc);
-
       setLoading(false);
+
+      toast.success(res.data.message ?? "Preferences updated successfully");
     } catch (error: any) {
       // handle error
       setLoading(false);
