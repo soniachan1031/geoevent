@@ -4,6 +4,10 @@ import { guard } from "@/lib/server/middleware/guard";
 import AppResponse from "@/lib/server/AppResponse";
 import { uploadImage } from "@/lib/server/s3UploadHandler";
 import { IUser } from "@/types/user.types";
+import sendMail from "@/lib/server/email/sendMail";
+import { MAIL_SMTP_PASSWORD, MAIL_SMTP_USERNAME } from "@/lib/credentials";
+import deleteProfileTemplate from "@/lib/server/email/templates/deleteProfileTemplate";
+import AppError from "@/lib/server/AppError";
 
 // get user
 export const GET = catchAsync(async (req) => {
@@ -66,7 +70,24 @@ export const DELETE = catchAsync(async (req) => {
   // guard
   const user = await guard(req);
   // delete user
-  await User.findByIdAndDelete(user._id);
+  const deletedUser = await User.findByIdAndDelete(user._id);
+
+  if (!deletedUser) throw new AppError(500, "user not deleted");
+
+  // send confirmation email
+  try {
+    await sendMail({
+      smtpUserName: MAIL_SMTP_USERNAME,
+      smtpPassword: MAIL_SMTP_PASSWORD,
+      to: user.email,
+      subject: "Profile Deleted",
+      html: deleteProfileTemplate({
+        user,
+        req,
+      }),
+    });
+  } catch {}
+
   // send response
   return new AppResponse(200, "user deleted");
 });
