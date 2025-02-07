@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function Register() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-5 p-5">
-      <Image alt="logo" src="/logo.svg" width={70} height={70} />
+      <Image alt="logo" src="/logo.png" width={70} height={70} />
       <h1 className="text-3xl">Register</h1>
       <RegisterForm />
       <p>

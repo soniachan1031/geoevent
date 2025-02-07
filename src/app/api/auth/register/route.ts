@@ -7,6 +7,9 @@ import AppResponse from "@/lib/server/AppResponse";
 import { parseJson } from "@/lib/server/reqParser";
 import { setAuthCookie } from "@/lib/server/cookieHandler";
 import { EUserRole, IUser } from "@/types/user.types";
+import sendMail from "@/lib/server/email/sendMail";
+import { MAIL_SMTP_PASSWORD, MAIL_SMTP_USERNAME } from "@/lib/credentials";
+import registrationSuccessTemplate from "@/lib/server/email/templates/registrationSuccessTemplate";
 
 // register user
 export const POST = catchAsync(async (req) => {
@@ -30,7 +33,12 @@ export const POST = catchAsync(async (req) => {
   if (user) throw new AppError(404, "user with email already exists");
 
   // // create user
-  const newUser = await User.create({ name, email, password, role: EUserRole.USER });
+  const newUser = await User.create({
+    name,
+    email,
+    password,
+    role: EUserRole.USER,
+  });
 
   // // set auth cookie with user's id
   await setAuthCookie(newUser._id.toString());
@@ -39,6 +47,20 @@ export const POST = catchAsync(async (req) => {
   const userData: IUser = newUser;
   userData.password = undefined;
 
+  // send confirmation email
+  try {
+    await sendMail({
+      smtpUserName: MAIL_SMTP_USERNAME,
+      smtpPassword: MAIL_SMTP_PASSWORD,
+      to: email,
+      subject: "Registration Successful",
+      html: registrationSuccessTemplate({
+        user: userData,
+        req,
+      }),
+    });
+  } catch {}
+
   // // send response
-  return new AppResponse(200, "login successful", { doc: userData });
+  return new AppResponse(200, "registration successful", { doc: userData });
 });

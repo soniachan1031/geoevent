@@ -11,7 +11,7 @@ const Logo: FC<LogoProps> = ({ className, height = 50, width = 50 }) => {
   return (
     <Image
       className={className}
-      src="/logo.svg"
+      src="/logo.png"
       alt="logo"
       width={height}
       height={width}

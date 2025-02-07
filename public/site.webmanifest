@@ -3,12 +3,12 @@
   "short_name": "GeoEvent",
   "icons": [
     {
-      "src": "logo.jpg",
+      "src": "logo.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "logo.svg",
+      "src": "logo.png",
       "sizes": "512x512",
       "type": "image/jpg"
     }
