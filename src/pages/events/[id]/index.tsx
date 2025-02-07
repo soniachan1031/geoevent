@@ -4,7 +4,16 @@ import stringifyAndParse from "@/lib/stringifyAndParse";
 import Event from "@/mongoose/models/Event";
 import { IEvent } from "@/types/event.types";
 import { GetServerSideProps } from "next";
-import { Calendar, Clock, MapPin, User, Phone, Mail } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  User,
+  Phone,
+  Mail,
+  Bookmark,
+  BookmarkCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
@@ -27,12 +36,37 @@ type EventPageProps = {
 
 export default function EventPage({
   event,
+  saved: savedEvent = false,
   registered: registeredEvent = false,
 }: Readonly<EventPageProps>) {
   const router = useRouter();
   const { user } = useAuthContext();
+  const [bookMarked, setBookMarked] = useState(savedEvent);
+  const [bookMarkEventLoading, setBookMarkEventLoading] = useState(false);
   const [registered, setRegistered] = useState(registeredEvent);
   const [registerEventLoading, setRegisterEventLoading] = useState(false);
+
+  const handleBookMark = async () => {
+    try {
+      if (!user) return router.push("/login");
+      setBookMarkEventLoading(true);
+
+      if (bookMarked) {
+        await axiosInstance().delete(`api/events/${event._id}/save`);
+        setBookMarked(false);
+        toast.success("Unsaved successfully");
+      } else {
+        await axiosInstance().post(`api/events/${event._id}/save`);
+        setBookMarked(true);
+        toast.success("Saved successfully");
+      }
+
+      setBookMarkEventLoading(false);
+    } catch (error: any) {
+      setBookMarkEventLoading(false);
+      toast.error(getErrorMsg(error));
+    }
+  };
 
   const handleRegister = async () => {
     try {
@@ -145,11 +179,29 @@ export default function EventPage({
       </div>
 
       {/* Buttons: Save & Register */}
-      {user?._id !==
-        (typeof event.organizer === "object"
-          ? event.organizer._id
-          : event.organizer) && (
-        <div className="flex gap-4 mt-6">
+      <div className="flex gap-5 items-center mt-6">
+        <Button
+          variant="secondary"
+          onClick={handleBookMark}
+          loading={bookMarkEventLoading}
+        >
+          {bookMarked ? (
+            <>
+              <BookmarkCheck className="w-5 h-5" />
+              <span>BookMarked</span>
+            </>
+          ) : (
+            <>
+              <Bookmark className="w-5 h-5" />
+              <span>BookMark</span>
+            </>
+          )}
+        </Button>
+
+        {user?._id !==
+          (typeof event.organizer === "object"
+            ? event.organizer._id
+            : event.organizer) && (
           <Button
             variant={registered ? "destructive" : "default"}
             loading={registerEventLoading}
@@ -158,8 +210,8 @@ export default function EventPage({
           >
             {registered ? "Unregister" : "Register"}
           </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Event Description */}
       <div className="mt-6">
