@@ -1,10 +1,8 @@
-import { Autocomplete, Libraries, useLoadScript } from "@react-google-maps/api";
+import { Autocomplete } from "@react-google-maps/api";
 import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { TLocation } from "@/types/location.types";
-import { GOOGLE_MAPS_API_KEY } from "@/lib/credentials";
-
-const libraries: Libraries = ["places"];
+import { useGoogleMapsContext } from "@/providers/GoogleMapsProvider";
 
 interface LocationInputProps {
   name: string;
@@ -17,10 +15,7 @@ export default function LocationInput({
   onChange,
   value,
 }: Readonly<LocationInputProps>) {
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-    libraries,
-  });
+  const { isLoaded, loadError } = useGoogleMapsContext();
 
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);

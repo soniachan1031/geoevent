@@ -26,13 +26,14 @@ export default function Home() {
     searchEvents,
   } = useEventSearchContext();
 
+  // When the page changes
   const handlePageChange = (page: number) => {
     const newSearchOptions = { ...searchOptions, page };
     searchEvents(newSearchOptions);
   };
 
   return (
-    <div className="flex flex-col items-center  min-h-screen gap-5">
+    <div className="flex flex-col items-center min-h-screen gap-5 w-full">
       <h1 className="text-3xl font-semibold">GeoEvent</h1>
       <div className="flex gap-5 items-center">
         <select

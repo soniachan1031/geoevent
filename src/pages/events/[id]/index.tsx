@@ -27,16 +27,31 @@ import { ECookieName } from "@/types/api.types";
 import SavedEvent from "@/mongoose/models/SavedEvent";
 import EventRegistration from "@/mongoose/models/EventRegistration";
 
+// 1. Import from 'react-share':
+import {
+  FacebookShareButton,
+  TwitterShareButton,
+  LinkedinShareButton,
+  WhatsappShareButton,
+  FacebookIcon,
+  TwitterIcon,
+  LinkedinIcon,
+  WhatsappIcon,
+} from "react-share";
+import { getServerSidePropsFullUrl } from "@/lib/server/urlGenerator";
+
 type EventPageProps = {
   event: IEvent;
   user: any;
   saved: boolean;
   registered: boolean;
+  shareUrl: string;
 };
 
 export default function EventPage({
   event,
   saved: savedEvent = false,
+  shareUrl,
 }: Readonly<EventPageProps>) {
   const router = useRouter();
   const { user } = useAuthContext();
@@ -174,6 +189,29 @@ export default function EventPage({
         </Button>
       </div>
 
+      {/* Social Share Buttons */}
+      <div className="flex items-center gap-3 mt-6">
+        <FacebookShareButton url={shareUrl} title={event.title}>
+          <FacebookIcon size={32} round />
+        </FacebookShareButton>
+
+        <TwitterShareButton url={shareUrl} title={event.title}>
+          <TwitterIcon size={32} round />
+        </TwitterShareButton>
+
+        <LinkedinShareButton
+          url={shareUrl}
+          title={event.title}
+          summary={event.description}
+        >
+          <LinkedinIcon size={32} round />
+        </LinkedinShareButton>
+
+        <WhatsappShareButton url={shareUrl} title={event.title}>
+          <WhatsappIcon size={32} round />
+        </WhatsappShareButton>
+      </div>
+
       {/* Event Description */}
       <div className="mt-6">
         <h2 className="text-xl font-semibold">Event Description</h2>
@@ -227,12 +265,14 @@ export const getServerSideProps: GetServerSideProps = async ({
     event: event._id,
   }).select("_id");
 
+  const shareUrl = getServerSidePropsFullUrl(req);
   return {
     props: {
       user: stringifyAndParse(user),
       event: stringifyAndParse(event),
       saved: !!savedEvent,
       registered: !!registeredEvent,
+      shareUrl,
     },
   };
 };

@@ -6,23 +6,30 @@ import { format } from "date-fns";
 interface EventCardProps {
   event: IEvent;
   link: string;
+  horizontal?: boolean;
 }
 
-export default function EventCard({ event, link }: Readonly<EventCardProps>) {
+export default function EventCard({
+  event,
+  link,
+  horizontal,
+}: Readonly<EventCardProps>) {
   return (
-    <Link href={link} className="group block">
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+    <Link href={link} className="group block w-full">
+      <div
+        className={`bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 flex ${
+          horizontal ? "flex-row" : "flex-col"
+        }`}
+      >
         {/* Event Image */}
-        {event.image && (
-          <Image
-            src={event.image}
-            alt={event.title}
-            width={300}
-            height={300}
-            priority={false}
-            className="object-cover group-hover:opacity-90"
-          />
-        )}
+        <Image
+          src={event.image ?? "/logo.png"}
+          alt={event.title}
+          width={horizontal ? 150 : 300}
+          height={horizontal ? 150 : 300}
+          priority={false}
+          className="object-cover group-hover:opacity-90 w-auto h-auto"
+        />
 
         {/* Event Details */}
         <div className="p-4">

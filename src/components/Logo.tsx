@@ -7,7 +7,7 @@ type LogoProps = {
   height?: number;
 };
 
-const Logo: FC<LogoProps> = ({ className, height = 50, width = 50 }) => {
+const Logo: FC<LogoProps> = ({ className = "w-auto h-auto", height = 50, width = 50 }) => {
   return (
     <Image
       className={className}
