@@ -27,18 +27,9 @@ import { ECookieName } from "@/types/api.types";
 import SavedEvent from "@/mongoose/models/SavedEvent";
 import EventRegistration from "@/mongoose/models/EventRegistration";
 
-// 1. Import from 'react-share':
-import {
-  FacebookShareButton,
-  TwitterShareButton,
-  LinkedinShareButton,
-  WhatsappShareButton,
-  FacebookIcon,
-  TwitterIcon,
-  LinkedinIcon,
-  WhatsappIcon,
-} from "react-share";
 import { getServerSidePropsFullUrl } from "@/lib/server/urlGenerator";
+import DirectionsBtn from "@/components/buttons/DirectionsBtn";
+import SocialShareBtn from "@/components/buttons/SocialShareBtn";
 
 type EventPageProps = {
   event: IEvent;
@@ -176,40 +167,23 @@ export default function EventPage({
           loading={bookMarkEventLoading}
         >
           {bookMarked ? (
-            <>
+            <div className="flex items-center gap-2">
               <BookmarkCheck className="w-5 h-5" />
               <span>BookMarked</span>
-            </>
+            </div>
           ) : (
-            <>
+            <div className="flex items-center gap-2">
               <Bookmark className="w-5 h-5" />
               <span>BookMark</span>
-            </>
+            </div>
           )}
         </Button>
-      </div>
 
-      {/* Social Share Buttons */}
-      <div className="flex items-center gap-3 mt-6">
-        <FacebookShareButton url={shareUrl} title={event.title}>
-          <FacebookIcon size={32} round />
-        </FacebookShareButton>
+        {/* Social Share Buttons */}
+        <SocialShareBtn shareUrl={shareUrl} event={event} />
 
-        <TwitterShareButton url={shareUrl} title={event.title}>
-          <TwitterIcon size={32} round />
-        </TwitterShareButton>
-
-        <LinkedinShareButton
-          url={shareUrl}
-          title={event.title}
-          summary={event.description}
-        >
-          <LinkedinIcon size={32} round />
-        </LinkedinShareButton>
-
-        <WhatsappShareButton url={shareUrl} title={event.title}>
-          <WhatsappIcon size={32} round />
-        </WhatsappShareButton>
+        {/* Google maps direction */}
+        <DirectionsBtn location={event.location} />
       </div>
 
       {/* Event Description */}

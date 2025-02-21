@@ -77,3 +77,12 @@ export interface IEventRegistration {
   event: string | IEvent;
   date: Date;
 }
+
+export interface IEventFeedback {
+  _id: string;
+  user: string | IUser;
+  event: string | IEvent;
+  date: Date;
+  rating: number;
+  review: string;
+}

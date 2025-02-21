@@ -24,7 +24,7 @@ export const PATCH = catchAsync(
 
     // check if user is the organizer or admin
     if (
-      String(event.organizer) !== user._id.toString() &&
+      event.organizer !== user._id.toString() &&
       user.role !== EUserRole.ADMIN
     ) {
       throw new AppError(403, "forbidden");
@@ -111,7 +111,7 @@ export const DELETE = catchAsync(
 
     // check if user is the organizer or admin
     if (
-      String(event.organizer) !== user._id.toString() &&
+      event.organizer !== user._id.toString() &&
       user.role !== EUserRole.ADMIN
     ) {
       throw new AppError(403, "forbidden");
