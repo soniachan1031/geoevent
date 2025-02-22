@@ -1,6 +1,7 @@
 import AppError from "@/lib/server/AppError";
 import AppResponse from "@/lib/server/AppResponse";
 import catchAsync from "@/lib/server/catchAsync";
+import connectDB from "@/lib/server/connectDB";
 import { guard } from "@/lib/server/middleware/guard";
 import { parseJson } from "@/lib/server/reqParser";
 import Event from "@/mongoose/models/Event";
@@ -68,12 +69,13 @@ export const GET = catchAsync(
     // extract id
     const { id } = await params;
 
-    // guard
-    await guard(req);
+    await connectDB();
 
     // get feedback
     const feedback = await EventFeedback.find({ event: id }).populate(
-      "user", "name photo");
+      "user",
+      "name photo"
+    );
 
     return new AppResponse(200, "feedbacks retrieved", { docs: feedback });
   }
