@@ -30,6 +30,8 @@ import EventRegistration from "@/mongoose/models/EventRegistration";
 import { getServerSidePropsFullUrl } from "@/lib/server/urlGenerator";
 import DirectionsBtn from "@/components/buttons/DirectionsBtn";
 import SocialShareBtn from "@/components/buttons/SocialShareBtn";
+import EventFeedbackSection from "@/components/EventFeedbackSection";
+import FeedbackBtn from "@/components/buttons/FeedbackBtn";
 
 type EventPageProps = {
   event: IEvent;
@@ -43,11 +45,20 @@ export default function EventPage({
   event,
   saved: savedEvent = false,
   shareUrl,
+  registered: registeredEvent = false,
 }: Readonly<EventPageProps>) {
   const router = useRouter();
   const { user } = useAuthContext();
   const [bookMarked, setBookMarked] = useState(savedEvent);
   const [bookMarkEventLoading, setBookMarkEventLoading] = useState(false);
+  const [registered, setRegistered] = useState(registeredEvent);
+  const [registerEventLoading, setRegisterEventLoading] = useState(false);
+
+  const allowFeedback =
+    user &&
+    user._id !== event.organizer &&
+    registered &&
+    new Date(event.date) < new Date();
 
   const handleBookMark = async () => {
     try {
@@ -67,6 +78,28 @@ export default function EventPage({
       setBookMarkEventLoading(false);
     } catch (error: any) {
       setBookMarkEventLoading(false);
+      toast.error(getErrorMsg(error));
+    }
+  };
+
+  const handleRegister = async () => {
+    try {
+      if (!user) return router.push("/login");
+      setRegisterEventLoading(true);
+
+      if (registered) {
+        await axiosInstance().delete(`api/events/${event._id}/register`);
+        setRegistered(false);
+        toast.success("Unregistered successfully");
+      } else {
+        await axiosInstance().post(`api/events/${event._id}/register`);
+        setRegistered(true);
+        toast.success("Registered successfully");
+      }
+
+      setRegisterEventLoading(false);
+    } catch (error: any) {
+      setRegisterEventLoading(false);
       toast.error(getErrorMsg(error));
     }
   };
@@ -179,6 +212,21 @@ export default function EventPage({
           )}
         </Button>
 
+        {/* Buttons: register, unregister */}
+        {user?._id !==
+          (typeof event.organizer === "object"
+            ? event.organizer._id
+            : event.organizer) && (
+          <Button
+            variant={registered ? "destructive" : "default"}
+            loading={registerEventLoading}
+            onClick={handleRegister}
+            loaderProps={{ color: "white" }}
+          >
+            {registered ? "Unregister" : "Register"}
+          </Button>
+        )}
+
         {/* Social Share Buttons */}
         <SocialShareBtn shareUrl={shareUrl} event={event} />
 
@@ -208,6 +256,12 @@ export default function EventPage({
           </div>
         </div>
       </div>
+
+      {/* feedback section */}
+      <div className="my-6">
+        {allowFeedback && <FeedbackBtn eventId={event._id} />}
+      </div>
+      <EventFeedbackSection eventId={event._id} />
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { useAuthContext } from "@/context/AuthContext";
 import { FaUserCircle } from "react-icons/fa";
 import Link from "next/link";
 import LogoutBtn from "./buttons/LogoutBtn";
+import { EUserRole } from "@/types/user.types";
 
 export default function ProfileDropdown() {
   const { user } = useAuthContext();
@@ -28,6 +29,11 @@ export default function ProfileDropdown() {
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {user?.role === EUserRole.ADMIN && (
+          <DropdownMenuItem>
+            <Link href="/admin">Admin Dashboard</Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem>
           <Link href="/profile">Profile</Link>
         </DropdownMenuItem>
@@ -36,6 +42,9 @@ export default function ProfileDropdown() {
         </DropdownMenuItem>
         <DropdownMenuItem>
           <Link href="/my-saved-events">Saved Events</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <Link href="/my-registered-events">Registered Events</Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={(e) => e.preventDefault()}>
           <Link href="/my-preferences">Preferences</Link>

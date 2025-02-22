@@ -25,7 +25,6 @@ export const getServerSidePropsSiteUrl = (
 
   // Construct the main URL
   const mainUrl = `${protocol}://${host}`;
-
   return mainUrl;
 };
 

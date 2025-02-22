@@ -1,5 +1,5 @@
 import type { AppProps } from "next/app";
-import "@/styles/globals.css";
+import "@/app/globals.css";
 import ToastComponent from "@/components/ToastComponent";
 import Layout from "@/components/layouts/Layout";
 import AuthProvider from "@/providers/AuthProvider";

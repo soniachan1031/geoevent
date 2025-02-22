@@ -4,7 +4,8 @@ import catchAsync from "@/lib/server/catchAsync";
 import { guard } from "@/lib/server/middleware/guard";
 import { parseJson } from "@/lib/server/reqParser";
 import Event from "@/mongoose/models/Event";
-import SavedEvent from "@/mongoose/models/SavedEvent";
+import EventFeedback from "@/mongoose/models/EventFeedback";
+import EventRegistration from "@/mongoose/models/EventRegistration";
 
 // leave feedback for event
 export const POST = catchAsync(
@@ -26,8 +27,21 @@ export const POST = catchAsync(
       throw new AppError(400, "event is closed for feedback");
     }
 
+    // check if user registered for event
+    const registeredEvent = await EventRegistration.findOne({
+      event: id,
+      user: user._id,
+    });
+
+    if (!registeredEvent) {
+      throw new AppError(400, "not registered for event yet");
+    }
+
     // check if user has already left feedback
-    const savedEvent = await SavedEvent.findOne({ event: id, user: user._id });
+    const savedEvent = await EventFeedback.findOne({
+      event: id,
+      user: user._id,
+    });
 
     if (savedEvent) {
       throw new AppError(400, "feedback already left");
@@ -37,7 +51,7 @@ export const POST = catchAsync(
     const { rating, review } = await parseJson(req);
 
     // save feedback
-    const feedback = new SavedEvent({
+    const feedback = await EventFeedback.create({
       event: id,
       user: user._id,
       rating,
@@ -45,5 +59,22 @@ export const POST = catchAsync(
     });
 
     return new AppResponse(200, "feedback saved", { doc: feedback });
+  }
+);
+
+// retrieve feedbacks for event
+export const GET = catchAsync(
+  async (req, { params }: { params: Promise<{ id: string }> }) => {
+    // extract id
+    const { id } = await params;
+
+    // guard
+    await guard(req);
+
+    // get feedback
+    const feedback = await EventFeedback.find({ event: id }).populate(
+      "user", "name photo");
+
+    return new AppResponse(200, "feedbacks retrieved", { docs: feedback });
   }
 );

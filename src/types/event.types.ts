@@ -86,3 +86,9 @@ export interface IEventFeedback {
   rating: number;
   review: string;
 }
+
+export interface IEventViews {
+  _id: string;
+  event: string | IEvent;
+  views: number;
+}
