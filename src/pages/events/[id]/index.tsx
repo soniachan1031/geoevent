@@ -53,12 +53,14 @@ export default function EventPage({
   const [bookMarkEventLoading, setBookMarkEventLoading] = useState(false);
   const [registered, setRegistered] = useState(registeredEvent);
   const [registerEventLoading, setRegisterEventLoading] = useState(false);
+  const [feedbackLeft, setFeedbackLeft] = useState(false);
 
   const allowFeedback =
     user &&
     user._id !== event.organizer &&
     registered &&
-    new Date(event.date) < new Date();
+    new Date(event.date) < new Date() &&
+    !feedbackLeft;
 
   const handleBookMark = async () => {
     try {
@@ -267,7 +269,12 @@ export default function EventPage({
 
       {/* feedback section */}
       <div className="my-6">
-        {allowFeedback && <FeedbackBtn eventId={event._id} />}
+        {allowFeedback && (
+          <FeedbackBtn
+            eventId={event._id}
+            onSuccess={() => setFeedbackLeft(true)}
+          />
+        )}
       </div>
       <EventFeedbackSection eventId={event._id} />
     </div>
