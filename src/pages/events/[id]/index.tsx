@@ -15,7 +15,7 @@ import {
   BookmarkCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import getErrorMsg from "@/lib/getErrorMsg";
@@ -103,6 +103,13 @@ export default function EventPage({
       toast.error(getErrorMsg(error));
     }
   };
+
+  useEffect(() => {
+    // add view to event
+    axiosInstance()
+      .post(`api/events/${event._id}/views`)
+      .catch(() => null);
+  }, [event._id]);
 
   return (
     <div className="flex flex-col min-h-screen p-5 max-w-4xl mx-auto">

@@ -8,8 +8,9 @@ import sendMail from "@/lib/server/email/sendMail";
 import { MAIL_SMTP_PASSWORD, MAIL_SMTP_USERNAME } from "@/lib/credentials";
 import eventSuccessTemplate from "@/lib/server/email/templates/eventSuccessTemplate";
 import { getSiteURL } from "@/lib/server/urlGenerator";
-import { TEventSearchPagination } from "@/context/EventSearchContext";
 import connectDB from "@/lib/server/connectDB";
+import { TPagination } from "@/types/api.types";
+import { Types } from "mongoose";
 
 // create event
 export const POST = catchAsync(async (req) => {
@@ -107,12 +108,15 @@ export const GET = catchAsync(async (req) => {
   // Build filter object
   const filters: Record<string, any> = {};
 
-  // Search by title or description
+  // Search by id or title
   if (search) {
-    filters.$or = [
-      { title: { $regex: search, $options: "i" } }, // Case-insensitive search
-      { description: { $regex: search, $options: "i" } },
-    ];
+    // If 'search' is a valid ObjectId, match _id
+    if (Types.ObjectId.isValid(search)) {
+      filters._id = search;
+    } else {
+      // Otherwise, just do a case-insensitive regex on title
+      filters.title = { $regex: search, $options: "i" };
+    }
   }
 
   // Location filters
@@ -137,7 +141,7 @@ export const GET = catchAsync(async (req) => {
 
   // Count total matching events (for pagination)
   const total = await Event.countDocuments(filters);
-  const totalPages = Math.ceil(total / limit);
+  const pages = Math.ceil(total / limit);
 
   // Fetch paginated results
   const events = await Event.find(filters)
@@ -149,9 +153,9 @@ export const GET = catchAsync(async (req) => {
     docs: events,
     pagination: {
       total,
-      totalPages,
+      pages,
       page,
       limit,
-    } as TEventSearchPagination,
+    } as TPagination,
   });
 });

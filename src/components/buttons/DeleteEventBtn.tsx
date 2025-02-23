@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { createRef, useState } from "react";
 import { Button } from "../ui/button";
 import axiosInstance from "@/lib/axiosInstance";
 import toast from "react-hot-toast";
 import getErrorMsg from "@/lib/getErrorMsg";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -15,10 +14,29 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const DeleteEventBtn: React.FC<{
-  eventId: string;
+type TDeletEventBtnProps = {
+  requestUrl: string;
+  children?: React.ReactNode;
   onSuccess?: () => Promise<void> | void;
-}> = ({ eventId, onSuccess }) => {
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | null;
+  className?: string;
+};
+
+const DeleteEventBtn: React.FC<TDeletEventBtnProps> = ({
+  requestUrl,
+  children,
+  onSuccess,
+  variant = "destructive",
+  className,
+}) => {
+  const cancelBtnRef = createRef<HTMLButtonElement>();
   const [loading, setLoading] = useState(false);
 
   const handleEventDelete = async () => {
@@ -26,11 +44,14 @@ const DeleteEventBtn: React.FC<{
       setLoading(true);
 
       // delete event
-      await axiosInstance().delete(`api/events/${eventId}`);
+      await axiosInstance().delete(requestUrl);
 
       setLoading(false);
 
       toast.success("Event Deleted");
+
+      // close the dialog
+      cancelBtnRef.current?.click();
 
       // call onSuccess callback
       if (onSuccess) {
@@ -47,11 +68,12 @@ const DeleteEventBtn: React.FC<{
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          variant="destructive"
+          variant={variant}
+          className={className}
           loading={loading}
           loaderProps={{ color: "white" }}
         >
-          Cancel Event
+          {children ?? "Delete Event"}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -63,12 +85,15 @@ const DeleteEventBtn: React.FC<{
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => handleEventDelete()} asChild>
-            <Button variant="destructive" loading={loading}>
-              Cancel Event
-            </Button>
-          </AlertDialogAction>
+          <AlertDialogCancel ref={cancelBtnRef}>Cancel</AlertDialogCancel>
+          <Button
+            variant="destructive"
+            loading={loading}
+            loaderProps={{ color: "white" }}
+            onClick={handleEventDelete}
+          >
+            Delete Event
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

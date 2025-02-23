@@ -25,11 +25,8 @@ const catchAsync = <T>(
         statusCode = err.statusCode;
         errorMessage = err.message;
       } else if (err instanceof MongooseError) {
-        const { errors } = err as any;
-        // target first error message
-        const { message } = Object.values(errors)[0] as any;
         statusCode = 400;
-        errorMessage = message;
+        errorMessage = err.message;
       } else {
         console.error("Unexpected error:", err);
       }

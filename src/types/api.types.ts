@@ -32,6 +32,7 @@ export enum EApiRequestMethod {
 
 // type for pagination
 export type TPagination = {
+  total: number;
   pages: number;
   page: number;
   limit: number;

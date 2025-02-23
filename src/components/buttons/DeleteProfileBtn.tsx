@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 import getErrorMsg from "@/lib/getErrorMsg";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -13,30 +12,48 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useAuthContext } from "@/context/AuthContext";
-import { useState } from "react";
-import { useRouter } from "next/router";
-const DeleteProfileBtn: React.FC<{
+import { createRef, useState } from "react";
+
+type TDeleteProfileBtnProps = {
+  requestUrl: string;
+  children?: React.ReactNode;
   onSuccess?: () => Promise<void> | void;
-}> = ({ onSuccess }) => {
-  const router = useRouter();
-  const { setUser } = useAuthContext();
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | null;
+  className?: string;
+};
+
+const DeleteProfileBtn: React.FC<TDeleteProfileBtnProps> = ({
+  requestUrl,
+  children,
+  onSuccess,
+  variant = "destructive",
+  className,
+}) => {
+  const cancelBtnRef = createRef<HTMLButtonElement>();
   const [loading, setLoading] = useState(false);
   const handleProfileDelete = async () => {
     try {
       setLoading(true);
-      // delete event
-      const res = await axiosInstance().delete(`api/auth/me`);
+      // delete user
+      const res = await axiosInstance().delete(requestUrl);
       setLoading(false);
-      // logout user
-      setUser(null);
+
       toast.success(res.data.message ?? "Profile Deleted");
+
+      // close the dialog
+      cancelBtnRef.current?.click();
+
       // call onSuccess callback
       if (onSuccess) {
         await onSuccess();
       }
-      // redirect to home
-      router.push("/");
     } catch (error: any) {
       // handle error
       setLoading(false);
@@ -46,29 +63,28 @@ const DeleteProfileBtn: React.FC<{
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          variant="destructive"
-          loading={loading}
-          loaderProps={{ color: "white" }}
-        >
-          Delete Profile
+        <Button variant={variant} className={className}>
+          {children ?? "Delete Profile"}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
+            This action cannot be undone. This will permanently delete the
             profile.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => handleProfileDelete()} asChild>
-            <Button variant="destructive" loading={loading}>
-              Delete Profile
-            </Button>
-          </AlertDialogAction>
+          <AlertDialogCancel ref={cancelBtnRef}>Cancel</AlertDialogCancel>
+          <Button
+            variant="destructive"
+            loading={loading}
+            loaderProps={{ color: "white" }}
+            onClick={handleProfileDelete}
+          >
+            Delete Profile
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

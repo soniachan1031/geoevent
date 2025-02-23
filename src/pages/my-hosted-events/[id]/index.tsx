@@ -4,7 +4,7 @@ import EventForm from "@/components/forms/events/EventForm";
 import getUser from "@/lib/server/getUser";
 import stringifyAndParse from "@/lib/stringifyAndParse";
 import Event from "@/mongoose/models/Event";
-import { ECookieName } from "@/types/api.types";
+import { EApiRequestMethod, ECookieName } from "@/types/api.types";
 import { IEvent } from "@/types/event.types";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
@@ -26,9 +26,13 @@ export default function EventEditPage({ event }: Readonly<{ event: IEvent }>) {
         currentPage="Event Details"
       />
       <h1 className="text-3xl">Event Details</h1>
-      <EventForm event={event} />
+      <EventForm
+        event={event}
+        requestUrl={`api/events/${event._id}`}
+        requestMethod={EApiRequestMethod.PATCH}
+      />
       <DeleteEventBtn
-        eventId={event._id}
+        requestUrl={`api/events/${event._id}`}
         onSuccess={handleDeleteEventSuccess}
       />
     </div>

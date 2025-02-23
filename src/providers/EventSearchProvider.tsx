@@ -1,10 +1,10 @@
 import EventSearchContext, {
   TEventSearchContext,
   TEventSearchOptions,
-  TEventSearchPagination,
 } from "@/context/EventSearchContext";
 import axiosInstance from "@/lib/axiosInstance";
 import getErrorMsg from "@/lib/getErrorMsg";
+import { TPagination } from "@/types/api.types";
 import { IEvent } from "@/types/event.types";
 import { useRouter } from "next/router";
 import { useState, useMemo, useCallback, useEffect } from "react";
@@ -18,9 +18,9 @@ function EventSearchProvider({
   const [error, setError] = useState<string | null>(null);
   const [searchOptions, setSearchOptions] = useState<TEventSearchOptions>({});
   const [events, setEvents] = useState<IEvent[]>([]);
-  const [pagination, setPagination] = useState({
+  const [pagination, setPagination] = useState<TPagination>({
     total: 0,
-    totalPages: 0,
+    pages: 0,
     page: 1,
     limit: 30,
   });
@@ -60,7 +60,7 @@ function EventSearchProvider({
 
         const { docs, pagination } = (await res.data.data) as {
           docs: IEvent[];
-          pagination: TEventSearchPagination;
+          pagination: TPagination;
         };
 
         // Set events and pagination

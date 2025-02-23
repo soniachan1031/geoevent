@@ -1,8 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import AuthContext from "@/context/AuthContext";
 import {
   Form,
   FormControl,
@@ -17,15 +16,34 @@ import getErrorMsg from "@/lib/getErrorMsg";
 import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { format } from "date-fns";
 import Image from "next/image";
+import { IUser } from "@/types/user.types";
+import { EApiRequestMethod } from "@/types/api.types";
+
+type TProfileFormProps = {
+  user?: IUser | null;
+  onSuccess?: (user: IUser) => Promise<void> | void;
+  requestUrl: string;
+  requestMethod: EApiRequestMethod;
+};
 
 const formSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters long"),
   email: z.string().email("Invalid email format"),
-  phone: z.string().length(10, "Phone number must be 10 digits"),
+  phone: z.string().refine(
+    (val) => {
+      // If user did not type anything ("" or undefined), allow it.
+      // If user did type something, it must be exactly 10 characters.
+      return !val || val.length === 10;
+    },
+    { message: "Phone number must be 10 digits" }
+  ),
   dateOfBirth: z.string().refine(
     (date) => {
+      // If empty or undefined, allow it:
+      if (!date) return true;
+
+      // Check if the date is valid:
       const parsedDate = new Date(date);
       return !isNaN(parsedDate.getTime());
     },
@@ -35,9 +53,13 @@ const formSchema = z.object({
   photo: z.instanceof(File).optional(),
 });
 
-function ProfileForm() {
-  const { authLoading, setAuthLoading, user, setUser } =
-    useContext(AuthContext);
+function ProfileForm({
+  user,
+  onSuccess,
+  requestUrl,
+  requestMethod,
+}: Readonly<TProfileFormProps>) {
+  const [loading, setLoading] = useState<boolean>(false);
   const [previewImage, setPreviewImage] = useState<string | null>(
     user?.photo?.url ?? null
   );
@@ -49,7 +71,7 @@ function ProfileForm() {
       email: user?.email ?? "",
       phone: user?.phone?.toString() ?? "",
       dateOfBirth: user?.dateOfBirth
-        ? format(new Date(user.dateOfBirth), "yyyy-MM-dd")
+        ? (user.dateOfBirth as string).slice(0, 10) // Get only the date part
         : "",
       bio: user?.bio ?? "",
       photo: undefined as File | undefined,
@@ -58,7 +80,7 @@ function ProfileForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      setAuthLoading(true);
+      setLoading(true);
 
       const formData = new FormData();
       formData.append("data", JSON.stringify(values));
@@ -66,14 +88,19 @@ function ProfileForm() {
         formData.append("photo", values.photo);
       }
 
-      const response = await axiosInstance().patch("api/auth/me", formData);
+      const response = await axiosInstance()[requestMethod](
+        requestUrl,
+        formData
+      );
       const updatedUser = response.data.data.doc;
 
-      setUser(updatedUser);
-      setAuthLoading(false);
+      setLoading(false);
+      if (onSuccess) {
+        await onSuccess(updatedUser);
+      }
       toast.success("Profile updated successfully");
     } catch (error) {
-      setAuthLoading(false);
+      setLoading(false);
       toast.error(getErrorMsg(error));
     }
   }
@@ -90,7 +117,7 @@ function ProfileForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 bg-white p-5 shadow w-full sm:w-[400px] rounded-lg"
+        className="space-y-6 bg-white p-5 shadow w-full  rounded-lg"
       >
         {/* Name Field */}
         <FormField
@@ -199,7 +226,7 @@ function ProfileForm() {
         <Button
           className="text-lg w-full"
           type="submit"
-          loading={authLoading}
+          loading={loading}
           loaderProps={{ color: "white" }}
         >
           Update Profile

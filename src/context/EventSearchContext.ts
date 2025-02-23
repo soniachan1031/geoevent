@@ -1,3 +1,4 @@
+import { TPagination } from "@/types/api.types";
 import {
   EEventCategory,
   EEventFormat,
@@ -19,13 +20,6 @@ export type TEventSearchOptions = {
   limit?: number;
 };
 
-export type TEventSearchPagination = {
-  total: number;
-  totalPages: number;
-  page: number;
-  limit: number;
-};
-
 export type TEventSearchContext = {
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -36,8 +30,8 @@ export type TEventSearchContext = {
   events: IEvent[];
   setEvents: React.Dispatch<React.SetStateAction<IEvent[]>>;
   searchEvents: (searchOptions?: TEventSearchOptions) => Promise<void>;
-  pagination: TEventSearchPagination;
-  setPagination: React.Dispatch<React.SetStateAction<TEventSearchPagination>>;
+  pagination: TPagination;
+  setPagination: React.Dispatch<React.SetStateAction<TPagination>>;
 };
 
 const EventSearchContext = createContext<TEventSearchContext>({
@@ -50,7 +44,7 @@ const EventSearchContext = createContext<TEventSearchContext>({
   events: [],
   setEvents: () => {},
   searchEvents: async () => {},
-  pagination: { total: 0, totalPages: 0, page: 1, limit: 30 },
+  pagination: { total: 0, pages: 0, page: 1, limit: 30 },
   setPagination: () => {},
 });
 

@@ -7,16 +7,16 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { TEventSearchPagination } from "@/context/EventSearchContext";
+import { TPagination } from "@/types/api.types";
 
 export default function CustomPagination({
   paginationProps,
   onPageChange,
 }: Readonly<{
-  paginationProps: TEventSearchPagination;
+  paginationProps: TPagination;
   onPageChange: (page: number) => void;
 }>) {
-  const { totalPages, page } = paginationProps;
+  const { pages: totalPages, page } = paginationProps;
 
   if (totalPages <= 1) return null; // Hide pagination if there's only one page
 

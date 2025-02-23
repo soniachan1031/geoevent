@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import axiosInstance from "@/lib/axiosInstance";
 import toast from "react-hot-toast";
 import getErrorMsg from "@/lib/getErrorMsg";
-import { useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import {
   EEventCategory,
   EEventFormat,
@@ -35,8 +35,15 @@ import Image from "next/image";
 import LocationInput from "@/components/ui/LocationInput";
 import { TLocation } from "@/types/location.types";
 import extractDate from "@/lib/extractDate";
-import { useRouter } from "next/router";
 import { eventTimeRegex } from "@/lib/regex";
+import { EApiRequestMethod } from "@/types/api.types";
+
+type TEventFormProps = {
+  event?: IEvent | null;
+  onSuccess?: (user: IEvent) => Promise<void> | void;
+  requestUrl: string;
+  requestMethod: EApiRequestMethod;
+};
 
 const formSchema = z
   .object({
@@ -97,9 +104,12 @@ const formSchema = z
     }
   );
 
-export default function EventForm({ event }: Readonly<{ event?: IEvent }>) {
-  const router = useRouter();
-
+const EventForm: FC<TEventFormProps> = ({
+  event,
+  onSuccess,
+  requestUrl,
+  requestMethod,
+}) => {
   const [loading, setLoading] = useState(false);
 
   const [previewImage, setPreviewImage] = useState<string | null>(
@@ -144,8 +154,6 @@ export default function EventForm({ event }: Readonly<{ event?: IEvent }>) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setLoading(true);
-      const url = event ? `api/events/${event._id}` : "api/events";
-      const method = event ? "patch" : "post";
 
       const formData = new FormData();
       formData.append("data", JSON.stringify(values));
@@ -153,17 +161,18 @@ export default function EventForm({ event }: Readonly<{ event?: IEvent }>) {
         formData.append("image", values.image);
       }
 
-      await axiosInstance()[method](url, formData);
+      const response = await axiosInstance()[requestMethod](
+        requestUrl,
+        formData
+      );
 
       toast.success(
         event ? "Event updated successfully" : "Event created successfully"
       );
 
-      if (!event) {
-        form.reset();
-        setPreviewImage(null);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        router.push("/my-hosted-events");
+      // Call onSuccess callback
+      if (onSuccess) {
+        await onSuccess(response.data.data.doc);
       }
     } catch (error: any) {
       toast.error(getErrorMsg(error));
@@ -184,7 +193,7 @@ export default function EventForm({ event }: Readonly<{ event?: IEvent }>) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 bg-white p-5 shadow w-full md:w-[600px]"
+        className="space-y-6 bg-white p-5 shadow w-full"
       >
         <FormField
           control={form.control}
@@ -471,4 +480,6 @@ export default function EventForm({ event }: Readonly<{ event?: IEvent }>) {
       </form>
     </Form>
   );
-}
+};
+
+export default EventForm;
