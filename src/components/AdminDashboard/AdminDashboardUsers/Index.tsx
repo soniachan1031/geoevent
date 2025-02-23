@@ -58,7 +58,7 @@ const AdminDashboardUsers = () => {
   }, []);
 
   return (
-    <div className="grid gap-5 w-full md:min-w-[700px] ">
+    <div className="grid gap-5 w-full md:min-w-[700px] place-content-center">
       {loading ? (
         <div className="grid gap-3 w-full">
           <LoadingSkeleton />
