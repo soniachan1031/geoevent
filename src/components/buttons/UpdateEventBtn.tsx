@@ -44,7 +44,7 @@ const UpdateEventBtn: React.FC<TUpdateEventBtnProps> = ({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant={variant} className={className}>
-          {children ?? "Update Profile"}
+          {children ?? "Update Event"}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
