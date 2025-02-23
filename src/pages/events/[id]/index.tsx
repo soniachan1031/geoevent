@@ -27,7 +27,7 @@ import { ECookieName } from "@/types/api.types";
 import SavedEvent from "@/mongoose/models/SavedEvent";
 import EventRegistration from "@/mongoose/models/EventRegistration";
 
-import { getServerSidePropsFullUrl } from "@/lib/server/urlGenerator";
+import { getServerSidePropsSiteUrl } from "@/lib/server/urlGenerator";
 import DirectionsBtn from "@/components/buttons/DirectionsBtn";
 import SocialShareBtn from "@/components/buttons/SocialShareBtn";
 import EventFeedbackSection from "@/components/EventFeedbackSection";
@@ -276,6 +276,7 @@ export default function EventPage({
 export const getServerSideProps: GetServerSideProps = async ({
   query: { id },
   req,
+  resolvedUrl,
 }) => {
   // connect db
   await connectDB();
@@ -300,7 +301,8 @@ export const getServerSideProps: GetServerSideProps = async ({
     event: event._id,
   }).select("_id");
 
-  const shareUrl = getServerSidePropsFullUrl(req);
+  const shareUrl = getServerSidePropsSiteUrl(req) + resolvedUrl;
+
   return {
     props: {
       user: stringifyAndParse(user),
