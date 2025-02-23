@@ -150,6 +150,7 @@ export default function EventPage({
             <Calendar className="w-5 h-5 text-gray-600" />
             <span>
               {new Date(event.date).toLocaleDateString("en-US", {
+                timeZone: "UTC",
                 weekday: "long",
                 month: "long",
                 day: "numeric",

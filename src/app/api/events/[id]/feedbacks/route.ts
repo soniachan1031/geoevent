@@ -23,9 +23,10 @@ export const POST = catchAsync(
       throw new AppError(404, "event not found");
     }
 
+    console.log(event.date, new Date());
     // check if event is still open
-    if (event.date < new Date()) {
-      throw new AppError(400, "event is closed for feedback");
+    if (event.date > new Date()) {
+      throw new AppError(400, "Event has not ended yet, feedback not allowed.");
     }
 
     // check if user registered for event
