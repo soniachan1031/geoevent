@@ -15,7 +15,7 @@ import {
   BookmarkCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import getErrorMsg from "@/lib/getErrorMsg";
@@ -28,10 +28,6 @@ import SavedEvent from "@/mongoose/models/SavedEvent";
 import EventRegistration from "@/mongoose/models/EventRegistration";
 
 import { getServerSidePropsSiteUrl } from "@/lib/server/urlGenerator";
-import DirectionsBtn from "@/components/buttons/DirectionsBtn";
-import SocialShareBtn from "@/components/buttons/SocialShareBtn";
-import EventFeedbackSection from "@/components/EventFeedbackSection";
-import FeedbackBtn from "@/components/buttons/FeedbackBtn";
 
 type EventPageProps = {
   event: IEvent;
@@ -44,23 +40,11 @@ type EventPageProps = {
 export default function EventPage({
   event,
   saved: savedEvent = false,
-  shareUrl,
-  registered: registeredEvent = false,
 }: Readonly<EventPageProps>) {
   const router = useRouter();
   const { user } = useAuthContext();
   const [bookMarked, setBookMarked] = useState(savedEvent);
   const [bookMarkEventLoading, setBookMarkEventLoading] = useState(false);
-  const [registered, setRegistered] = useState(registeredEvent);
-  const [registerEventLoading, setRegisterEventLoading] = useState(false);
-  const [feedbackLeft, setFeedbackLeft] = useState(false);
-
-  const allowFeedback =
-    user &&
-    user._id !== event.organizer &&
-    registered &&
-    new Date(event.date) < new Date() &&
-    !feedbackLeft;
 
   const handleBookMark = async () => {
     try {
@@ -83,35 +67,6 @@ export default function EventPage({
       toast.error(getErrorMsg(error));
     }
   };
-
-  const handleRegister = async () => {
-    try {
-      if (!user) return router.push("/login");
-      setRegisterEventLoading(true);
-
-      if (registered) {
-        await axiosInstance().delete(`api/events/${event._id}/register`);
-        setRegistered(false);
-        toast.success("Unregistered successfully");
-      } else {
-        await axiosInstance().post(`api/events/${event._id}/register`);
-        setRegistered(true);
-        toast.success("Registered successfully");
-      }
-
-      setRegisterEventLoading(false);
-    } catch (error: any) {
-      setRegisterEventLoading(false);
-      toast.error(getErrorMsg(error));
-    }
-  };
-
-  useEffect(() => {
-    // add view to event
-    axiosInstance()
-      .post(`api/events/${event._id}/views`)
-      .catch(() => null);
-  }, [event._id]);
 
   return (
     <div className="flex flex-col min-h-screen p-5 max-w-4xl mx-auto">
@@ -221,27 +176,6 @@ export default function EventPage({
             </div>
           )}
         </Button>
-
-        {/* Buttons: register, unregister */}
-        {user?._id !==
-          (typeof event.organizer === "object"
-            ? event.organizer._id
-            : event.organizer) && (
-          <Button
-            variant={registered ? "destructive" : "default"}
-            loading={registerEventLoading}
-            onClick={handleRegister}
-            loaderProps={{ color: "white" }}
-          >
-            {registered ? "Unregister" : "Register"}
-          </Button>
-        )}
-
-        {/* Social Share Buttons */}
-        <SocialShareBtn shareUrl={shareUrl} event={event} />
-
-        {/* Google maps direction */}
-        <DirectionsBtn location={event.location} />
       </div>
 
       {/* Event Description */}
@@ -266,17 +200,6 @@ export default function EventPage({
           </div>
         </div>
       </div>
-
-      {/* feedback section */}
-      <div className="my-6">
-        {allowFeedback && (
-          <FeedbackBtn
-            eventId={event._id}
-            onSuccess={() => setFeedbackLeft(true)}
-          />
-        )}
-      </div>
-      <EventFeedbackSection eventId={event._id} />
     </div>
   );
 }

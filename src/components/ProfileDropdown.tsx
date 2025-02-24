@@ -43,9 +43,6 @@ export default function ProfileDropdown() {
         <DropdownMenuItem>
           <Link href="/my-saved-events">Saved Events</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link href="/my-registered-events">Registered Events</Link>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={(e) => e.preventDefault()}>
           <Link href="/my-preferences">Preferences</Link>
         </DropdownMenuItem>
