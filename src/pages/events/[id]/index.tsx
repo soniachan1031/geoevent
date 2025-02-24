@@ -37,14 +37,11 @@ type EventPageProps = {
 export default function EventPage({
   event,
   saved: savedEvent = false,
-  registered: registeredEvent = false,
 }: Readonly<EventPageProps>) {
   const router = useRouter();
   const { user } = useAuthContext();
   const [bookMarked, setBookMarked] = useState(savedEvent);
   const [bookMarkEventLoading, setBookMarkEventLoading] = useState(false);
-  const [registered, setRegistered] = useState(registeredEvent);
-  const [registerEventLoading, setRegisterEventLoading] = useState(false);
 
   const handleBookMark = async () => {
     try {
@@ -64,28 +61,6 @@ export default function EventPage({
       setBookMarkEventLoading(false);
     } catch (error: any) {
       setBookMarkEventLoading(false);
-      toast.error(getErrorMsg(error));
-    }
-  };
-
-  const handleRegister = async () => {
-    try {
-      if (!user) return router.push("/login");
-      setRegisterEventLoading(true);
-
-      if (registered) {
-        await axiosInstance().delete(`api/events/${event._id}/register`);
-        setRegistered(false);
-        toast.success("Unregistered successfully");
-      } else {
-        await axiosInstance().post(`api/events/${event._id}/register`);
-        setRegistered(true);
-        toast.success("Registered successfully");
-      }
-
-      setRegisterEventLoading(false);
-    } catch (error: any) {
-      setRegisterEventLoading(false);
       toast.error(getErrorMsg(error));
     }
   };
@@ -197,20 +172,6 @@ export default function EventPage({
             </>
           )}
         </Button>
-
-        {user?._id !==
-          (typeof event.organizer === "object"
-            ? event.organizer._id
-            : event.organizer) && (
-          <Button
-            variant={registered ? "destructive" : "default"}
-            loading={registerEventLoading}
-            onClick={handleRegister}
-            loaderProps={{ color: "white" }}
-          >
-            {registered ? "Unregister" : "Register"}
-          </Button>
-        )}
       </div>
 
       {/* Event Description */}
