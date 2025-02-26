@@ -24,14 +24,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import StarRating from "@/components/StarRating"; // Import the new StarRating component
 
 const FeedbackBtn: React.FC<{
   eventId: string;
   onSuccess?: () => Promise<void> | void;
 }> = ({ eventId, onSuccess }) => {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
-
   const [loading, setLoading] = useState(false);
 
   const formSchema = z.object({
@@ -42,7 +42,7 @@ const FeedbackBtn: React.FC<{
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      rating: 1 as any,
+      rating: 1, // Default to 1 star
       review: "",
     },
   });
@@ -50,26 +50,15 @@ const FeedbackBtn: React.FC<{
   const submitFeedback = async () => {
     try {
       setLoading(true);
-
-      // delete event
       await axiosInstance().post(
         `api/events/${eventId}/feedbacks`,
         form.getValues()
       );
-
       setLoading(false);
-
       toast.success("Feedback Submitted");
-
-      // call onSuccess callback
-      if (onSuccess) {
-        await onSuccess();
-      }
-
-      // close the dialog
+      if (onSuccess) await onSuccess();
       closeBtnRef.current?.click();
     } catch (error: any) {
-      // handle error
       setLoading(false);
       toast.error(getErrorMsg(error));
     }
@@ -78,11 +67,11 @@ const FeedbackBtn: React.FC<{
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="default">Leave Feedback</Button>
+        <Button variant="default">Leave a Review</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Leave Feedback</AlertDialogTitle>
+          <AlertDialogTitle>Leave a Review</AlertDialogTitle>
           <AlertDialogDescription>
             <Form {...form}>
               <form
@@ -96,17 +85,9 @@ const FeedbackBtn: React.FC<{
                     <FormItem>
                       <FormLabel className="text-lg">Rating</FormLabel>
                       <FormControl>
-                        <Input
-                          type="number"
-                          name={field.name}
-                          placeholder="Rating (1 - 5)"
-                          value={field.value}
-                          onChange={(e) => {
-                            const numValue = e.target.value
-                              ? Number(e.target.value)
-                              : "";
-                            field.onChange(numValue);
-                          }}
+                        <StarRating
+                          rating={field.value}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -120,7 +101,7 @@ const FeedbackBtn: React.FC<{
                     <FormItem>
                       <FormLabel className="text-lg">Review</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your review" {...field} />
+                        <Textarea placeholder="Your review" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

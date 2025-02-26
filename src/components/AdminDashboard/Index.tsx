@@ -2,14 +2,12 @@ import { useState } from "react";
 import AdminDashboardOverview from "./AdminDashboardOverview/Index";
 import AdminDashboardUsers from "./AdminDashboardUsers/Index";
 import AdminDashboardEvents from "./AdminDashbaordEvents/Index";
-import AdminDashboardSettings from "./AdminDashboardSettings/Index";
 import { Button } from "../ui/button";
 
 enum EAdminDashboardSection {
   OVERVIEW = "OVERVIEW",
   USERS = "USERS",
   EVENTS = "EVENTS",
-  SETTINGS = "SETTINGS",
 }
 
 const AdminDashboard = () => {
@@ -51,8 +49,6 @@ const renderSection = (section: EAdminDashboardSection) => {
       return <AdminDashboardUsers />;
     case EAdminDashboardSection.EVENTS:
       return <AdminDashboardEvents />;
-    case EAdminDashboardSection.SETTINGS:
-      return <AdminDashboardSettings />;
     default:
       return <AdminDashboardOverview />;
   }
