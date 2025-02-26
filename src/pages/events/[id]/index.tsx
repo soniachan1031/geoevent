@@ -28,10 +28,10 @@ import SavedEvent from "@/mongoose/models/SavedEvent";
 import EventRegistration from "@/mongoose/models/EventRegistration";
 
 import { getServerSidePropsSiteUrl } from "@/lib/server/urlGenerator";
-import DirectionsBtn from "@/components/buttons/DirectionsBtn";
 import SocialShareBtn from "@/components/buttons/SocialShareBtn";
 import EventFeedbackSection from "@/components/EventFeedbackSection";
 import FeedbackBtn from "@/components/buttons/FeedbackBtn";
+import GoogleMapDirectionBtn from "@/components/buttons/GoogleMapDirectionsBtn";
 
 type EventPageProps = {
   event: IEvent;
@@ -241,7 +241,7 @@ export default function EventPage({
         <SocialShareBtn shareUrl={shareUrl} event={event} />
 
         {/* Google maps direction */}
-        <DirectionsBtn location={event.location} />
+        <GoogleMapDirectionBtn event={event} />
       </div>
 
       {/* Event Description */}

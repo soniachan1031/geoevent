@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { IEvent } from "@/types/event.types";
-import { format } from "date-fns";
 
 interface EventCardProps {
   event: IEvent;
@@ -35,8 +34,13 @@ export default function EventCard({
         <div className="p-4">
           <h2 className="text-xl font-semibold text-gray-900">{event.title}</h2>
           <p className="text-sm text-gray-500">
-            {format(new Date(event.date), "MMMM d, yyyy")} &bull;{" "}
-            {event.category}
+            {new Date(event.date).toLocaleDateString("en-US", {
+              timeZone: "UTC",
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}{" "}
+            &bull; {event.category}
           </p>
         </div>
       </div>
