@@ -57,43 +57,19 @@ export default GoogleMapDirectionBtn;
 // Container style for the map
 const containerStyle = { width: "100%", height: "450px" };
 
-const DirectionsMap: React.FC<{
-  destination: { lat: number; lng: number };
-}> = ({ destination }) => {
+const DirectionsMap: React.FC<{ destination: { lat: number; lng: number } }> = ({ destination }) => {
   const { isLoaded } = useGoogleMapsContext();
-  const [directions, setDirections] =
-    useState<google.maps.DirectionsResult | null>(null);
-  const [selectedMode, setSelectedMode] = useState<google.maps.TravelMode>(
-    google.maps.TravelMode.DRIVING
-  );
+  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+  const [selectedMode, setSelectedMode] = useState<google.maps.TravelMode>(google.maps.TravelMode.DRIVING);
   const [travelDuration, setTravelDuration] = useState<string | null>(null);
-
-  const [currentLocation, setCurrentLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null); // New state for location error
 
   const travelModes = [
-    {
-      label: "Driving",
-      value: google.maps.TravelMode.DRIVING,
-      icon: <FaCarSide />,
-    },
-    {
-      label: "Walking",
-      value: google.maps.TravelMode.WALKING,
-      icon: <FaWalking />,
-    },
-    {
-      label: "Bicycling",
-      value: google.maps.TravelMode.BICYCLING,
-      icon: <IoBicycleSharp />,
-    },
-    {
-      label: "Transit",
-      value: google.maps.TravelMode.TRANSIT,
-      icon: <IoBusSharp />,
-    },
+    { label: "Driving", value: google.maps.TravelMode.DRIVING, icon: <FaCarSide /> },
+    { label: "Walking", value: google.maps.TravelMode.WALKING, icon: <FaWalking /> },
+    { label: "Bicycling", value: google.maps.TravelMode.BICYCLING, icon: <IoBicycleSharp /> },
+    { label: "Transit", value: google.maps.TravelMode.TRANSIT, icon: <IoBusSharp /> },
   ];
 
   useEffect(() => {
@@ -104,20 +80,21 @@ const DirectionsMap: React.FC<{
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
+          setLocationError(null); // Clear any previous error
         },
-        (error) => console.error("Error getting location:", error)
+        (error) => {
+          console.error("Error getting location:", error);
+          setLocationError("Unable to retrieve your location. Please ensure location permissions are granted.");
+        }
       );
+    } else {
+      setLocationError("Geolocation is not supported by your browser.");
     }
   }, []);
 
-  const handleDirectionsCallback = (
-    result: google.maps.DirectionsResult | null,
-    status: google.maps.DirectionsStatus
-  ) => {
+  const handleDirectionsCallback = (result: google.maps.DirectionsResult | null, status: google.maps.DirectionsStatus) => {
     if (status === "OK" && result) {
       setDirections(result);
-
-      // Get the travel duration for the selected mode
       const duration = result.routes?.[0]?.legs?.[0]?.duration?.text;
       if (duration) setTravelDuration(duration);
     } else {
@@ -125,7 +102,12 @@ const DirectionsMap: React.FC<{
     }
   };
 
-  if (!isLoaded || !currentLocation) return <LoadingSkeleton />;
+  if (!isLoaded || !currentLocation) {
+    if (locationError) {
+      return <div>{locationError}</div>; // Show error message if location can't be retrieved
+    }
+    return <LoadingSkeleton />; // Optionally show a loading message
+  }
 
   return (
     <div>
@@ -133,8 +115,8 @@ const DirectionsMap: React.FC<{
       <div className="flex gap-4 mb-4">
         {travelModes.map((mode) => (
           <Button
-            title={mode.label}
             key={mode.value}
+            title={mode.label}
             variant={selectedMode === mode.value ? "default" : "secondary"}
             onClick={() => setSelectedMode(mode.value)}
           >
@@ -143,7 +125,8 @@ const DirectionsMap: React.FC<{
         ))}
         <Button variant="link">
           <Link
-            href={`https://www.google.com/maps/dir/?api=1&origin=${destination.lat},${destination.lng}&destination=${destination.lat},${destination.lng}`}
+            href={`https://www.google.com/maps/dir/?api=1&origin=${currentLocation?.lat},${currentLocation?.lng}&destination=${destination.lat},${destination.lng}`}
+            target="_blank"
           >
             Open in Google Maps
           </Link>
@@ -155,11 +138,7 @@ const DirectionsMap: React.FC<{
       )}
 
       {/* Google Map */}
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={currentLocation}
-        zoom={12}
-      >
+      <GoogleMap mapContainerStyle={containerStyle} center={currentLocation} zoom={12}>
         <DirectionsService
           options={{
             origin: currentLocation,
