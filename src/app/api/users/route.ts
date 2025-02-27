@@ -32,7 +32,7 @@
     }
 
     // filter out admin users
-    // filters.role = { $ne: EUserRole.ADMIN };
+    filters.role = { $ne: EUserRole.ADMIN };
 
     // connect database
     await connectDB();
