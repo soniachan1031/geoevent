@@ -83,11 +83,11 @@ const AdminDashboardEvents = () => {
                   <th>Category</th>
                   <th className="p-2">Date</th>
                   <th className="p-2">Time</th>
-                  <th>Duration</th>
                   <th>Registration Deadline</th>
                   <th className="p-2">Organizer</th>
                   <th className="p-2">Location</th>
                   <th className="p-2">Format</th>
+                  <th>Duration</th>
                   <th className="p-2">Capacity</th>
                 </tr>
               </thead>
@@ -113,7 +113,6 @@ const AdminDashboardEvents = () => {
                         value={event.time}
                       />
                     </td>
-                    <td>{event.duration && formatMinutes(event.duration)}</td>
                     <td>
                       {(event.registrationDeadline as string).slice(0, 10)}
                     </td>
@@ -124,6 +123,7 @@ const AdminDashboardEvents = () => {
                     </td>
                     <td className="p-2">{event.location.address}</td>
                     <td className="p-2">{event.format}</td>
+                    <td>{event.duration && formatMinutes(event.duration)}</td>
                     <td className="p-2">{event.capacity}</td>
                     <td className="flex gap-2 p-2">
                       <UpdateEventBtn
