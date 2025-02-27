@@ -10,6 +10,8 @@ import EventCard from "@/components/EventCard";
 import CustomPagination from "@/components/paginations/CustomPagination";
 import serverSidePropsHandler from "@/lib/server/serverSidePropsHandler";
 import { EAuthStatus } from "@/types/user.types";
+import EventMap from "@/components/maps/EventMap/EventMap";
+import { useEffect, useRef, useState } from "react";
 
 export const metadata = {
   title: "GeoEvent",
@@ -25,6 +27,20 @@ export default function Home() {
     setSearchOptions,
     searchEvents,
   } = useEventSearchContext();
+
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
+  // Create a ref map to store references to event cards
+  const eventRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  useEffect(() => {
+    if (selectedEventId && eventRefs.current[selectedEventId]) {
+      eventRefs.current[selectedEventId]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [selectedEventId]);
 
   // When the page changes
   const handlePageChange = (page: number) => {
@@ -126,14 +142,31 @@ export default function Home() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {events.map((event) => (
-              <EventCard
-                key={event._id}
-                event={event}
-                link={`events/${event._id}`}
+          <div className="flex gap-5 w-full">
+            <div className="flex-1 h-[500px] sticky top-[75px]">
+              <EventMap
+                events={events}
+                selectedEventId={selectedEventId}
+                onMarkerClick={setSelectedEventId}
               />
-            ))}
+            </div>
+            <div className="grid gap-5">
+              {events.map((event) => (
+                <div
+                  key={event._id}
+                  ref={(el) => {eventRefs.current[event._id] = el;}}
+                  className={`p-2 rounded ${
+                    selectedEventId === event._id ? "shadow-lg" : ""
+                  }`}
+                >
+                  <EventCard
+                    event={event}
+                    link={`events/${event._id}`}
+                    horizontal
+                  />
+                </div>
+              ))}
+            </div>
           </div>
           <CustomPagination
             paginationProps={pagination}

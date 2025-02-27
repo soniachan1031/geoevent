@@ -26,7 +26,6 @@ import getUser from "@/lib/server/getUser";
 import { ECookieName } from "@/types/api.types";
 import SavedEvent from "@/mongoose/models/SavedEvent";
 import EventRegistration from "@/mongoose/models/EventRegistration";
-
 import { getServerSidePropsSiteUrl } from "@/lib/server/urlGenerator";
 import SocialShareBtn from "@/components/buttons/SocialShareBtn";
 import EventFeedbackSection from "@/components/EventFeedbackSection";
@@ -61,6 +60,13 @@ export default function EventPage({
     registered &&
     new Date(event.date) < new Date() &&
     !feedbackLeft;
+
+  const allowRegister =
+    (typeof event.organizer === "object"
+      ? user?._id !== event.organizer._id
+      : user?._id !== event.organizer) &&
+    !registered &&
+    new Date(event.registrationDeadline ?? event.date) > new Date();
 
   const handleBookMark = async () => {
     try {
@@ -223,10 +229,7 @@ export default function EventPage({
         </Button>
 
         {/* Buttons: register, unregister */}
-        {user?._id !==
-          (typeof event.organizer === "object"
-            ? event.organizer._id
-            : event.organizer) && (
+        {allowRegister && (
           <Button
             variant={registered ? "destructive" : "default"}
             loading={registerEventLoading}
