@@ -68,6 +68,8 @@ export default function EventPage({
     !registered &&
     new Date(event.registrationDeadline ?? event.date) > new Date();
 
+  const allowUnregister = registered;
+
   const handleBookMark = async () => {
     try {
       if (!user) return router.push("/login");
@@ -205,6 +207,22 @@ export default function EventPage({
               {event.language}
             </span>
           </div>
+
+          {/* Registration Deadline */}
+          <div className="flex items-center gap-2">
+            <span className="text-gray-600">Registration Deadline:</span>
+            <span>
+              {new Date(
+                event.registrationDeadline ?? event.date
+              ).toLocaleString("en-US", {
+                timeZone: "UTC",
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -228,16 +246,26 @@ export default function EventPage({
           )}
         </Button>
 
-        {/* Buttons: register, unregister */}
-        {allowRegister && (
+        {/* buttons: register, unregister */}
+        {allowRegister ? (
           <Button
-            variant={registered ? "destructive" : "default"}
             loading={registerEventLoading}
             onClick={handleRegister}
             loaderProps={{ color: "white" }}
           >
-            {registered ? "Unregister" : "Register"}
+            Register
           </Button>
+        ) : (
+          allowUnregister && (
+            <Button
+              variant="destructive"
+              onClick={handleRegister}
+              loading={registerEventLoading}
+              loaderProps={{ color: "white" }}
+            >
+              Unregister
+            </Button>
+          )
         )}
 
         {/* Social Share Buttons */}

@@ -35,7 +35,7 @@ export const POST = catchAsync(
     }
 
     // check if user is the organizer
-    if (String(event.organizer) === user._id.toString()) {
+    if (event.organizer === user._id.toString()) {
       throw new AppError(400, "Organizer cannot register for event");
     }
 

@@ -63,7 +63,6 @@ export const PATCH = catchAsync(
       language,
       capacity,
       contact,
-      organizer: user._id,
     } as Partial<IEvent>;
 
     // handle image
