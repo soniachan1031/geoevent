@@ -155,7 +155,7 @@ export default function Home() {
                 <div
                   key={event._id}
                   ref={(el) => {eventRefs.current[event._id] = el;}}
-                  className={`p-2 rounded ${
+                  className={`p-2 rounded max-h-max ${
                     selectedEventId === event._id ? "shadow-lg" : ""
                   }`}
                 >
