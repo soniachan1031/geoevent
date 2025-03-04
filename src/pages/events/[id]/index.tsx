@@ -26,8 +26,11 @@ import getUser from "@/lib/server/getUser";
 import { ECookieName } from "@/types/api.types";
 import SavedEvent from "@/mongoose/models/SavedEvent";
 import EventRegistration from "@/mongoose/models/EventRegistration";
-
 import { getServerSidePropsSiteUrl } from "@/lib/server/urlGenerator";
+import SocialShareBtn from "@/components/buttons/SocialShareBtn";
+import EventFeedbackSection from "@/components/EventFeedbackSection";
+import FeedbackBtn from "@/components/buttons/FeedbackBtn";
+import GoogleMapDirectionBtn from "@/components/buttons/GoogleMapDirectionsBtn";
 
 type EventPageProps = {
   event: IEvent;
@@ -45,6 +48,25 @@ export default function EventPage({
   const { user } = useAuthContext();
   const [bookMarked, setBookMarked] = useState(savedEvent);
   const [bookMarkEventLoading, setBookMarkEventLoading] = useState(false);
+  const [registered, setRegistered] = useState(registeredEvent);
+  const [registerEventLoading, setRegisterEventLoading] = useState(false);
+  const [feedbackLeft, setFeedbackLeft] = useState(false);
+
+  const allowFeedback =
+    user &&
+    user._id !== event.organizer &&
+    registered &&
+    new Date(event.date) < new Date() &&
+    !feedbackLeft;
+
+  const allowRegister =
+    (typeof event.organizer === "object"
+      ? user?._id !== event.organizer._id
+      : user?._id !== event.organizer) &&
+    !registered &&
+    new Date(event.registrationDeadline ?? event.date) > new Date();
+
+  const allowUnregister = registered;
 
   const handleBookMark = async () => {
     try {
@@ -154,6 +176,22 @@ export default function EventPage({
               {event.language}
             </span>
           </div>
+
+          {/* Registration Deadline */}
+          <div className="flex items-center gap-2">
+            <span className="text-gray-600">Registration Deadline:</span>
+            <span>
+              {new Date(
+                event.registrationDeadline ?? event.date
+              ).toLocaleString("en-US", {
+                timeZone: "UTC",
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -176,6 +214,34 @@ export default function EventPage({
             </div>
           )}
         </Button>
+
+        {/* buttons: register, unregister */}
+        {allowRegister ? (
+          <Button
+            loading={registerEventLoading}
+            onClick={handleRegister}
+            loaderProps={{ color: "white" }}
+          >
+            Register
+          </Button>
+        ) : (
+          allowUnregister && (
+            <Button
+              variant="destructive"
+              onClick={handleRegister}
+              loading={registerEventLoading}
+              loaderProps={{ color: "white" }}
+            >
+              Unregister
+            </Button>
+          )
+        )}
+
+        {/* Social Share Buttons */}
+        <SocialShareBtn shareUrl={shareUrl} event={event} />
+
+        {/* Google maps direction */}
+        <GoogleMapDirectionBtn event={event} />
       </div>
 
       {/* Event Description */}

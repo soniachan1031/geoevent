@@ -15,6 +15,7 @@ const Logo: FC<LogoProps> = ({ className = "w-auto h-auto", height = 50, width =
       alt="logo"
       width={height}
       height={width}
+      loading="lazy"
     />
   );
 };

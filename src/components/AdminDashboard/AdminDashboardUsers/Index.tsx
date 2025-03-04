@@ -82,6 +82,7 @@ const AdminDashboardUsers = () => {
                   <th className="p-2">Id</th>
                   <th className="p-2">Name</th>
                   <th className="p-2">Email</th>
+                  <th>Date of birth</th>
                   <th className="p-2">Actions</th>
                 </tr>
               </thead>
@@ -108,6 +109,7 @@ const AdminDashboardUsers = () => {
                     </td>
                     <td className="p-2">{user.name}</td>
                     <td className="p-2">{user.email}</td>
+                    <td className="p-2">{(user.dateOfBirth as string)?.slice(0, 10)}</td>
                     <td className="flex gap-2 p-2">
                       <UpdateProfileBtn
                         user={user}

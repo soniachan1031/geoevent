@@ -12,6 +12,7 @@ import { GrPowerReset } from "react-icons/gr";
 import { IEvent } from "@/types/event.types";
 import UpdateEventBtn from "@/components/buttons/UpdateEventBtn";
 import DeleteEventBtn from "@/components/buttons/DeleteEventBtn";
+import { formatMinutes } from "@/lib/formatHandler";
 
 type TGetEventProps = {
   page?: number;
@@ -79,11 +80,14 @@ const AdminDashboardEvents = () => {
                 <tr className="border-b text-left">
                   <th className="p-2">Id</th>
                   <th className="p-2">Title</th>
+                  <th>Category</th>
                   <th className="p-2">Date</th>
                   <th className="p-2">Time</th>
+                  <th>Registration Deadline</th>
                   <th className="p-2">Organizer</th>
                   <th className="p-2">Location</th>
                   <th className="p-2">Format</th>
+                  <th>Duration</th>
                   <th className="p-2">Capacity</th>
                 </tr>
               </thead>
@@ -96,6 +100,7 @@ const AdminDashboardEvents = () => {
                       </div>
                     </td>
                     <td className="p-2">{event.title}</td>
+                    <td>{event.category}</td>
                     <td className="p-2">
                       {(event.date as string).slice(0, 10)}
                     </td>
@@ -108,6 +113,9 @@ const AdminDashboardEvents = () => {
                         value={event.time}
                       />
                     </td>
+                    <td>
+                      {(event.registrationDeadline as string).slice(0, 10)}
+                    </td>
                     <td className="p-2">
                       {event.organizer && typeof event.organizer === "object"
                         ? event.organizer.name
@@ -115,6 +123,7 @@ const AdminDashboardEvents = () => {
                     </td>
                     <td className="p-2">{event.location.address}</td>
                     <td className="p-2">{event.format}</td>
+                    <td>{event.duration && formatMinutes(event.duration)}</td>
                     <td className="p-2">{event.capacity}</td>
                     <td className="flex gap-2 p-2">
                       <UpdateEventBtn

@@ -1,0 +1,30 @@
+.markerContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.markerIcon {
+  display: block;
+  margin: auto;
+}
+
+.eventPreview {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 8px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.visible {
+  opacity: 1;
+  visibility: visible;
+}

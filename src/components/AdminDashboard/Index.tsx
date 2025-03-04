@@ -1,20 +1,16 @@
 import { useState } from "react";
-import AdminDashboardOverview from "./AdminDashboardOverview/Index";
 import AdminDashboardUsers from "./AdminDashboardUsers/Index";
 import AdminDashboardEvents from "./AdminDashbaordEvents/Index";
-import AdminDashboardSettings from "./AdminDashboardSettings/Index";
 import { Button } from "../ui/button";
 
 enum EAdminDashboardSection {
-  OVERVIEW = "OVERVIEW",
   USERS = "USERS",
   EVENTS = "EVENTS",
-  SETTINGS = "SETTINGS",
 }
 
 const AdminDashboard = () => {
   const [section, setSection] = useState<EAdminDashboardSection>(
-    EAdminDashboardSection.OVERVIEW
+    EAdminDashboardSection.USERS
   );
   return (
     <div className="flex flex-col items-center min-h-screen gap-5 p-5">
@@ -45,15 +41,11 @@ const SectionToggle = ({ section, setSection }) => {
 
 const renderSection = (section: EAdminDashboardSection) => {
   switch (section) {
-    case EAdminDashboardSection.OVERVIEW:
-      return <AdminDashboardOverview />;
     case EAdminDashboardSection.USERS:
       return <AdminDashboardUsers />;
     case EAdminDashboardSection.EVENTS:
       return <AdminDashboardEvents />;
-    case EAdminDashboardSection.SETTINGS:
-      return <AdminDashboardSettings />;
     default:
-      return <AdminDashboardOverview />;
+      return <AdminDashboardUsers />;
   }
 };
