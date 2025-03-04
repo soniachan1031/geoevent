@@ -15,7 +15,7 @@ import {
   BookmarkCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import getErrorMsg from "@/lib/getErrorMsg";
@@ -43,6 +43,8 @@ type EventPageProps = {
 export default function EventPage({
   event,
   saved: savedEvent = false,
+  shareUrl,
+  registered: registeredEvent = false,
 }: Readonly<EventPageProps>) {
   const router = useRouter();
   const { user } = useAuthContext();
@@ -89,6 +91,35 @@ export default function EventPage({
       toast.error(getErrorMsg(error));
     }
   };
+
+  const handleRegister = async () => {
+    try {
+      if (!user) return router.push("/login");
+      setRegisterEventLoading(true);
+
+      if (registered) {
+        await axiosInstance().delete(`api/events/${event._id}/register`);
+        setRegistered(false);
+        toast.success("Unregistered successfully");
+      } else {
+        await axiosInstance().post(`api/events/${event._id}/register`);
+        setRegistered(true);
+        toast.success("Registered successfully");
+      }
+
+      setRegisterEventLoading(false);
+    } catch (error: any) {
+      setRegisterEventLoading(false);
+      toast.error(getErrorMsg(error));
+    }
+  };
+
+  useEffect(() => {
+    // add view to event
+    axiosInstance()
+      .post(`api/events/${event._id}/views`)
+      .catch(() => null);
+  }, [event._id]);
 
   return (
     <div className="flex flex-col min-h-screen p-5 max-w-4xl mx-auto">
@@ -266,6 +297,17 @@ export default function EventPage({
           </div>
         </div>
       </div>
+
+      {/* feedback section */}
+      <div className="my-6">
+        {allowFeedback && (
+          <FeedbackBtn
+            eventId={event._id}
+            onSuccess={() => setFeedbackLeft(true)}
+          />
+        )}
+      </div>
+      <EventFeedbackSection eventId={event._id} />
     </div>
   );
 }
