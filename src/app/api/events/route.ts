@@ -101,8 +101,6 @@ export const POST = catchAsync(async (req) => {
 
 // GET /api/events
 export const GET = catchAsync(async (req) => {
-  // If you want this route public, remove guard or allow roles
-  await guard(req);
 
   // Extract query parameters
   const url = new URL(req.url);
