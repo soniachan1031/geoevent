@@ -24,7 +24,6 @@ export default function MyHostedEvents({
             <EventCard
               key={event._id}
               event={event}
-              link={`/my-hosted-events/${event._id}`}
             />
           ))}
         </div>

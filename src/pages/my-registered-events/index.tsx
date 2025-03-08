@@ -26,7 +26,6 @@ export default function MyRegisteredEvents({
             <EventCard
               key={event._id}
               event={event}
-              link={`/events/${event._id}`}
             />
           ))}
         </div>

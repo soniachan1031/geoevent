@@ -31,7 +31,6 @@ export default function MyHistory({
               <EventCard
                 key={event._id}
                 event={event}
-                link={`/events/${event._id}`}
               />
             ))}
           </div>
@@ -49,7 +48,6 @@ export default function MyHistory({
               <EventCard
                 key={event._id}
                 event={event}
-                link={`/events/${event._id}`}
               />
             ))}
           </div>
