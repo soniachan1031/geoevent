@@ -10,11 +10,11 @@ const PublicApi = () => {
         <h2 className="text-2xl font-semibold mb-2">GET /api/events</h2>
         <p className="mb-4">
           This endpoint retrieves a combined list of events from your local
-          database along with external events fetched from external APIs. The
+          database along with external events fetched from Ticketmaster. The
           results include both local events (with <code>external: false</code>)
-          and external events (with <code>external: true</code>). It accepts
-          various query parameters to filter events by keyword, location, date,
-          and event attributes.
+          and external events (with <code>external: true</code>). The endpoint
+          accepts various query parameters to filter events by keyword,
+          location, date, and event attributes.
         </p>
 
         <h3 className="text-xl font-semibold mb-2">Query Parameters</h3>
@@ -92,14 +92,6 @@ const PublicApi = () => {
         "category": "Music",
         "format": "Offline",
         "language": "English",
-        "capacity": 200,
-        "registrationDeadline": "2025-06-01T00:00:00.000Z",
-        "image": "https://example.com/image.jpg",
-        "agenda": [
-          { "time": "18:00", "activity": "Welcome Speech" },
-          { "time": "18:30", "activity": "Live Performance" }
-        ],
-        "contact": { "email": "info@example.com", "phone": 1234567890 },
         "organizer": { "_id": "64ab...", "name": "Organizer Name" },
         "external": false,
         "url": null
@@ -122,11 +114,6 @@ const PublicApi = () => {
         "category": "Other",
         "format": "Offline",
         "language": "English",
-        "capacity": null,
-        "registrationDeadline": null,
-        "image": "https://example.com/external-image.jpg",
-        "agenda": [],
-        "contact": { "email": "", "phone": 0 },
         "organizer": "Ticketmaster",
         "external": true,
         "url": "https://www.ticketmaster.com/event/..."
@@ -154,10 +141,11 @@ const PublicApi = () => {
         <h2 className="text-2xl font-semibold mb-2">Example Request</h2>
         <p className="mb-2">
           To fetch events with the keyword <code>concert</code> in{" "}
-          <code>Toronto</code> from <code>2025-06-01</code> onward:
+          <code>Toronto</code> from <code>2025-06-01</code> onward, send a
+          request to:
         </p>
         <pre className="bg-gray-100 p-4 rounded overflow-x-auto text-sm mb-4">
-          {`GET /api/events?search=concert&city=Toronto&dateFrom=2025-06-01&page=1&limit=30`}
+          {`GET https://geoevent.ca/api/events?search=concert&city=Toronto&dateFrom=2025-06-01&page=1&limit=30`}
         </pre>
       </section>
 
