@@ -16,7 +16,13 @@ function EventSearchProvider({
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchOptions, setSearchOptions] = useState<TEventSearchOptions>({});
+  const [searchOptions, setSearchOptions] = useState<TEventSearchOptions>({
+    location: {
+      city: "kitchener",
+      state: "Ontario",
+      country: "canada",
+    },
+  });
   const [events, setEvents] = useState<IEvent[]>([]);
   const [pagination, setPagination] = useState<TPagination>({
     total: 0,

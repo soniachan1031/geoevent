@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Logo from "./Logo";
 
 export default function Footer() {
@@ -12,6 +13,10 @@ export default function Footer() {
           <p className="text-sm text-gray-600 text-center">
             Your go-to source for local events happening near you.
           </p>
+          <div className="flex gap-5 items-center justify-center">
+            <Link className="underline" href="/about">About</Link>
+            <Link className="underline" href="/public-api">Public Api</Link>
+          </div>
           <p className="text-sm text-gray-600 text-center">
             &copy; {new Date().getFullYear()} GeoEvent. All rights reserved.
           </p>

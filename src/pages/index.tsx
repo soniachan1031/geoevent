@@ -2,16 +2,18 @@ import {
   EEventCategory,
   EEventFormat,
   EEventLanguage,
+  IEvent,
 } from "@/types/event.types";
 import extractDate from "@/lib/extractDate";
 import { useEventSearchContext } from "@/context/EventSearchContext";
 import { LoadingSkeleton } from "@/components/skeletons/LoadingSkeleton";
-import EventCard from "@/components/EventCard";
 import CustomPagination from "@/components/paginations/CustomPagination";
 import serverSidePropsHandler from "@/lib/server/serverSidePropsHandler";
 import { EAuthStatus } from "@/types/user.types";
 import EventMap from "@/components/maps/EventMap/EventMap";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 export const metadata = {
   title: "GeoEvent",
@@ -51,7 +53,7 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center min-h-screen gap-5 w-full">
       <h1 className="text-3xl font-semibold">GeoEvent</h1>
-      <div className="flex flex-wrap gap-5 items-center justify-center">
+      <div className="hidden md:flex flex-wrap gap-5 items-center justify-center">
         <select
           value={searchOptions.category ?? ""}
           onChange={(e) =>
@@ -142,15 +144,15 @@ export default function Home() {
         </div>
       ) : (
         <>
-          <div className="flex gap-5 w-full">
-            <div className="flex-1 h-[500px] sticky top-[75px] hidden md:block">
+          <div className="flex-1 flex flex-col md:flex-row gap-5 w-full">
+            <div className="md:flex-1 block w-auto h-[500px] md:sticky md:top-[75px] bg-slate-500">
               <EventMap
                 events={events}
                 selectedEventId={selectedEventId}
                 onMarkerClick={setSelectedEventId}
               />
             </div>
-            <div className="grid sm:grid-cols-2 md:grid-cols-1 gap-5 place-items-center w-full md:w-auto">
+            <div className="grid sm:grid-cols-2 md:grid-cols-1 gap-5 place-items-center w-auto">
               {events.map((event) => (
                 <div
                   key={event._id}
@@ -161,7 +163,7 @@ export default function Home() {
                     selectedEventId === event._id ? "shadow-lg" : ""
                   }`}
                 >
-                  <EventCard event={event} horizontal />
+                  <EventCard event={event} />
                 </div>
               ))}
             </div>
@@ -179,3 +181,43 @@ export default function Home() {
 export const getServerSideProps = serverSidePropsHandler({
   access: EAuthStatus.ANY,
 });
+
+const EventCard = ({ event }: Readonly<{ event: IEvent }>) => {
+  const link = event.external ? event.url ?? "/" : `events/${event._id}`;
+
+  return (
+    <Link href={link} target="_blank" className="group block w-full">
+      <div
+        className={`bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 flex flex-row overflow-hidden`}
+      >
+        {/* Event Image */}
+        <Image
+          src={event.image ?? "/logo.png"}
+          alt={event.title}
+          width={150}
+          height={150}
+          loading="lazy"
+          className={`object-cover group-hover:opacity-90 aspect-square w-[150px]`}
+        />
+
+        {/* Event Details */}
+        <div className="p-4">
+          <div className="max-w-[200px]">
+            <h2 className="text-xl font-semibold text-gray-900 break-words">
+              {event.title}
+            </h2>
+          </div>
+          <p className="text-sm text-gray-500">
+            {new Date(event.date).toLocaleDateString("en-US", {
+              timeZone: "UTC",
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}{" "}
+            &bull; {event.category}
+          </p>
+        </div>
+      </div>
+    </Link>
+  );
+};

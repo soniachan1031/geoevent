@@ -101,12 +101,12 @@ export const POST = catchAsync(async (req) => {
 
 // GET /api/events
 export const GET = catchAsync(async (req) => {
-
   // Extract query parameters
   const url = new URL(req.url);
   const search = url.searchParams.get("search");
   const city = url.searchParams.get("city");
   const state = url.searchParams.get("state");
+  const country = url.searchParams.get("country");
   const address = url.searchParams.get("address");
   const dateFrom = url.searchParams.get("dateFrom");
   const dateTo = url.searchParams.get("dateTo");
@@ -132,8 +132,9 @@ export const GET = catchAsync(async (req) => {
     }
   }
 
-  if (city) filters["location.city"] = city;
-  if (state) filters["location.state"] = state;
+  if (city) filters["location.city"] = { $regex: city, $options: "i" };
+  if (state) filters["location.state"] = { $regex: state, $options: "i" };
+  if (country) filters["location.country"] = { $regex: country, $options: "i" };
   if (address) filters["location.address"] = { $regex: address, $options: "i" };
 
   if (dateFrom || dateTo) {

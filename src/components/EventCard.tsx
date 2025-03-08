@@ -4,21 +4,15 @@ import { IEvent } from "@/types/event.types";
 
 interface EventCardProps {
   event: IEvent;
-  horizontal?: boolean;
 }
 
-export default function EventCard({
-  event,
-  horizontal,
-}: Readonly<EventCardProps>) {
+export default function EventCard({ event }: Readonly<EventCardProps>) {
   const link = event.external ? event.url ?? "/" : `events/${event._id}`;
 
   return (
     <Link href={link} target="_blank" className="group block w-full">
       <div
-        className={`bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 flex ${
-          horizontal ? "flex-col md:flex-row" : "flex-col"
-        }`}
+        className={`bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 flex flex-col`}
       >
         {/* Event Image */}
         <Image
@@ -27,9 +21,7 @@ export default function EventCard({
           width={300}
           height={300}
           loading="lazy"
-          className={`object-cover group-hover:opacity-90 aspect-square  ${
-            horizontal ? "w-full md:max-w-[150px] " : "w-full"
-          }`}
+          className={`object-cover group-hover:opacity-90 aspect-square w-full`}
         />
 
         {/* Event Details */}
