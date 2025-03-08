@@ -208,6 +208,9 @@ export const GET = catchAsync(async (req) => {
         "classificationName",
         category.split(" ").join("-")
       );
+    tmUrl.searchParams.set("countryCode", "CA");
+
+    tmUrl.searchParams.set("sort", "date,asc");
 
     // Use the same page/limit approach
     // Ticketmaster uses 0-based index for "page"

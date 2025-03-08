@@ -14,7 +14,7 @@ export default function Footer() {
             Your go-to source for local events happening near you.
           </p>
           <div className="flex gap-5 items-center justify-center">
-            <Link className="underline" href="/about">About</Link>
+            <Link className="underline" href="/">Home</Link>
             <Link className="underline" href="/public-api">Public Api</Link>
           </div>
           <p className="text-sm text-gray-600 text-center">

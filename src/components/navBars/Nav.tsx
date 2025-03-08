@@ -15,13 +15,13 @@ import { useAuthContext } from "@/context/AuthContext";
 export default function Nav() {
   const { user } = useAuthContext();
   return (
-    <nav className="bg-white p-3 sticky top-0 z-50 shadow-md">
+    <nav className="bg-white p-1 md:p-3 sticky top-0 z-50 shadow-md">
       {/**
        * flex-wrap allows items to wrap on small screens;
        * justify-between splits logo on the left, profile or login on the right.
        * gap-3 provides spacing between items.
        */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-1 md:gap-3">
         {/* Left: Logo */}
         <Link href="/">
           <Logo height={30} width={30} />
