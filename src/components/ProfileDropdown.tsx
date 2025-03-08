@@ -50,6 +50,9 @@ export default function ProfileDropdown() {
           <Link href="/my-preferences">Preferences</Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+          <Link href="/my-history">History</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={(e) => e.preventDefault()}>
           <LogoutBtn />
         </DropdownMenuItem>
       </DropdownMenuContent>

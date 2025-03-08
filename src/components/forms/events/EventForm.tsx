@@ -37,6 +37,7 @@ import { TLocation } from "@/types/location.types";
 import extractDate from "@/lib/extractDate";
 import { eventTimeRegex } from "@/lib/regex";
 import { EApiRequestMethod } from "@/types/api.types";
+import AIEventDescriptionHelperBtn from "@/components/buttons/AIEventDescriptionHelperBtn";
 
 type TEventFormProps = {
   event?: IEvent | null;
@@ -248,7 +249,15 @@ const EventForm: FC<TEventFormProps> = ({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel className="flex items-center gap-5">
+                <span>Description</span>{" "}
+                <AIEventDescriptionHelperBtn
+                  eventTitle={form.getValues("title")}
+                  onSuggestionApproval={(suggestion) =>
+                    form.setValue("description", suggestion)
+                  }
+                />
+              </FormLabel>
               <FormControl>
                 <Textarea placeholder="Enter event description" {...field} />
               </FormControl>

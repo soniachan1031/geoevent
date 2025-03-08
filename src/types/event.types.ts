@@ -62,6 +62,8 @@ export interface IEvent {
   agenda?: TEventAgenda[];
   contact: TEventContact;
   organizer: string | IUser;
+  external?: boolean;
+  url?: string;
 }
 
 export interface ISavedEvent {
@@ -91,4 +93,20 @@ export interface IEventViews {
   _id: string;
   event: string | IEvent;
   views: number;
+}
+
+export enum EEventShareMedia {
+  WHATSAPP = "WhatsApp",
+  FACEBOOK = "Facebook",
+  TWITTER = "Twitter",
+  LINKEDIN = "LinkedIn",
+  URL = "URL",
+}
+
+export interface IEventShare {
+  _id: string;
+  user?: string | IUser;
+  event: string | IEvent;
+  media: EEventShareMedia;
+  date: Date;
 }

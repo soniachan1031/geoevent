@@ -51,7 +51,7 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center min-h-screen gap-5 w-full">
       <h1 className="text-3xl font-semibold">GeoEvent</h1>
-      <div className="flex gap-5 items-center">
+      <div className="flex flex-wrap gap-5 items-center justify-center">
         <select
           value={searchOptions.category ?? ""}
           onChange={(e) =>
@@ -143,27 +143,25 @@ export default function Home() {
       ) : (
         <>
           <div className="flex gap-5 w-full">
-            <div className="flex-1 h-[500px] sticky top-[75px]">
+            <div className="flex-1 h-[500px] sticky top-[75px] hidden md:block">
               <EventMap
                 events={events}
                 selectedEventId={selectedEventId}
                 onMarkerClick={setSelectedEventId}
               />
             </div>
-            <div className="grid gap-5">
+            <div className="grid sm:grid-cols-2 md:grid-cols-1 gap-5 place-items-center w-full md:w-auto">
               {events.map((event) => (
                 <div
                   key={event._id}
-                  ref={(el) => {eventRefs.current[event._id] = el;}}
-                  className={`p-2 rounded max-h-max ${
+                  ref={(el) => {
+                    eventRefs.current[event._id] = el;
+                  }}
+                  className={`w-full p-2 rounded max-h-max ${
                     selectedEventId === event._id ? "shadow-lg" : ""
                   }`}
                 >
-                  <EventCard
-                    event={event}
-                    link={`events/${event._id}`}
-                    horizontal
-                  />
+                  <EventCard event={event} horizontal />
                 </div>
               ))}
             </div>

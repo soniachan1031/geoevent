@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: `${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com`,
       },
+      {
+        protocol: "https",
+        hostname: `s1.ticketm.net`,
+      },
     ],
   },
 };

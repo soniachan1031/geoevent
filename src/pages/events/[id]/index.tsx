@@ -31,6 +31,7 @@ import SocialShareBtn from "@/components/buttons/SocialShareBtn";
 import EventFeedbackSection from "@/components/EventFeedbackSection";
 import FeedbackBtn from "@/components/buttons/FeedbackBtn";
 import GoogleMapDirectionBtn from "@/components/buttons/GoogleMapDirectionsBtn";
+import Link from "next/link";
 
 type EventPageProps = {
   event: IEvent;
@@ -69,6 +70,9 @@ export default function EventPage({
     new Date(event.registrationDeadline ?? event.date) > new Date();
 
   const allowUnregister = registered;
+
+  const showAnalyticsBtn =
+    user && (user.role === "admin" || event.organizer === user._id);
 
   const handleBookMark = async () => {
     try {
@@ -227,7 +231,7 @@ export default function EventPage({
       </div>
 
       {/* Buttons: Save & Register */}
-      <div className="flex gap-5 items-center mt-6">
+      <div className="flex flex-wrap gap-5 items-center mt-6">
         <Button
           variant="outline"
           onClick={handleBookMark}
@@ -273,6 +277,13 @@ export default function EventPage({
 
         {/* Google maps direction */}
         <GoogleMapDirectionBtn event={event} />
+
+        {/* Analytics Button */}
+        {showAnalyticsBtn && (
+          <Button variant="outline">
+            <Link href={`/events/${event._id}/analytics`}>Analytics</Link>
+          </Button>
+        )}
       </div>
 
       {/* Event Description */}
