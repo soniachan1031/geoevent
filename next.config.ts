@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: `s1.ticketm.net`,
       },
+      {
+        protocol: "https",
+        hostname: `images.universe.com`,
+      },
     ],
   },
 };

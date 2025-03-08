@@ -203,6 +203,11 @@ export const GET = catchAsync(async (req) => {
     // We’ll pass the same 'search' as 'keyword'
     if (search) tmUrl.searchParams.set("keyword", search);
     if (city) tmUrl.searchParams.set("city", city);
+    if (category)
+      tmUrl.searchParams.set(
+        "classificationName",
+        category.split(" ").join("-")
+      );
 
     // Use the same page/limit approach
     // Ticketmaster uses 0-based index for "page"
@@ -210,6 +215,7 @@ export const GET = catchAsync(async (req) => {
     tmUrl.searchParams.set("page", (page - 1).toString());
     tmUrl.searchParams.set("size", externalLimit.toString());
 
+    console.log("TM URL", tmUrl.toString());
     const tmRes = await fetch(tmUrl.toString());
     const tmData = await tmRes.json();
 
@@ -239,7 +245,8 @@ export const GET = catchAsync(async (req) => {
           date: ev.dates?.start?.localDate ?? "",
           time: ev.dates?.start?.localTime ?? "00:00",
           duration: undefined,
-          category: EEventCategory.OTHER, // or parse from ev.classifications
+          category:
+            ev.classifications?.[0]?.segment?.name ?? EEventCategory.OTHER, // or parse from ev.classifications
           format: EEventFormat.OFFLINE,
           language: EEventLanguage.ENGLISH,
           capacity: undefined,
