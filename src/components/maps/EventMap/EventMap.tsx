@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { GoogleMap, useGoogleMap } from "@react-google-maps/api";
 import { useGoogleMapsContext } from "@/providers/GoogleMapsProvider";
 import { IEvent } from "@/types/event.types";
@@ -75,25 +75,21 @@ export default function Index({
   );
 }
 
-function EventMarker({
-  event,
-  selected,
-  onClick,
-}: {
+interface EventMarkerProps {
   event: IEvent;
   selected: boolean;
   onClick?: (eventId: string) => void;
-}) {
+}
+
+export function EventMarker({ event, selected, onClick }: EventMarkerProps) {
   const map = useGoogleMap();
   const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(
     null
   );
-  const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
     if (!map || !google?.maps?.marker?.AdvancedMarkerElement) return;
 
-    // Create marker
     const marker = new google.maps.marker.AdvancedMarkerElement({
       map,
       position: {
@@ -103,34 +99,46 @@ function EventMarker({
       title: event.title,
     });
 
-    // Render the react-icons component to a string
-    const iconHtml = ReactDOMServer.renderToString(
-      <FaMapMarker
-        size={selected ? 40: 30}
-        color={selected ? "red" : "black"}
-        className={styles.markerIcon} // ✅ Apply module CSS class
-      />
-    );
-
-    // Create a container div for the marker
     const div = document.createElement("div");
-    div.className = styles.markerContainer; // ✅ Apply class from module
+    div.className = styles.markerContainer;
+
     div.innerHTML = `
-      ${iconHtml}
-      <div class="${styles.eventPreview} ${hovered ? styles.visible : ""}">
-        <strong>${event.title}</strong>
-        <p>${event.category}</p>
-        <p>${new Date(event.date).toLocaleDateString()}</p>
+      <div class="${styles.iconWrapper}">
+        ${ReactDOMServer.renderToString(
+          <FaMapMarker
+            size={selected ? 40 : 30}
+            color={selected ? "red" : "black"}
+            className={styles.markerIcon}
+          />
+        )}
+        <div class="${styles.eventPreview}">
+          <img src="${event.image}" alt="${event.title}" class="${
+      styles.previewImage
+    }" />
+          <div class="${styles.previewContent}">
+            <strong>${event.title}</strong>
+            <p>${event.category}</p>
+            <p>${new Date(event.date).toLocaleDateString()}</p>
+          </div>
+        </div>
       </div>
     `;
 
     marker.content = div;
 
-    // Show preview on hover
-    div.addEventListener("mouseenter", () => setHovered(true));
-    div.addEventListener("mouseleave", () => setHovered(false));
+    // Set initial zIndex
+    marker.zIndex = selected ? 1000 : 0;
 
-    // Add click listener
+    // Boost zIndex on hover
+    marker.content.addEventListener("mouseenter", () => {
+      marker.zIndex = 9999;
+    });
+
+    marker.content.addEventListener("mouseleave", () => {
+      marker.zIndex = selected ? 1000 : 0;
+    });
+
+    // Click handling
     marker.addListener("gmp-click", () => {
       onClick?.(event._id);
     });
@@ -140,7 +148,7 @@ function EventMarker({
     return () => {
       marker.map = null;
     };
-  }, [map, event, selected, onClick, hovered]);
+  }, [map, event, selected, onClick]);
 
   return null;
 }

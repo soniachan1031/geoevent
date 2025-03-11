@@ -1,30 +1,66 @@
 .markerContainer {
   position: relative;
   display: inline-block;
+  z-index: 1;
+  transition: z-index 0.2s ease-in-out;
 }
 
 .markerIcon {
   display: block;
   margin: auto;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.markerIcon:hover {
+  transform: scale(1.1);
+}
+
+.iconWrapper {
+  position: relative;
+  display: inline-block;
 }
 
 .eventPreview {
   position: absolute;
-  bottom: 40px;
+  bottom: 50px;
   left: 50%;
   transform: translateX(-50%);
-  background: white;
-  padding: 8px;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  font-size: 12px;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease-in-out;
+  pointer-events: none;
+  transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out;
+  z-index: 10;
+  width: 220px;
+  text-align: center;
 }
 
-.visible {
+.iconWrapper:hover .eventPreview {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
+  z-index: 9999;
+}
+
+.previewImage {
+  width: 100%;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.previewContent {
+  font-size: 13px;
+  color: #333;
+}
+
+.previewContent p {
+  margin: 2px 0;
 }
