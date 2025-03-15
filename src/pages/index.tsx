@@ -182,7 +182,7 @@ export const getServerSideProps = serverSidePropsHandler({
 });
 
 const EventCard = ({ event }: Readonly<{ event: IEvent }>) => {
-  const link = event.external ? event.url ?? "/" : `events/${event._id}`;
+  const link = `events/${event._id}`;
 
   return (
     <Link href={link} className="group block w-full">
