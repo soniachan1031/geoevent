@@ -21,6 +21,7 @@ import {
 } from "@react-google-maps/api";
 import { useGoogleMapsContext } from "@/providers/GoogleMapsProvider";
 import Link from "next/link";
+import { TLocation } from "@/types/location.types";
 
 const GoogleMapDirectionBtn: React.FC<{
   event: IEvent;
@@ -40,7 +41,6 @@ const GoogleMapDirectionBtn: React.FC<{
         <AlertDialogHeader>
           <AlertDialogTitle>Directions to {event.title}</AlertDialogTitle>
           <AlertDialogDescription>
-            {/* <GoogleMapsEmbed destination={event.location} /> */}
             <DirectionsMap destination={event.location} />
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -57,20 +57,53 @@ export default GoogleMapDirectionBtn;
 // Container style for the map
 const containerStyle = { width: "100%", height: "450px" };
 
-const DirectionsMap: React.FC<{ destination: { lat: number; lng: number } }> = ({ destination }) => {
+const DirectionsMap: React.FC<{ destination: TLocation }> = ({
+  destination,
+}) => {
   const { isLoaded } = useGoogleMapsContext();
-  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
-  const [selectedMode, setSelectedMode] = useState<google.maps.TravelMode>(google.maps.TravelMode.DRIVING);
+  const [directions, setDirections] =
+    useState<google.maps.DirectionsResult | null>(null);
+  const [selectedMode, setSelectedMode] = useState<google.maps.TravelMode>(
+    google.maps.TravelMode.DRIVING
+  );
   const [travelDuration, setTravelDuration] = useState<string | null>(null);
-  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locationError, setLocationError] = useState<string | null>(null); // New state for location error
+  const [currentLocation, setCurrentLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   const travelModes = [
-    { label: "Driving", value: google.maps.TravelMode.DRIVING, icon: <FaCarSide /> },
-    { label: "Walking", value: google.maps.TravelMode.WALKING, icon: <FaWalking /> },
-    { label: "Bicycling", value: google.maps.TravelMode.BICYCLING, icon: <IoBicycleSharp /> },
-    { label: "Transit", value: google.maps.TravelMode.TRANSIT, icon: <IoBusSharp /> },
+    {
+      label: "Driving",
+      value: google.maps.TravelMode.DRIVING,
+      icon: <FaCarSide />,
+    },
+    {
+      label: "Walking",
+      value: google.maps.TravelMode.WALKING,
+      icon: <FaWalking />,
+    },
+    {
+      label: "Bicycling",
+      value: google.maps.TravelMode.BICYCLING,
+      icon: <IoBicycleSharp />,
+    },
+    {
+      label: "Transit",
+      value: google.maps.TravelMode.TRANSIT,
+      icon: <IoBusSharp />,
+    },
   ];
+
+  const isValidCoordinates = destination.lat !== 0 && destination.lng !== 0;
+
+  // Fallback destination string (e.g., "123 Main St, City, State, Country")
+  const destinationAddress = `${destination.address}${
+    destination.city ? `, ${destination.city}` : ""
+  }${destination.state ? `, ${destination.state}` : ""}, ${
+    destination.country
+  }`;
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -80,11 +113,13 @@ const DirectionsMap: React.FC<{ destination: { lat: number; lng: number } }> = (
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
-          setLocationError(null); // Clear any previous error
+          setLocationError(null);
         },
         (error) => {
           console.error("Error getting location:", error);
-          setLocationError("Unable to retrieve your location. Please ensure location permissions are granted.");
+          setLocationError(
+            "Unable to retrieve your location. Please ensure location permissions are granted."
+          );
         }
       );
     } else {
@@ -92,7 +127,10 @@ const DirectionsMap: React.FC<{ destination: { lat: number; lng: number } }> = (
     }
   }, []);
 
-  const handleDirectionsCallback = (result: google.maps.DirectionsResult | null, status: google.maps.DirectionsStatus) => {
+  const handleDirectionsCallback = (
+    result: google.maps.DirectionsResult | null,
+    status: google.maps.DirectionsStatus
+  ) => {
     if (status === "OK" && result) {
       setDirections(result);
       const duration = result.routes?.[0]?.legs?.[0]?.duration?.text;
@@ -103,15 +141,13 @@ const DirectionsMap: React.FC<{ destination: { lat: number; lng: number } }> = (
   };
 
   if (!isLoaded || !currentLocation) {
-    if (locationError) {
-      return <div>{locationError}</div>; // Show error message if location can't be retrieved
-    }
-    return <LoadingSkeleton />; // Optionally show a loading message
+    if (locationError) return <div>{locationError}</div>;
+    return <LoadingSkeleton />;
   }
 
   return (
     <div>
-      {/* Travel Mode Icons */}
+      {/* Travel Mode Buttons */}
       <div className="flex gap-4 mb-4">
         {travelModes.map((mode) => (
           <Button
@@ -123,9 +159,17 @@ const DirectionsMap: React.FC<{ destination: { lat: number; lng: number } }> = (
             <span className="text-xl">{mode.icon}</span>
           </Button>
         ))}
+
+        {/* Open in Google Maps (dynamic destination string or coords) */}
         <Button variant="link">
           <Link
-            href={`https://www.google.com/maps/dir/?api=1&origin=${currentLocation?.lat},${currentLocation?.lng}&destination=${destination.lat},${destination.lng}`}
+            href={`https://www.google.com/maps/dir/?api=1&origin=${
+              currentLocation.lat
+            },${currentLocation.lng}&destination=${
+              isValidCoordinates
+                ? `${destination.lat},${destination.lng}`
+                : encodeURIComponent(destinationAddress)
+            }`}
             target="_blank"
           >
             Open in Google Maps
@@ -137,12 +181,16 @@ const DirectionsMap: React.FC<{ destination: { lat: number; lng: number } }> = (
         <div className="mb-4">Estimated Duration: {travelDuration}</div>
       )}
 
-      {/* Google Map */}
-      <GoogleMap mapContainerStyle={containerStyle} center={currentLocation} zoom={12}>
+      {/* Google Map Display */}
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={currentLocation}
+        zoom={12}
+      >
         <DirectionsService
           options={{
             origin: currentLocation,
-            destination,
+            destination: isValidCoordinates ? destination : destinationAddress,
             travelMode: selectedMode,
           }}
           callback={handleDirectionsCallback}

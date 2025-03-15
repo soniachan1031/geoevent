@@ -12,7 +12,6 @@ import serverSidePropsHandler from "@/lib/server/serverSidePropsHandler";
 import { EAuthStatus } from "@/types/user.types";
 import EventMap from "@/components/maps/EventMap/EventMap";
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 
 export const metadata = {
@@ -186,17 +185,14 @@ const EventCard = ({ event }: Readonly<{ event: IEvent }>) => {
   const link = event.external ? event.url ?? "/" : `events/${event._id}`;
 
   return (
-    <Link href={link} target="_blank" className="group block w-full">
+    <Link href={link} className="group block w-full">
       <div
         className={`bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 flex flex-row overflow-hidden`}
       >
         {/* Event Image */}
-        <Image
+        <img
           src={event.image ?? "/logo.png"}
           alt={event.title}
-          width={150}
-          height={150}
-          loading="lazy"
           className={`object-cover group-hover:opacity-90 aspect-square w-[150px]`}
         />
 

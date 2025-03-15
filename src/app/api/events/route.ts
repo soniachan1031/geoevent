@@ -1,12 +1,7 @@
 import catchAsync from "@/lib/server/catchAsync";
 import AppResponse from "@/lib/server/AppResponse";
 import { guard } from "@/lib/server/middleware/guard";
-import {
-  EEventCategory,
-  EEventFormat,
-  EEventLanguage,
-  IEvent,
-} from "@/types/event.types";
+import { IEvent } from "@/types/event.types";
 import { uploadImage } from "@/lib/server/s3UploadHandler";
 import Event from "@/mongoose/models/Event";
 import sendMail from "@/lib/server/email/sendMail";
@@ -20,6 +15,7 @@ import { getSiteURL } from "@/lib/server/urlGenerator";
 import connectDB from "@/lib/server/connectDB";
 import { TPagination } from "@/types/api.types";
 import { Types } from "mongoose";
+import ticketMasterToLocalEvent from "@/lib/ticketMasterToLocalEvent";
 
 // create event
 export const POST = catchAsync(async (req) => {
@@ -113,6 +109,7 @@ export const GET = catchAsync(async (req) => {
   const category = url.searchParams.get("category");
   const format = url.searchParams.get("format");
   const language = url.searchParams.get("language");
+  const ticketMaster = url.searchParams.get("ticketMaster");
 
   // We'll unify these for local + external
   const page = parseInt(url.searchParams.get("page") ?? "1", 10);
@@ -193,7 +190,7 @@ export const GET = catchAsync(async (req) => {
   let externalTotal = 0;
   let externalMapped: IEvent[] = [];
 
-  if (TICKETMASTER_API_KEY) {
+  if (TICKETMASTER_API_KEY && ticketMaster !== "false") {
     // Build Ticketmaster URL
     const tmUrl = new URL(
       "https://app.ticketmaster.com/discovery/v2/events.json"
@@ -227,41 +224,9 @@ export const GET = catchAsync(async (req) => {
     }
 
     if (tmData._embedded?.events) {
-      externalMapped = tmData._embedded.events.map((ev: any): IEvent => {
-        const cityName = ev._embedded?.venues?.[0]?.city?.name ?? "";
-        const stateName = ev._embedded?.venues?.[0]?.state?.name ?? "";
-        const countryName = ev._embedded?.venues?.[0]?.country?.name ?? "";
-        const addressLine = ev._embedded?.venues?.[0]?.address?.line1 ?? "";
-
-        return {
-          _id: ev.id,
-          title: ev.name,
-          description: ev.info ?? "",
-          location: {
-            city: cityName,
-            state: stateName,
-            country: countryName,
-            address: addressLine,
-            lat: Number(ev._embedded?.venues?.[0]?.location?.latitude ?? 0),
-            lng: Number(ev._embedded?.venues?.[0]?.location?.longitude ?? 0),
-          },
-          date: ev.dates?.start?.localDate ?? "",
-          time: ev.dates?.start?.localTime ?? "00:00",
-          duration: undefined,
-          category:
-            ev.classifications?.[0]?.segment?.name ?? EEventCategory.OTHER, // or parse from ev.classifications
-          format: EEventFormat.OFFLINE,
-          language: EEventLanguage.ENGLISH,
-          capacity: undefined,
-          registrationDeadline: undefined,
-          image: ev.images?.[0]?.url,
-          agenda: [],
-          contact: { email: "", phone: 0 },
-          organizer: "Ticketmaster", // we store a string
-          external: true,
-          url: ev.url,
-        };
-      });
+      externalMapped = tmData._embedded.events.map(
+        (ev: any): IEvent => ticketMasterToLocalEvent(ev)
+      );
     }
   }
 

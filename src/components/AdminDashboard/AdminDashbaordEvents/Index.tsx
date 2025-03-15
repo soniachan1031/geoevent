@@ -12,7 +12,7 @@ import { GrPowerReset } from "react-icons/gr";
 import { IEvent } from "@/types/event.types";
 import UpdateEventBtn from "@/components/buttons/UpdateEventBtn";
 import DeleteEventBtn from "@/components/buttons/DeleteEventBtn";
-import { formatMinutes } from "@/lib/formatHandler";
+import Image from "next/image";
 
 type TGetEventProps = {
   page?: number;
@@ -41,7 +41,7 @@ const AdminDashboardEvents = () => {
       setLoading(true);
       // Fetch events data
       const res = await axiosInstance().get("api/events", {
-        params: { page, limit, search },
+        params: { page, limit, search, ticketMaster: false },
       });
       const { docs, pagination } = res.data.data;
       setEvents(docs);
@@ -79,43 +79,35 @@ const AdminDashboardEvents = () => {
               <thead>
                 <tr className="border-b text-left">
                   <th className="p-2">Id</th>
+                  <th>Image</th>
                   <th className="p-2">Title</th>
                   <th>Category</th>
                   <th className="p-2">Date</th>
-                  <th className="p-2">Time</th>
-                  <th>Registration Deadline</th>
                   <th className="p-2">Organizer</th>
                   <th className="p-2">Location</th>
                   <th className="p-2">Format</th>
-                  <th>Duration</th>
                   <th className="p-2">Capacity</th>
                 </tr>
               </thead>
               <tbody>
                 {events.map((event) => (
                   <tr key={event._id} className="border-b">
-                    <td className="p-2">
-                      <div className="w-20 overflow-hidden text-ellipsis">
-                        {event._id}
-                      </div>
-                    </td>
+                    <td className="p-2">{event._id}</td>
+                    <th className="p-2">
+                      <Image
+                        src={event.image ?? "/logo.ppg"}
+                        width={50}
+                        height={50}
+                        alt={event.title}
+                        className="rounded shadow-md w-[50px] h-[50px] object-cover"
+                      />
+                    </th>
                     <td className="p-2">{event.title}</td>
                     <td>{event.category}</td>
                     <td className="p-2">
-                      {(event.date as string).slice(0, 10)}
+                      {(event.date as string)?.slice(0, 10)}
                     </td>
-                    <td className="p-2">
-                      <input
-                        type="time"
-                        name="eventTime"
-                        id="eventTime"
-                        disabled
-                        value={event.time}
-                      />
-                    </td>
-                    <td>
-                      {(event.registrationDeadline as string).slice(0, 10)}
-                    </td>
+
                     <td className="p-2">
                       {event.organizer && typeof event.organizer === "object"
                         ? event.organizer.name
@@ -123,7 +115,6 @@ const AdminDashboardEvents = () => {
                     </td>
                     <td className="p-2">{event.location.address}</td>
                     <td className="p-2">{event.format}</td>
-                    <td>{event.duration && formatMinutes(event.duration)}</td>
                     <td className="p-2">{event.capacity}</td>
                     <td className="flex gap-2 p-2">
                       <UpdateEventBtn

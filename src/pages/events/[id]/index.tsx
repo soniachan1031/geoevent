@@ -1,7 +1,6 @@
 import Image from "next/image";
 import CustomBreadcrumb from "@/components/CustomBreadcrumb";
 import stringifyAndParse from "@/lib/stringifyAndParse";
-import Event from "@/mongoose/models/Event";
 import { IEvent } from "@/types/event.types";
 import { GetServerSideProps } from "next";
 import {
@@ -32,6 +31,8 @@ import EventFeedbackSection from "@/components/EventFeedbackSection";
 import FeedbackBtn from "@/components/buttons/FeedbackBtn";
 import GoogleMapDirectionBtn from "@/components/buttons/GoogleMapDirectionsBtn";
 import Link from "next/link";
+import getEvent from "@/lib/server/getEvent";
+import { CiLink } from "react-icons/ci";
 
 type EventPageProps = {
   event: IEvent;
@@ -152,10 +153,16 @@ export default function EventPage({
       <div className="mt-6">
         <h1 className="text-3xl font-bold">{event.title}</h1>
         <p className="text-gray-500 mt-1">
-          Hosted by{" "}
-          {typeof event.organizer === "object"
-            ? event.organizer.name
-            : "Unknown Organizer"}
+          {event.external ? (
+            "External Event"
+          ) : (
+            <>
+              Hosted by{" "}
+              {typeof event.organizer === "object"
+                ? event.organizer.name
+                : "Unknown Organizer"}
+            </>
+          )}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 bg-gray-50 p-4 rounded-lg shadow">
@@ -232,44 +239,48 @@ export default function EventPage({
 
       {/* Buttons: Save & Register */}
       <div className="flex flex-wrap gap-5 items-center mt-6">
-        <Button
-          variant="outline"
-          onClick={handleBookMark}
-          loading={bookMarkEventLoading}
-        >
-          {bookMarked ? (
-            <div className="flex items-center gap-2">
-              <BookmarkCheck className="w-5 h-5" />
-              <span>BookMarked</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Bookmark className="w-5 h-5" />
-              <span>BookMark</span>
-            </div>
-          )}
-        </Button>
-
-        {/* buttons: register, unregister */}
-        {allowRegister ? (
-          <Button
-            loading={registerEventLoading}
-            onClick={handleRegister}
-            loaderProps={{ color: "white" }}
-          >
-            Register
-          </Button>
-        ) : (
-          allowUnregister && (
+        {!event.external && (
+          <>
             <Button
-              variant="destructive"
-              onClick={handleRegister}
-              loading={registerEventLoading}
-              loaderProps={{ color: "white" }}
+              variant="outline"
+              onClick={handleBookMark}
+              loading={bookMarkEventLoading}
             >
-              Unregister
+              {bookMarked ? (
+                <div className="flex items-center gap-2">
+                  <BookmarkCheck className="w-5 h-5" />
+                  <span>BookMarked</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Bookmark className="w-5 h-5" />
+                  <span>BookMark</span>
+                </div>
+              )}
             </Button>
-          )
+
+            {/* buttons: register, unregister */}
+            {allowRegister ? (
+              <Button
+                loading={registerEventLoading}
+                onClick={handleRegister}
+                loaderProps={{ color: "white" }}
+              >
+                Register
+              </Button>
+            ) : (
+              allowUnregister && (
+                <Button
+                  variant="destructive"
+                  onClick={handleRegister}
+                  loading={registerEventLoading}
+                  loaderProps={{ color: "white" }}
+                >
+                  Unregister
+                </Button>
+              )
+            )}
+          </>
         )}
 
         {/* Social Share Buttons */}
@@ -279,10 +290,22 @@ export default function EventPage({
         <GoogleMapDirectionBtn event={event} />
 
         {/* Analytics Button */}
-        {showAnalyticsBtn && (
+        {!event.external && showAnalyticsBtn && (
           <Button variant="outline">
             <Link href={`/events/${event._id}/analytics`}>Analytics</Link>
           </Button>
+        )}
+
+        {/* link to exernal site if external event */}
+        {event.external && event.url && (
+          <Link href={event.url} target="_blank">
+            <Button variant="outline" tabIndex={-1}>
+              <div className="flex gap-3 items-center">
+                <CiLink />
+                <span>Visit Site</span>
+              </div>
+            </Button>
+          </Link>
         )}
       </div>
 
@@ -295,30 +318,36 @@ export default function EventPage({
       </div>
 
       {/* Contact Information */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg shadow">
-        <h2 className="text-xl font-semibold">Contact Information</h2>
-        <div className="flex flex-col gap-2 mt-2">
-          <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-gray-600" />
-            <span>{event.contact.email}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Phone className="w-5 h-5 text-gray-600" />
-            <span>{event.contact.phone}</span>
+      {!event.external && (
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg shadow">
+          <h2 className="text-xl font-semibold">Contact Information</h2>
+          <div className="flex flex-col gap-2 mt-2">
+            <div className="flex items-center gap-2">
+              <Mail className="w-5 h-5 text-gray-600" />
+              <span>{event.contact.email}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone className="w-5 h-5 text-gray-600" />
+              <span>{event.contact.phone}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* feedback section */}
-      <div className="my-6">
-        {allowFeedback && (
-          <FeedbackBtn
-            eventId={event._id}
-            onSuccess={() => setFeedbackLeft(true)}
-          />
-        )}
-      </div>
-      <EventFeedbackSection eventId={event._id} />
+      {!event.external && (
+        <>
+          <div className="my-6">
+            {allowFeedback && (
+              <FeedbackBtn
+                eventId={event._id}
+                onSuccess={() => setFeedbackLeft(true)}
+              />
+            )}
+          </div>
+          <EventFeedbackSection eventId={event._id} />
+        </>
+      )}
     </div>
   );
 }
@@ -334,22 +363,29 @@ export const getServerSideProps: GetServerSideProps = async ({
   const user = await getUser(req.cookies[ECookieName.AUTH]);
 
   // find event by id
-  const event = await Event.findById(id).populate("organizer", "name");
+  const event = await getEvent(id as string);
+
   if (!event) {
-    return { notFound: true };
+    return {
+      notFound: true,
+    };
   }
 
   // check if user already saved the event
-  const savedEvent = await SavedEvent.findOne({
-    user: user?._id,
-    event: event._id,
-  }).select("_id");
+  const savedEvent = event.external
+    ? false
+    : await SavedEvent.findOne({
+        user: user?._id,
+        event: event._id,
+      }).select("_id");
 
   // check if user is already registered for the event
-  const registeredEvent = await EventRegistration.findOne({
-    user: user?._id,
-    event: event._id,
-  }).select("_id");
+  const registeredEvent = event.external
+    ? false
+    : await EventRegistration.findOne({
+        user: user?._id,
+        event: event._id,
+      }).select("_id");
 
   const shareUrl = getServerSidePropsSiteUrl(req) + resolvedUrl;
 
