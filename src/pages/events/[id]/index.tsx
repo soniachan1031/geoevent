@@ -313,7 +313,7 @@ export default function EventPage({
       <div className="mt-6">
         <h2 className="text-xl font-semibold">Event Description</h2>
         <p className="mt-2 text-gray-700 whitespace-pre-line">
-          {event.description}
+          {event.description ?? "No description provided"}
         </p>
       </div>
 
