@@ -65,7 +65,7 @@ export default function EventPage({
 
   const isOrganizer = user?._id === eventOrganizerId;
 
-  const showOrganizerDropDown = isOrganizer || isAdmin;
+  const showOrganizerDropDown = (isOrganizer || isAdmin) && !event.external;
 
   const allowFeedback =
     !isOrganizer &&
