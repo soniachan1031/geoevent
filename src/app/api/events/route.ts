@@ -215,7 +215,6 @@ export const GET = catchAsync(async (req) => {
     tmUrl.searchParams.set("page", (page - 1).toString());
     tmUrl.searchParams.set("size", externalLimit.toString());
 
-    console.log("TM URL", tmUrl.toString());
     const tmRes = await fetch(tmUrl.toString());
     const tmData = await tmRes.json();
 

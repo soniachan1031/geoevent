@@ -10,7 +10,6 @@ export default function ticketMasterToLocalEvent(ev: any) {
   const stateName = ev._embedded?.venues?.[0]?.state?.name ?? "";
   const countryName = ev._embedded?.venues?.[0]?.country?.name ?? "";
   const addressLine = ev._embedded?.venues?.[0]?.address?.line1 ?? "";
-  console.log(ev);
   return {
     _id: ev.id,
     title: ev.name,

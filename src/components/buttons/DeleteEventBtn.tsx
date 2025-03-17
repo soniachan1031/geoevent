@@ -70,8 +70,6 @@ const DeleteEventBtn: React.FC<TDeletEventBtnProps> = ({
         <Button
           variant={variant}
           className={className}
-          loading={loading}
-          loaderProps={{ color: "white" }}
         >
           {children ?? "Delete Event"}
         </Button>

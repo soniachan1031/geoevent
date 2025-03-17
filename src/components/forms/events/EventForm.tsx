@@ -41,7 +41,7 @@ import AIEventDescriptionHelperBtn from "@/components/buttons/AIEventDescription
 
 type TEventFormProps = {
   event?: IEvent | null;
-  onSuccess?: (user: IEvent) => Promise<void> | void;
+  onSuccess?: (event: IEvent) => Promise<void> | void;
   requestUrl: string;
   requestMethod: EApiRequestMethod;
 };

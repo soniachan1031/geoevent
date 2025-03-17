@@ -10,7 +10,7 @@ export default function EventCard({ event }: Readonly<EventCardProps>) {
   const link = event.external ? event.url ?? "/" : `events/${event._id}`;
 
   return (
-    <Link href={link} target="_blank" className="group block w-full">
+    <Link href={link} className="group block w-full">
       <div
         className={`bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 flex flex-col`}
       >

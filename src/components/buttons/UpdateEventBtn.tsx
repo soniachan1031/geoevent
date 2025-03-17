@@ -18,7 +18,7 @@ type TUpdateEventBtnProps = {
   event: IEvent;
   requestUrl: string;
   children?: React.ReactNode;
-  onSuccess?: () => Promise<void> | void;
+  onSuccess?: (event: IEvent) => Promise<void> | void;
   variant?:
     | "default"
     | "destructive"
@@ -40,6 +40,13 @@ const UpdateEventBtn: React.FC<TUpdateEventBtnProps> = ({
 }) => {
   const cancelBtnRef = createRef<HTMLButtonElement>();
 
+  const onUpdateComplete = async (event: IEvent) => {
+    if (onSuccess) {
+      await onSuccess(event);
+    }
+    cancelBtnRef.current?.click();
+  };
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -54,7 +61,7 @@ const UpdateEventBtn: React.FC<TUpdateEventBtnProps> = ({
             <div className="overflow-auto max-h-[calc(100vh-200px)]">
               <EventForm
                 event={event}
-                onSuccess={onSuccess}
+                onSuccess={onUpdateComplete}
                 requestUrl={requestUrl}
                 requestMethod={EApiRequestMethod.PATCH}
               />

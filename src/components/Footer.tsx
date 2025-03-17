@@ -14,8 +14,12 @@ export default function Footer() {
             Your go-to source for local events happening near you.
           </p>
           <div className="flex gap-5 items-center justify-center">
-            <Link className="underline" href="/">Home</Link>
-            <Link className="underline" href="/public-api">Public Api</Link>
+            <Link className="underline" href="/">
+              Home
+            </Link>
+            <Link className="underline" href="/public-api">
+              Public API
+            </Link>
           </div>
           <p className="text-sm text-gray-600 text-center">
             &copy; {new Date().getFullYear()} GeoEvent. All rights reserved.

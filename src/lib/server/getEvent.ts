@@ -12,7 +12,7 @@ export default async function getEvent(id: string): Promise<IEvent | null> {
     // check if event exists in the database
     if (isValidObjectId(id)) {
       await connectDB();
-      event = await Event.findById(id);
+      event = await Event.findById(id).populate("organizer");
     }
 
     // if event not found in the database, fetch from ticketmaster

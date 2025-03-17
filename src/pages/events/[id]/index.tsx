@@ -33,6 +33,7 @@ import GoogleMapDirectionBtn from "@/components/buttons/GoogleMapDirectionsBtn";
 import Link from "next/link";
 import getEvent from "@/lib/server/getEvent";
 import { CiLink } from "react-icons/ci";
+import EventOrganizerDropdown from "@/components/EventOrganizerDropdown";
 
 type EventPageProps = {
   event: IEvent;
@@ -43,37 +44,41 @@ type EventPageProps = {
 };
 
 export default function EventPage({
-  event,
+  event: eventData,
   saved: savedEvent = false,
   shareUrl,
   registered: registeredEvent = false,
 }: Readonly<EventPageProps>) {
   const router = useRouter();
   const { user } = useAuthContext();
+  const [event, setEvent] = useState(eventData);
   const [bookMarked, setBookMarked] = useState(savedEvent);
   const [bookMarkEventLoading, setBookMarkEventLoading] = useState(false);
   const [registered, setRegistered] = useState(registeredEvent);
   const [registerEventLoading, setRegisterEventLoading] = useState(false);
   const [feedbackLeft, setFeedbackLeft] = useState(false);
 
+  const isAdmin = user?.role === "admin";
+
+  const eventOrganizerId =
+    typeof event.organizer === "object" ? event.organizer._id : event.organizer;
+
+  const isOrganizer = user?._id === eventOrganizerId;
+
+  const showOrganizerDropDown = isOrganizer || isAdmin;
+
   const allowFeedback =
-    user &&
-    user._id !== event.organizer &&
+    !isOrganizer &&
     registered &&
     new Date(event.date) < new Date() &&
     !feedbackLeft;
 
   const allowRegister =
-    (typeof event.organizer === "object"
-      ? user?._id !== event.organizer._id
-      : user?._id !== event.organizer) &&
+    !isOrganizer &&
     !registered &&
     new Date(event.registrationDeadline ?? event.date) > new Date();
 
   const allowUnregister = registered;
-
-  const showAnalyticsBtn =
-    user && (user.role === "admin" || event.organizer === user._id);
 
   const handleBookMark = async () => {
     try {
@@ -151,7 +156,15 @@ export default function EventPage({
 
       {/* Event Info */}
       <div className="mt-6">
-        <h1 className="text-3xl font-bold">{event.title}</h1>
+        <div className="flex justify-between">
+          <h1 className="text-3xl font-bold">{event.title}</h1>
+          {showOrganizerDropDown && (
+            <EventOrganizerDropdown
+              event={event}
+              onEventUpdateSuccess={setEvent}
+            />
+          )}
+        </div>
         <p className="text-gray-500 mt-1">
           {event.external ? (
             "External Event"
@@ -288,13 +301,6 @@ export default function EventPage({
 
         {/* Google maps direction */}
         <GoogleMapDirectionBtn event={event} />
-
-        {/* Analytics Button */}
-        {!event.external && showAnalyticsBtn && (
-          <Button variant="outline">
-            <Link href={`/events/${event._id}/analytics`}>Analytics</Link>
-          </Button>
-        )}
 
         {/* link to exernal site if external event */}
         {event.external && event.url && (
