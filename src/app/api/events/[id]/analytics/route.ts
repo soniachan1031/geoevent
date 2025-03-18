@@ -15,6 +15,7 @@ import EventShare from "@/mongoose/models/EventShare";
 
 import { Types } from "mongoose";
 
+// GET /api/events/[id]/analytics
 export const GET = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // Connect to database
