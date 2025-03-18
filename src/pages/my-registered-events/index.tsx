@@ -1,10 +1,12 @@
 import CustomBreadcrumb from "@/components/CustomBreadcrumb";
 import EventCard from "@/components/EventCard";
-import serverSidePropsHandler from "@/lib/server/serverSidePropsHandler";
+import connectDB from "@/lib/server/connectDB";
+import getUser from "@/lib/server/getUser";
 import stringifyAndParse from "@/lib/stringifyAndParse";
 import EventRegistration from "@/mongoose/models/EventRegistration";
+import { ECookieName } from "@/types/api.types";
 import { IEvent } from "@/types/event.types";
-import { EAuthStatus } from "@/types/user.types";
+import { GetServerSideProps } from "next";
 
 export default function MyRegisteredEvents({
   events,
@@ -31,24 +33,28 @@ export default function MyRegisteredEvents({
   );
 }
 
-export const getServerSideProps = serverSidePropsHandler({
-  access: EAuthStatus.AUTHENTICATED,
-  fn: async (_, user) => {
-    if (!user)
-      return {
-        redirect: {
-          destination: "/login",
-          permanent: false,
-        },
-      };
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  await connectDB();
 
-    const eventRegistrations = await EventRegistration.find({
-      user: user._id,
-    }).populate("event");
-
+  const user = await getUser(context.req.cookies[ECookieName.AUTH]);
+  if (!user)
     return {
-      user: stringifyAndParse(user),
-      events: stringifyAndParse(eventRegistrations.map((er) => er.event)),
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
     };
-  },
-});
+
+  const eventRegistrationDocs = await EventRegistration.find({
+    user: user._id,
+  }).populate("event");
+
+  const registeredEvents = eventRegistrationDocs.map((er) => er.event);
+
+  return {
+    props: {
+      user: stringifyAndParse(user),
+      events: stringifyAndParse(registeredEvents),
+    },
+  };
+};

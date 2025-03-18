@@ -1,10 +1,12 @@
 import CustomBreadcrumb from "@/components/CustomBreadcrumb";
 import EventCard from "@/components/EventCard";
-import serverSidePropsHandler from "@/lib/server/serverSidePropsHandler";
+import connectDB from "@/lib/server/connectDB";
+import getUser from "@/lib/server/getUser";
 import stringifyAndParse from "@/lib/stringifyAndParse";
 import SavedEvent from "@/mongoose/models/SavedEvent";
+import { ECookieName } from "@/types/api.types";
 import { IEvent } from "@/types/event.types";
-import { EAuthStatus } from "@/types/user.types";
+import { GetServerSideProps } from "next";
 
 export default function MyRegisteredEvents({
   events,
@@ -29,26 +31,28 @@ export default function MyRegisteredEvents({
   );
 }
 
-export const getServerSideProps = serverSidePropsHandler({
-  access: EAuthStatus.AUTHENTICATED,
-  fn: async (_, user) => {
-    if (!user)
-      return {
-        redirect: {
-          destination: "/login",
-          permanent: false,
-        }
-      };
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  await connectDB();
 
-    const savedEventDocss = await SavedEvent.find({
-      user: user._id,
-    }).populate("event");
-
-    const savedEvents = savedEventDocss.map((se) => se.event);
-
+  const user = await getUser(context.req.cookies[ECookieName.AUTH]);
+  if (!user)
     return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+
+  const savedEventDocss = await SavedEvent.find({
+    user: user._id,
+  }).populate("event");
+
+  const savedEvents = savedEventDocss.map((se) => se.event);
+
+  return {
+    props: {
       user: stringifyAndParse(user),
       events: stringifyAndParse(savedEvents),
-    };
-  },
-});
+    },
+  };
+};

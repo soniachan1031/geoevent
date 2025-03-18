@@ -1,9 +1,11 @@
-import serverSidePropsHandler from "@/lib/server/serverSidePropsHandler";
-import { EAuthStatus } from "@/types/user.types";
 import EventRegistration from "@/mongoose/models/EventRegistration";
 import Event from "@/mongoose/models/Event";
 import stringifyAndParse from "@/lib/stringifyAndParse";
 import EventCard from "@/components/EventCard";
+import { GetServerSideProps } from "next";
+import connectDB from "@/lib/server/connectDB";
+import { ECookieName } from "@/types/api.types";
+import getUser from "@/lib/server/getUser";
 
 interface IMyHistoryProps {
   previouslyRegisteredEvents: any[]; // or a typed array if you have a TS interface
@@ -28,10 +30,7 @@ export default function MyHistory({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-7xl ">
             {previouslyRegisteredEvents.map((event) => (
-              <EventCard
-                key={event._id}
-                event={event}
-              />
+              <EventCard key={event._id} event={event} />
             ))}
           </div>
         )}
@@ -45,10 +44,7 @@ export default function MyHistory({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-7xl">
             {eventSuggestions.map((event) => (
-              <EventCard
-                key={event._id}
-                event={event}
-              />
+              <EventCard key={event._id} event={event} />
             ))}
           </div>
         )}
@@ -57,44 +53,51 @@ export default function MyHistory({
   );
 }
 
-export const getServerSideProps = serverSidePropsHandler({
-  access: EAuthStatus.AUTHENTICATED,
-  fn: async (ctx, user) => {
-    if (!user) {
-      return {};
-    }
-    // 1) Fetch the user’s previously registered events
-    //    We'll populate the event details, or get the event IDs
-    const registrations = await EventRegistration.find({ user: user._id })
-      .populate("event")
-      .lean();
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  await connectDB();
 
-    // This returns an array of registrations, each with an "event" object.
-    // If you only want the unique list of events, you might transform them:
-    const previouslyRegisteredEvents = registrations.map((reg) => reg.event);
-
-    // 2) Collect categories from these events
-    const categories = [
-      ...new Set(
-        previouslyRegisteredEvents.map((ev: any) => ev.category).filter(Boolean)
-      ),
-    ];
-
-    // 3) Find ongoing events in any of those categories
-    //    Ongoing means event.date >= now. Adjust logic to your definition of “ongoing.”
-    let eventSuggestions: Event[] = [];
-    if (categories.length > 0) {
-      eventSuggestions = await Event.find({
-        category: { $in: categories },
-        date: { $gte: new Date() },
-      });
-    }
-
-    // 4) Pass these arrays as props
+  const user = await getUser(context.req.cookies[ECookieName.AUTH]);
+  if (!user)
     return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+
+  // 1) Fetch the user’s previously registered events
+  //    We'll populate the event details, or get the event IDs
+  const registrations = await EventRegistration.find({ user: user._id })
+    .populate("event")
+    .lean();
+
+  // This returns an array of registrations, each with an "event" object.
+  // If you only want the unique list of events, you might transform them:
+  const previouslyRegisteredEvents = registrations.map((reg) => reg.event);
+
+  // 2) Collect categories from these events
+  const categories = [
+    ...new Set(
+      previouslyRegisteredEvents.map((ev: any) => ev.category).filter(Boolean)
+    ),
+  ];
+
+  // 3) Find ongoing events in any of those categories
+  //    Ongoing means event.date >= now. Adjust logic to your definition of “ongoing.”
+  let eventSuggestions: Event[] = [];
+  if (categories.length > 0) {
+    eventSuggestions = await Event.find({
+      category: { $in: categories },
+      date: { $gte: new Date() },
+    });
+  }
+
+  // 4) Pass these arrays as props
+  return {
+    props: {
       user: stringifyAndParse(user),
       previouslyRegisteredEvents: stringifyAndParse(previouslyRegisteredEvents),
       eventSuggestions: stringifyAndParse(eventSuggestions),
-    };
-  },
-});
+    },
+  };
+};

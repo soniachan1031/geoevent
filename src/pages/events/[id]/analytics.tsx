@@ -84,16 +84,16 @@ export default function Analytics({ id }: Readonly<{ id: string }>) {
   }, [id]);
 
   if (loading) {
-      return (
-        <div className="grid gap-8 w-full md:w-[50%] lg:w-[33%]">
-          <LoadingSkeleton />
-          <LoadingSkeleton />
-          <LoadingSkeleton />
-          <LoadingSkeleton />
-          <LoadingSkeleton />
-        </div>
-      );
-    }
+    return (
+      <div className="grid gap-8 w-full md:w-[50%] lg:w-[33%]">
+        <LoadingSkeleton />
+        <LoadingSkeleton />
+        <LoadingSkeleton />
+        <LoadingSkeleton />
+        <LoadingSkeleton />
+      </div>
+    );
+  }
 
   if (!analytics) {
     return <p>No analytics available</p>;
