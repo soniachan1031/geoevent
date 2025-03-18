@@ -73,7 +73,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   // This returns an array of registrations, each with an "event" object.
   // If you only want the unique list of events, you might transform them:
-  const previouslyRegisteredEvents = registrations.map((reg) => reg.event);
+  const previouslyRegisteredEvents = registrations.filter((reg) => reg.event !== null).map((reg) => reg.event);
 
   // 2) Collect categories from these events
   const categories = [

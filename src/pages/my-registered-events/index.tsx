@@ -49,7 +49,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     user: user._id,
   }).populate("event");
 
-  const registeredEvents = eventRegistrationDocs.map((er) => er.event);
+  const registeredEvents = eventRegistrationDocs.filter((er) => er.event !== null).map((er) => er.event);
 
   return {
     props: {

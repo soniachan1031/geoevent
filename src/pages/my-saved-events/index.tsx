@@ -35,6 +35,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   await connectDB();
 
   const user = await getUser(context.req.cookies[ECookieName.AUTH]);
+
   if (!user)
     return {
       redirect: {
@@ -47,7 +48,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     user: user._id,
   }).populate("event");
 
-  const savedEvents = savedEventDocss.map((se) => se.event);
+  const savedEvents = savedEventDocss.filter((se) => se.event !== null).map((se) => se.event);
 
   return {
     props: {
