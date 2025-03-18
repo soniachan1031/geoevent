@@ -32,7 +32,12 @@ export default function MyHostedEvents({
 export const getServerSideProps = serverSidePropsHandler({
   access: EAuthStatus.AUTHENTICATED,
   fn: async (_, user) => {
-    if (!user) return {};
+    if (!user) return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
 
     const events = await Event.find({ organizer: user._id });
 

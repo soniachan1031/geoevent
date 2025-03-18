@@ -23,10 +23,7 @@ export default function MyRegisteredEvents({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-7xl">
           {events.map((event) => (
-            <EventCard
-              key={event._id}
-              event={event}
-            />
+            <EventCard key={event._id} event={event} />
           ))}
         </div>
       )}
@@ -37,7 +34,13 @@ export default function MyRegisteredEvents({
 export const getServerSideProps = serverSidePropsHandler({
   access: EAuthStatus.AUTHENTICATED,
   fn: async (_, user) => {
-    if (!user) return {};
+    if (!user)
+      return {
+        redirect: {
+          destination: "/login",
+          permanent: false,
+        },
+      };
 
     const eventRegistrations = await EventRegistration.find({
       user: user._id,

@@ -32,15 +32,23 @@ export default function MyRegisteredEvents({
 export const getServerSideProps = serverSidePropsHandler({
   access: EAuthStatus.AUTHENTICATED,
   fn: async (_, user) => {
-    if (!user) return {};
+    if (!user)
+      return {
+        redirect: {
+          destination: "/login",
+          permanent: false,
+        }
+      };
 
-    const savedEvents = await SavedEvent.find({
+    const savedEventDocss = await SavedEvent.find({
       user: user._id,
     }).populate("event");
 
+    const savedEvents = savedEventDocss.map((se) => se.event);
+
     return {
       user: stringifyAndParse(user),
-      events: stringifyAndParse(savedEvents.map((er) => er.event)),
+      events: stringifyAndParse(savedEvents),
     };
   },
 });
