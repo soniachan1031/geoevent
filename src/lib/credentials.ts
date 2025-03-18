@@ -20,3 +20,7 @@ export const MAIL_SMTP_PASSWORD = process.env.MAIL_SMTP_PASSWORD as string;
 export const OPENAI_API_KEY = process.env.OPENAI_API_KEY as string;
 
 export const TICKETMASTER_API_KEY = process.env.TICKETMASTER_API_KEY as string;
+
+export const TICKETMASTER_PHONE = "1-800-653-8000";
+export const TICKETMASTER_EMAIL_lINK =
+  "https://help.ticketmaster.ca/hc/en-us/requests/new";

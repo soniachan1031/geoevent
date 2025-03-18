@@ -102,14 +102,12 @@ const AdminDashboardUsers = () => {
                         <div className="bg-gray-100 w-10 h-10 rounded-full"></div>
                       )}
                     </td>
-                    <td className="p-2">
-                      <div className="w-20 overflow-hidden text-ellipsis">
-                        {user._id}
-                      </div>
-                    </td>
+                    <td className="p-2">{user._id}</td>
                     <td className="p-2">{user.name}</td>
                     <td className="p-2">{user.email}</td>
-                    <td className="p-2">{(user.dateOfBirth as string)?.slice(0, 10)}</td>
+                    <td className="p-2">
+                      {(user.dateOfBirth as string)?.slice(0, 10)}
+                    </td>
                     <td className="flex gap-2 p-2">
                       <UpdateProfileBtn
                         user={user}

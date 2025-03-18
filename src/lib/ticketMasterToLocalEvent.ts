@@ -22,6 +22,7 @@ export default function ticketMasterToLocalEvent(ev: any) {
       lat: Number(ev._embedded?.venues?.[0]?.location?.latitude ?? 0),
       lng: Number(ev._embedded?.venues?.[0]?.location?.longitude ?? 0),
     },
+
     date: ev.dates?.start?.localDate ?? "",
     time: ev.dates?.start?.localTime ?? "00:00",
     duration: undefined,
@@ -33,7 +34,7 @@ export default function ticketMasterToLocalEvent(ev: any) {
     image: ev.images?.[0]?.url,
     agenda: [],
     contact: { email: "", phone: 0 },
-    organizer: "Ticketmaster", // we store a string
+    organizer: ev.promoter?.name ?? "TicketMaster",
     external: true,
     url: ev.url,
   } as IEvent;
