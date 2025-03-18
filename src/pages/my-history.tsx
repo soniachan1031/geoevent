@@ -92,6 +92,7 @@ export const getServerSideProps = serverSidePropsHandler({
 
     // 4) Pass these arrays as props
     return {
+      user: stringifyAndParse(user),
       previouslyRegisteredEvents: stringifyAndParse(previouslyRegisteredEvents),
       eventSuggestions: stringifyAndParse(eventSuggestions),
     };

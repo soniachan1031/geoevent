@@ -44,6 +44,7 @@ export const getServerSideProps = serverSidePropsHandler({
     }).populate("event");
 
     return {
+      user: stringifyAndParse(user),
       events: stringifyAndParse(eventRegistrations.map((er) => er.event)),
     };
   },
