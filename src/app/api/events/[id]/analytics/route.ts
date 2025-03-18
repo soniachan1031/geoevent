@@ -36,7 +36,7 @@ export const GET = catchAsync(
 
     // Check if user is the organizer or admin
     if (
-      event.organizer !== user._id.toString() &&
+      event.organizer?.toString() !== user._id.toString() &&
       user.role !== EUserRole.ADMIN
     ) {
       throw new AppError(403, "Forbidden");

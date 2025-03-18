@@ -25,7 +25,7 @@ export const PATCH = catchAsync(
 
     // check if user is the organizer or admin
     if (
-      event.organizer !== user._id.toString() &&
+      String(event.organizer) !== String(user._id) &&
       user.role !== EUserRole.ADMIN
     ) {
       throw new AppError(403, "forbidden");
@@ -86,7 +86,7 @@ export const PATCH = catchAsync(
         $set: eventData,
       },
       { new: true }
-    );
+    ).populate("organizer");
     // send response
     return new AppResponse(200, "event updated successfully", {
       doc: updatedEvent,
@@ -111,7 +111,7 @@ export const DELETE = catchAsync(
 
     // check if user is the organizer or admin
     if (
-      event.organizer !== user._id.toString() &&
+      String(event.organizer) !== String(user._id) &&
       user.role !== EUserRole.ADMIN
     ) {
       throw new AppError(403, "forbidden");

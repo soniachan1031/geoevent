@@ -384,7 +384,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   if (
     user.role !== EUserRole.ADMIN &&
-    user._id.toString() !== event.organizer
+    user._id.toString() !== String(event.organizer)
   ) {
     return { notFound: true };
   }
