@@ -1,4 +1,3 @@
-import CustomPagination from "@/components/paginations/CustomPagination";
 import { LoadingSkeleton } from "@/components/skeletons/LoadingSkeleton";
 import { Button } from "@/components/ui/button";
 import axiosInstance from "@/lib/axiosInstance";
@@ -13,6 +12,7 @@ import { IEvent } from "@/types/event.types";
 import UpdateEventBtn from "@/components/buttons/UpdateEventBtn";
 import DeleteEventBtn from "@/components/buttons/DeleteEventBtn";
 import Image from "next/image";
+import CustomPagination from "@/components/paginations/CustomPagination";
 
 type TGetEventProps = {
   page?: number;
@@ -76,7 +76,7 @@ const AdminDashboardEvents = () => {
               getEvents={getEvents}
             />
           </div>
-  
+
           {/* 📱 MOBILE VERSION (Card Layout) */}
           <div className="sm:hidden flex flex-col bg-white rounded-xl shadow-lg overflow-hidden divide-y divide-gray-200">
             {events.map((event) => (
@@ -91,18 +91,19 @@ const AdminDashboardEvents = () => {
                     className="rounded-lg shadow-md w-full h-full object-cover"
                   />
                 </div>
-  
+
                 {/* Event Info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-gray-900 font-medium">{event.title}</p>
                   <p className="text-gray-600 text-sm truncate">
                     {(event.date as string)?.slice(0, 10)} •{" "}
-                    {typeof event.organizer === "object" && "name" in event.organizer
+                    {typeof event.organizer === "object" &&
+                    "name" in event.organizer
                       ? event.organizer.name
                       : "Unknown"}
                   </p>
                 </div>
-  
+
                 {/* Actions */}
                 <div className="flex gap-2">
                   <UpdateEventBtn
@@ -114,7 +115,7 @@ const AdminDashboardEvents = () => {
                   >
                     <MdEdit className="text-gray-600 text-lg" />
                   </UpdateEventBtn>
-  
+
                   <DeleteEventBtn
                     variant="secondary"
                     className="p-2 bg-red-100 hover:bg-red-200 rounded-md text-red-500 transition-all ease-in-out"
@@ -127,7 +128,7 @@ const AdminDashboardEvents = () => {
               </div>
             ))}
           </div>
-  
+
           {/* 🖥 DESKTOP TABLE */}
           <div className="hidden sm:block w-full max-w-screen-lg mx-auto mt-6 bg-white shadow-lg rounded-xl overflow-x-auto">
             {/* Table Header */}
@@ -140,7 +141,7 @@ const AdminDashboardEvents = () => {
               <div className="text-left">Organizer</div>
               <div className="text-center">Actions</div>
             </div>
-  
+
             {/* Table Rows */}
             <div className="divide-y divide-gray-100">
               {events.map((event) => (
@@ -158,28 +159,33 @@ const AdminDashboardEvents = () => {
                       className="rounded-lg shadow-md w-[50px] h-[50px] object-cover"
                     />
                   </div>
-  
+
                   {/* Truncated ID */}
                   <div className="text-gray-700 text-sm truncate max-w-[100px]">
                     {event._id.slice(0, 10)}...
                   </div>
-  
+
                   {/* Title */}
-                  <div className="text-gray-900 text-base font-medium">{event.title}</div>
-  
+                  <div className="text-gray-900 text-base font-medium">
+                    {event.title}
+                  </div>
+
                   {/* Category */}
                   <div className="text-gray-700 text-sm">{event.category}</div>
-  
+
                   {/* Date */}
                   <div className="text-gray-700 text-sm">
                     {(event.date as string)?.slice(0, 10)}
                   </div>
-  
+
                   {/* Organizer (Truncated if Long) */}
                   <div className="text-gray-700 text-sm truncate max-w-[150px]">
-                    {typeof event.organizer === "object" && "name" in event.organizer ? event.organizer.name : "Unknown"}
+                    {typeof event.organizer === "object" &&
+                    "name" in event.organizer
+                      ? event.organizer.name
+                      : "Unknown"}
                   </div>
-  
+
                   {/* Actions */}
                   <div className="flex gap-4 justify-center">
                     <UpdateEventBtn
@@ -191,7 +197,7 @@ const AdminDashboardEvents = () => {
                     >
                       <MdEdit className="text-gray-600 text-xl" />
                     </UpdateEventBtn>
-  
+
                     <DeleteEventBtn
                       variant="secondary"
                       className="p-3 bg-red-100 hover:bg-red-200 rounded-md text-red-500 transition-all ease-in-out"
@@ -205,11 +211,15 @@ const AdminDashboardEvents = () => {
               ))}
             </div>
           </div>
+
+          <CustomPagination
+            paginationProps={pagination}
+            onPageChange={(page) => getEvents({ page })}
+          />
         </div>
       )}
     </div>
   );
-  
 };
 
 export default AdminDashboardEvents;

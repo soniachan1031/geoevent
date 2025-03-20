@@ -24,7 +24,6 @@ const mapContainerStyle: React.CSSProperties = {
 export default function EventMap({
   events,
   selectedEventId,
-  onMarkerClick,
 }: Readonly<EventMapProps>) {
   const { isLoaded, loadError } = useGoogleMapsContext();
   const mapRef = useRef<google.maps.Map | null>(null);
