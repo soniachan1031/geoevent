@@ -86,6 +86,7 @@ export const POST = catchAsync(async (req) => {
         subject: "Event Created Successfully",
         url: `${getSiteURL(req)}/my-hosted-events/${newEvent._id}`,
         event: newEvent,
+        user,
         req,
       }),
     });

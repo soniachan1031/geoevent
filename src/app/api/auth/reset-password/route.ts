@@ -79,6 +79,7 @@ export const POST = catchAsync(async (req) => {
       subject: "Password Reset Successful",
       html: resetPasswordSuccessTemplate({
         req,
+        user: updatedUser,
       }),
     });
     // send response

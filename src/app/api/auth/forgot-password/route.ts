@@ -64,6 +64,7 @@ export const POST = catchAsync(async (req) => {
       html: resetPasswordTemplate({
         passwordResetUrl,
         req,
+        user,
       }),
     });
 
