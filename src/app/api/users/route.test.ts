@@ -1,6 +1,6 @@
 import { GET } from "./route"; // Import the GET handler
 import User from "@/mongoose/models/User";
-
+ 
 // Mock dependencies
 jest.mock("@/mongoose/models/User");
 jest.mock("@/lib/server/middleware/guard", () => ({
