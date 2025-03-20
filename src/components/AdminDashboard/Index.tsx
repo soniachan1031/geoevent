@@ -8,7 +8,7 @@ enum EAdminDashboardSection {
   OVERVIEW = "OVERVIEW",
   USERS = "USERS",
   EVENTS = "EVENTS",
-}
+} 
 
 const AdminDashboard = () => {
   const [section, setSection] = useState<EAdminDashboardSection>(

@@ -99,9 +99,16 @@ interface EventMarkerProps {
   onClick?: (eventId: string) => void;
 }
 
-export function EventMarker({ event, selected, isActive, onClick }: EventMarkerProps) {
+export function EventMarker({
+  event,
+  selected,
+  isActive,
+  onClick,
+}: EventMarkerProps) {
   const map = useGoogleMap();
-  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(
+    null
+  );
 
   useEffect(() => {
     if (!map || !google?.maps?.marker?.AdvancedMarkerElement) return;
@@ -142,7 +149,10 @@ interface FloatingEventCardProps {
   onClose: () => void;
 }
 
-function FloatingEventCard({ event, onClose }: FloatingEventCardProps) {
+function FloatingEventCard({
+  event,
+  onClose,
+}: Readonly<FloatingEventCardProps>) {
   return (
     <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white rounded-xl shadow-lg overflow-hidden max-w-xs w-full cursor-pointer transition hover:shadow-xl">
       {/* Close Button */}
@@ -159,7 +169,7 @@ function FloatingEventCard({ event, onClose }: FloatingEventCardProps) {
           {/* Event Image */}
           <div className="relative w-full h-40">
             <Image
-              src={event.image || "/path/to/default/image.jpg"}
+              src={event.image ?? "logo.png"}
               alt={event.title}
               layout="fill"
               objectFit="cover"
@@ -169,7 +179,9 @@ function FloatingEventCard({ event, onClose }: FloatingEventCardProps) {
 
           {/* Event Details */}
           <div className="p-4">
-            <h3 className="text-lg font-semibold text-gray-900 underline">{event.title}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 underline">
+              {event.title}
+            </h3>
             <p className="text-sm text-gray-500">{event.category}</p>
             <p className="text-sm text-gray-700 font-medium">
               {new Date(event.date).toLocaleDateString()} • {event.time}
