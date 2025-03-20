@@ -45,7 +45,6 @@ const SectionToggle = ({ section, setSection }) => {
   );
 };
 
-
 const renderSection = (section: EAdminDashboardSection) => {
   switch (section) {
     case EAdminDashboardSection.OVERVIEW:

@@ -15,6 +15,7 @@ import EventShare from "@/mongoose/models/EventShare";
 
 import { Types } from "mongoose";
 
+// GET /api/events/[id]/analytics
 export const GET = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // Connect to database
@@ -36,7 +37,7 @@ export const GET = catchAsync(
 
     // Check if user is the organizer or admin
     if (
-      event.organizer !== user._id.toString() &&
+      event.organizer?.toString() !== user._id.toString() &&
       user.role !== EUserRole.ADMIN
     ) {
       throw new AppError(403, "Forbidden");

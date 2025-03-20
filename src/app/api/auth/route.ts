@@ -11,6 +11,7 @@ import { parseJson } from "@/lib/server/reqParser";
 import { removeAuthCookie, setAuthCookie } from "@/lib/server/cookieHandler";
 
 // login user
+// POST /api/auth/login
 export const POST = catchAsync(async (req) => {
   // get data from body
   const { email, password } = await parseJson(req);
@@ -54,6 +55,7 @@ export const POST = catchAsync(async (req) => {
 });
 
 // logout user
+// DELETE /api/auth/logout
 export const DELETE = catchAsync(async (req) => {
   // guard
   await guard(req);

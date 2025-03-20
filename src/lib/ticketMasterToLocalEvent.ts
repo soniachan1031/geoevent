@@ -10,7 +10,6 @@ export default function ticketMasterToLocalEvent(ev: any) {
   const stateName = ev._embedded?.venues?.[0]?.state?.name ?? "";
   const countryName = ev._embedded?.venues?.[0]?.country?.name ?? "";
   const addressLine = ev._embedded?.venues?.[0]?.address?.line1 ?? "";
-  console.log(ev);
   return {
     _id: ev.id,
     title: ev.name,
@@ -34,7 +33,7 @@ export default function ticketMasterToLocalEvent(ev: any) {
     image: ev.images?.[0]?.url,
     agenda: [],
     contact: { email: "", phone: 0 },
-    organizer: "Ticketmaster", // we store a string
+    organizer: ev.promoter?.name ?? "TicketMaster",
     external: true,
     url: ev.url,
   } as IEvent;

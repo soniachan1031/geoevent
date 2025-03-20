@@ -8,7 +8,8 @@ import { MAIL_SMTP_PASSWORD, MAIL_SMTP_USERNAME } from "@/lib/credentials";
 import emailSubscriptionTemplate from "@/lib/server/email/templates/emailSubscriptionTemplate";
 import AppError from "@/lib/server/AppError";
 
-// update user
+// update user preferences
+// PATCH /api/auth/preferences
 export const PATCH = catchAsync(async (req) => {
   // guard
   const user = await guard(req);

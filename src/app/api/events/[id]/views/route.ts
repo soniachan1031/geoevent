@@ -9,6 +9,7 @@ import { ECookieName } from "@/types/api.types";
 import { cookies } from "next/headers";
 
 // add views for event
+// POST /api/events/[id]/views
 export const POST = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // extract id
@@ -48,6 +49,7 @@ export const POST = catchAsync(
 );
 
 // retrieve views for event
+// GET /api/events/[id]/views
 export const GET = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // extract id

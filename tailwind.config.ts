@@ -16,8 +16,8 @@ export default {
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
-  			}, 
-			fontFamily: {
+  			},
+			  fontFamily: {
 				sf: '"SF Pro Display", sans-serif',
 			  },
   			popover: {

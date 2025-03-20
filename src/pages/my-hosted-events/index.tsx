@@ -1,14 +1,14 @@
 
 import EventCard from "@/components/EventCard";
-import serverSidePropsHandler from "@/lib/server/serverSidePropsHandler";
+import connectDB from "@/lib/server/connectDB";
+import getUser from "@/lib/server/getUser";
 import stringifyAndParse from "@/lib/stringifyAndParse";
 import Event from "@/mongoose/models/Event";
+import { ECookieName } from "@/types/api.types";
 import { IEvent } from "@/types/event.types";
-import { EAuthStatus } from "@/types/user.types";
-import Link from "next/link";
+import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-
-
+import Link from "next/link";
 
 export default function MyHostedEvents({
   events,
@@ -72,13 +72,24 @@ export default function MyHostedEvents({
   );
 }
 
-export const getServerSideProps = serverSidePropsHandler({
-  access: EAuthStatus.AUTHENTICATED,
-  fn: async (_, user) => {
-    if (!user) return {};
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  await connectDB();
 
-    const events = await Event.find({ organizer: user._id });
+  const user = await getUser(context.req.cookies[ECookieName.AUTH]);
+  if (!user)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
 
-    return { events: stringifyAndParse(events) };
-  },
-});
+  const events = await Event.find({ organizer: user._id });
+
+  return {
+    props: {
+      user: stringifyAndParse(user),
+      events: stringifyAndParse(events),
+    },
+  };
+};

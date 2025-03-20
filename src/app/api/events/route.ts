@@ -86,6 +86,7 @@ export const POST = catchAsync(async (req) => {
         subject: "Event Created Successfully",
         url: `${getSiteURL(req)}/my-hosted-events/${newEvent._id}`,
         event: newEvent,
+        user,
         req,
       }),
     });
@@ -215,7 +216,6 @@ export const GET = catchAsync(async (req) => {
     tmUrl.searchParams.set("page", (page - 1).toString());
     tmUrl.searchParams.set("size", externalLimit.toString());
 
-    console.log("TM URL", tmUrl.toString());
     const tmRes = await fetch(tmUrl.toString());
     const tmData = await tmRes.json();
 

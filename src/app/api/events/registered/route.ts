@@ -4,6 +4,7 @@ import { guard } from "@/lib/server/middleware/guard";
 import EventRegistration from "@/mongoose/models/EventRegistration";
 
 // Get registered events for user
+// GET /api/events/registered
 export const GET = catchAsync(async (req) => {
   // Authenticate user
   const user = await guard(req);

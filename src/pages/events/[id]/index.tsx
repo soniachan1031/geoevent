@@ -31,7 +31,8 @@ import FeedbackBtn from "@/components/buttons/FeedbackBtn";
 import GoogleMapDirectionBtn from "@/components/buttons/GoogleMapDirectionsBtn";
 import Link from "next/link";
 import getEvent from "@/lib/server/getEvent";
-import { CiLink } from "react-icons/ci";
+import EventOrganizerDropdown from "@/components/EventOrganizerDropdown";
+import { TICKETMASTER_EMAIL_lINK, TICKETMASTER_PHONE } from "@/lib/credentials";
 
 type EventPageProps = {
   event: IEvent;
@@ -42,37 +43,41 @@ type EventPageProps = {
 };
 
 export default function EventPage({
-  event,
+  event: eventData,
   saved: savedEvent = false,
   shareUrl,
   registered: registeredEvent = false,
 }: Readonly<EventPageProps>) {
   const router = useRouter();
   const { user } = useAuthContext();
+  const [event, setEvent] = useState(eventData);
   const [bookMarked, setBookMarked] = useState(savedEvent);
   const [bookMarkEventLoading, setBookMarkEventLoading] = useState(false);
   const [registered, setRegistered] = useState(registeredEvent);
   const [registerEventLoading, setRegisterEventLoading] = useState(false);
   const [feedbackLeft, setFeedbackLeft] = useState(false);
 
+  const isAdmin = user?.role === "admin";
+
+  const eventOrganizerId =
+    typeof event.organizer === "object" ? event.organizer._id : event.organizer;
+
+  const isOrganizer = user?._id === eventOrganizerId;
+
+  const showOrganizerDropDown = (isOrganizer || isAdmin) && !event.external;
+
   const allowFeedback =
-    user &&
-    user._id !== event.organizer &&
+    !isOrganizer &&
     registered &&
     new Date(event.date) < new Date() &&
     !feedbackLeft;
 
   const allowRegister =
-    (typeof event.organizer === "object"
-      ? user?._id !== event.organizer._id
-      : user?._id !== event.organizer) &&
+    !isOrganizer &&
     !registered &&
     new Date(event.registrationDeadline ?? event.date) > new Date();
 
   const allowUnregister = registered;
-
-  const showAnalyticsBtn =
-    user && (user.role === "admin" || event.organizer === user._id);
 
   const handleBookMark = async () => {
     try {
@@ -127,11 +132,6 @@ export default function EventPage({
 
   return (
     <div className="flex flex-col min-h-screen p-5 max-w-4xl mx-auto">
-      {/* Breadcrumb */}
-      {/* <CustomBreadcrumb
-        links={[{ text: "Home", href: "/" }]}
-        currentPage={event.title}
-      /> */}
 
       {/* Event Image */}
       <div className="w-full h-64 relative mt-5 rounded-lg overflow-hidden shadow-lg">
@@ -150,16 +150,24 @@ export default function EventPage({
 
       {/* Event Info */}
       <div className="mt-6">
-        <h1 className="text-3xl font-bold">{event.title}</h1>
+        <div className="flex justify-between">
+          <h1 className="text-3xl font-bold">{event.title}</h1>
+          {showOrganizerDropDown && (
+            <EventOrganizerDropdown
+              event={event}
+              onEventUpdateSuccess={setEvent}
+            />
+          )}
+        </div>
         <p className="text-gray-500 mt-1">
           {event.external ? (
-            "External Event"
+            (event.organizer as string)
           ) : (
             <>
               Hosted by{" "}
               {typeof event.organizer === "object"
                 ? event.organizer.name
-                : "Unknown Organizer"}
+                : "Unknown Orgainzer"}
             </>
           )}
         </p>
@@ -236,28 +244,9 @@ export default function EventPage({
         </div>
       </div>
 
-      {/* Buttons: Save & Register */}
       <div className="flex flex-wrap gap-5 items-center mt-6">
-        {!event.external && (
+        {!event.external ? (
           <>
-            <Button
-              variant="outline"
-              onClick={handleBookMark}
-              loading={bookMarkEventLoading}
-            >
-              {bookMarked ? (
-                <div className="flex items-center gap-2">
-                  <BookmarkCheck className="w-5 h-5" />
-                  <span>BookMarked</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Bookmark className="w-5 h-5" />
-                  <span>BookMark</span>
-                </div>
-              )}
-            </Button>
-
             {/* buttons: register, unregister */}
             {allowRegister ? (
               <Button
@@ -280,6 +269,10 @@ export default function EventPage({
               )
             )}
           </>
+        ) : (
+          <Link href={event.url as string} target="_blank">
+            <Button tabIndex={-1}>Register</Button>
+          </Link>
         )}
 
         {/* Social Share Buttons */}
@@ -288,23 +281,25 @@ export default function EventPage({
         {/* Google maps direction */}
         <GoogleMapDirectionBtn event={event} />
 
-        {/* Analytics Button */}
-        {!event.external && showAnalyticsBtn && (
-          <Button variant="outline">
-            <Link href={`/events/${event._id}/analytics`}>Analytics</Link>
-          </Button>
-        )}
-
-        {/* link to exernal site if external event */}
-        {event.external && event.url && (
-          <Link href={event.url} target="_blank">
-            <Button variant="outline" tabIndex={-1}>
-              <div className="flex gap-3 items-center">
-                <CiLink />
-                <span>Visit Site</span>
+        {/* bookmark button */}
+        {!event.external && (
+          <Button
+            variant="outline"
+            onClick={handleBookMark}
+            loading={bookMarkEventLoading}
+          >
+            {bookMarked ? (
+              <div className="flex items-center gap-2">
+                <BookmarkCheck className="w-5 h-5" />
+                <span>BookMarked</span>
               </div>
-            </Button>
-          </Link>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Bookmark className="w-5 h-5" />
+                <span>BookMark</span>
+              </div>
+            )}
+          </Button>
         )}
       </div>
 
@@ -317,21 +312,37 @@ export default function EventPage({
       </div>
 
       {/* Contact Information */}
-      {!event.external && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg shadow">
-          <h2 className="text-xl font-semibold">Contact Information</h2>
-          <div className="flex flex-col gap-2 mt-2">
-            <div className="flex items-center gap-2">
-              <Mail className="w-5 h-5 text-gray-600" />
+      <div className="mt-6 p-4 bg-gray-50 rounded-lg shadow">
+        <h2 className="text-xl font-semibold">Contact Information</h2>
+        <div className="flex flex-col gap-2 mt-2">
+          <div className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-gray-600" />
+            {event.external ? (
+              <Link
+                href={TICKETMASTER_EMAIL_lINK}
+                className="underline"
+                target="_blank"
+              >
+                Send an Email
+              </Link>
+            ) : (
               <span>{event.contact.email}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Phone className="w-5 h-5 text-gray-600" />
-              <span>{event.contact.phone}</span>
-            </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Phone className="w-5 h-5 text-gray-600" />
+            <span>
+              {event.external ? (
+                <Link href={`tel:+${TICKETMASTER_PHONE}`}>
+                  {TICKETMASTER_PHONE}
+                </Link>
+              ) : (
+                event.contact.phone
+              )}
+            </span>
           </div>
         </div>
-      )}
+      </div>
 
       {/* feedback section */}
       {!event.external && (
