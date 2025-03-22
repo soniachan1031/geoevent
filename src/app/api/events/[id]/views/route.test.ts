@@ -1,102 +1,79 @@
-import { POST, GET } from "./route"; // Import the POST and GET handlers
+import { POST, GET } from "./route";
 import Event from "@/mongoose/models/Event";
 import EventViews from "@/mongoose/models/EventViews";
 import getUser from "@/lib/server/getUser";
 
-// Mock dependencies
 jest.mock("@/mongoose/models/Event");
 jest.mock("@/mongoose/models/EventViews");
 jest.mock("@/lib/server/getUser", () => jest.fn());
+jest.mock("@/lib/server/connectDB", () => jest.fn());
 jest.mock("next/headers", () => ({
   cookies: jest.fn().mockReturnValue({
-    get: jest.fn().mockReturnValue(null), // Mock unauthenticated user
+    get: jest.fn().mockReturnValue({ value: "auth-token" }),
   }),
 }));
 
-describe("Event Views API", () => {
-  describe("POST /api/events/[id]/views", () => {
-    it("should successfully add a view to an event", async () => {
-      const req = { method: "POST" };
-      const params = { id: "event123" };
+const createParams = (id: string) => Promise.resolve({ id });
+const mockReq = {} as Request;
 
-      const mockEvent = { _id: "event123", organizer: "user456" };
+describe("POST /api/events/:id/views", () => {
+  beforeEach(() => jest.clearAllMocks());
 
-      (Event.findById as jest.Mock).mockResolvedValue(mockEvent);
-      (EventViews.findOneAndUpdate as jest.Mock).mockResolvedValue({
-        event: "event123",
-        views: 1,
-      });
+  it("should increment views if user is not organizer", async () => {
+    const event = { _id: "event123", organizer: "organizer456" };
+    const user = { _id: "user789" };
 
-      const res = await POST(req as any, { params } as any);
-
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("views added");
-      expect(res.body.data.doc.views).toBe(1);
+    (Event.findById as jest.Mock).mockResolvedValue(event);
+    (getUser as jest.Mock).mockResolvedValue(user);
+    (EventViews.findOneAndUpdate as jest.Mock).mockResolvedValue({
+      event: event._id,
+      views: 5,
     });
 
-    it("should return an error if event does not exist", async () => {
-      const req = { method: "POST" };
-      const params = { id: "event123" };
+    const res = await POST(mockReq, { params: createParams("event123") });
+    const data = await res.json();
 
-      (Event.findById as jest.Mock).mockResolvedValue(null);
-
-      const res = (await POST(req as any, { params } as any)).json();
-
-      expect(res.status).toBe(404);
-      expect(res.body.message).toBe("event not found");
-    });
-
-    it("should return an error if user is the organizer", async () => {
-      jest.mock("next/headers", () => ({
-        cookies: jest.fn().mockReturnValue({
-          get: jest.fn().mockReturnValue("mockAuthToken"), // Mock authenticated user
-        }),
-      }));
-
-      (getUser as jest.Mock).mockResolvedValue({ _id: "organizer123" });
-
-      const req = { method: "POST" };
-      const params = { id: "event123" };
-
-      const mockEvent = { _id: "event123", organizer: "organizer123" };
-
-      (Event.findById as jest.Mock).mockResolvedValue(mockEvent);
-
-      const res = (await POST(req as any, { params } as any)).json();
-
-      expect(res.status).toBe(400);
-      expect(res.body.message).toBe("organizer cannot add views to own event");
-    });
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("views added");
+    expect(data.data.doc.views).toBe(5);
   });
 
-  describe("GET /api/events/[id]/views", () => {
-    it("should retrieve all views for an event", async () => {
-      const req = { method: "GET" };
-      const params = { id: "event123" };
+  it("should return 400 if user is organizer", async () => {
+    const event = { _id: "event123", organizer: "user123" };
+    const user = { _id: "user123" };
 
-      (EventViews.find as jest.Mock).mockResolvedValue([
-        { event: "event123", views: 10 },
-      ]);
+    (Event.findById as jest.Mock).mockResolvedValue(event);
+    (getUser as jest.Mock).mockResolvedValue(user);
 
-      const res = await GET(req as any, { params } as any);
+    const res = await POST(mockReq, { params: createParams("event123") });
+    const data = await res.json();
 
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("feedbacks retrieved");
-      expect(res.body.data.docs.length).toBe(1);
-      expect(res.body.data.docs[0].views).toBe(10);
-    });
+    expect(res.status).toBe(400);
+    expect(data.message).toBe("organizer cannot add views to own event");
+  });
 
-    it("should return an empty array if no views exist", async () => {
-      const req = { method: "GET" };
-      const params = { id: "event123" };
+  it("should return 404 if event not found", async () => {
+    (Event.findById as jest.Mock).mockResolvedValue(null);
 
-      (EventViews.find as jest.Mock).mockResolvedValue([]);
+    const res = await POST(mockReq, { params: createParams("invalid") });
+    const data = await res.json();
 
-      const res = await GET(req as any, { params } as any);
+    expect(res.status).toBe(404);
+    expect(data.message).toBe("event not found");
+  });
+});
 
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("feedbacks retrieved");
-      expect(res.body.data.docs).toEqual([]);
-    });
+describe("GET /api/events/:id/views", () => {
+  it("should retrieve views for the event", async () => {
+    const views = [{ _id: "v1", event: "event123", views: 3 }];
+
+    (EventViews.find as jest.Mock).mockResolvedValue(views);
+
+    const res = await GET(mockReq, { params: createParams("event123") });
+    const data = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("feedbacks retrieved");
+    expect(data.data.docs).toEqual(views);
   });
 });

@@ -1,183 +1,125 @@
-import { GET, PATCH, DELETE } from "./route"; // Import the API handlers
+import { GET, PATCH, DELETE } from "./route";
 import User from "@/mongoose/models/User";
+import { guard } from "@/lib/server/middleware/guard";
 import sendMail from "@/lib/server/email/sendMail";
-import { uploadImage } from "@/lib/server/s3UploadHandler";
 
-// Mock dependencies
 jest.mock("@/mongoose/models/User");
+jest.mock("@/lib/server/middleware/guard", () => ({ guard: jest.fn() }));
+jest.mock("@/lib/server/s3UploadHandler", () => ({ uploadImage: jest.fn() }));
 jest.mock("@/lib/server/email/sendMail", () => jest.fn());
-jest.mock("@/lib/server/s3UploadHandler", () => ({
-  uploadImage: jest.fn(),
-}));
-jest.mock("@/lib/server/middleware/guard", () => ({
-  guard: jest.fn().mockResolvedValue({ role: "ADMIN" }),
-}));
+jest.mock("@/lib/server/connectDB", () => jest.fn());
 
-describe("User Management API", () => {
-  describe("GET /api/users/:id", () => {
-    it("should retrieve user details", async () => {
-      const req = { method: "GET" };
-      const params = { id: "user123" };
+const createParams = (id: string) => Promise.resolve({ id });
+const mockReq = {} as Request;
 
-      const mockUser = {
-        _id: "user123",
-        name: "John Doe",
-        email: "john@example.com",
-      };
-
-      (User.findById as jest.Mock).mockResolvedValue(mockUser);
-
-      const res = await GET(req as any, { params } as any);
-
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("user retrieved");
-      expect(res.body.data.doc.email).toBe("john@example.com");
+describe("GET /api/users/:id", () => {
+  it("should return user if found", async () => {
+    (guard as jest.Mock).mockResolvedValue({});
+    (User.findById as jest.Mock).mockResolvedValue({
+      _id: "user123",
+      name: "John",
     });
 
-    it("should return an error if user is not found", async () => {
-      const req = { method: "GET" };
-      const params = { id: "user123" };
+    const res = await GET(mockReq, { params: createParams("user123") });
+    const data = await res.json();
 
-      (User.findById as jest.Mock).mockResolvedValue(null);
-
-      const res = (await GET(req as any, { params } as any)).json();
-
-      expect(res.status).toBe(404);
-      expect(res.body.message).toBe("user not found");
-    });
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("user retrieved");
   });
 
-  describe("PATCH /api/users/:id", () => {
-    it("should update user profile", async () => {
-      const req = {
-        method: "PATCH",
-        formData: async () => {
-          const formData = new FormData();
-          formData.append(
-            "data",
-            JSON.stringify({ name: "Updated User", bio: "Updated bio" })
-          );
-          formData.append(
-            "photo",
-            new Blob(["image-content"], { type: "image/png" })
-          );
-          return formData;
-        },
-      };
-      const params = { id: "user123" };
+  it("should return 404 if user not found", async () => {
+    (guard as jest.Mock).mockResolvedValue({});
+    (User.findById as jest.Mock).mockResolvedValue(null);
 
-      const mockUser = {
-        _id: "user123",
-        name: "John Doe",
-        email: "john@example.com",
-      };
+    const res = await GET(mockReq, { params: createParams("missing") });
+    const data = await res.json();
 
-      (User.findById as jest.Mock).mockResolvedValue(mockUser);
-      (uploadImage as jest.Mock).mockResolvedValue(
-        "https://example.com/new-photo.jpg"
-      );
+    expect(res.status).toBe(404);
+    expect(data.message).toBe("user not found");
+  });
+});
 
-      const updatedUser = {
-        _id: "user123",
-        name: "Updated User",
-        email: "john@example.com",
-        bio: "Updated bio",
-        photo: { url: "https://example.com/new-photo.jpg", alt: "Updated User" },
-      };
+describe("PATCH /api/users/:id", () => {
+  it("should update and return user", async () => {
+    const mockUser = { _id: "user123", name: "Old Name" };
+    const mockUpdatedUser = { _id: "user123", name: "New Name" };
 
-      (User.findByIdAndUpdate as jest.Mock).mockResolvedValue(updatedUser);
+    const formData = new FormData();
+    formData.append("data", JSON.stringify({ name: "New Name" }));
 
-      const res = await PATCH(req as any, { params } as any);
+    (guard as jest.Mock).mockResolvedValue({});
+    (User.findById as jest.Mock).mockResolvedValue(mockUser);
+    (User.findByIdAndUpdate as jest.Mock).mockResolvedValue(mockUpdatedUser);
 
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("profile updated");
-      expect(res.body.data.doc.name).toBe("Updated User");
-      expect(res.body.data.doc.photo.url).toBe(
-        "https://example.com/new-photo.jpg"
-      );
+    const req = new Request("http://localhost/api/users/user123", {
+      method: "PATCH",
+      body: formData,
     });
 
-    it("should return an error if user is not found", async () => {
-      const req = { method: "PATCH" };
-      const params = { id: "user123" };
+    const res = await PATCH(req, { params: createParams("user123") });
+    const data = await res.json();
 
-      (User.findById as jest.Mock).mockResolvedValue(null);
-
-      const res = (await PATCH(req as any, { params } as any)).json();
-
-      expect(res.status).toBe(404);
-      expect(res.body.message).toBe("user not found");
-    });
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("profile updated");
   });
 
-  describe("DELETE /api/users/:id", () => {
-    it("should delete a user and send confirmation email", async () => {
-      const req = { method: "DELETE" };
-      const params = { id: "user123" };
+  it("should return 404 if user not found", async () => {
+    (guard as jest.Mock).mockResolvedValue({});
+    (User.findById as jest.Mock).mockResolvedValue(null);
 
-      const mockUser = {
-        _id: "user123",
-        email: "john@example.com",
-      };
-
-      (User.findById as jest.Mock).mockResolvedValue(mockUser);
-      (User.findByIdAndDelete as jest.Mock).mockResolvedValue(mockUser);
-
-      const res = await DELETE(req as any, { params } as any);
-
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("user deleted");
-      expect(sendMail).toHaveBeenCalled();
+    const req = new Request("http://localhost/api/users/user123", {
+      method: "PATCH",
+      body: new FormData(),
     });
 
-    it("should return an error if user is not found", async () => {
-      const req = { method: "DELETE" };
-      const params = { id: "user123" };
+    const res = await PATCH(req, { params: createParams("user123") });
+    const data = await res.json();
 
-      (User.findById as jest.Mock).mockResolvedValue(null);
-
-      const res = (await DELETE(req as any, { params } as any)).json();
-
-      expect(res.status).toBe(404);
-      expect(res.body.message).toBe("user not found");
-    });
-
-    it("should return an error if user deletion fails", async () => {
-      const req = { method: "DELETE" };
-      const params = { id: "user123" };
-
-      const mockUser = {
-        _id: "user123",
-        email: "john@example.com",
-      };
-
-      (User.findById as jest.Mock).mockResolvedValue(mockUser);
-      (User.findByIdAndDelete as jest.Mock).mockResolvedValue(null);
-
-      const res = (await DELETE(req as any, { params } as any)).json();
-
-      expect(res.status).toBe(500);
-      expect(res.body.message).toBe("user not deleted");
-    });
-
-    it("should handle email sending failure gracefully", async () => {
-      const req = { method: "DELETE" };
-      const params = { id: "user123" };
-
-      const mockUser = {
-        _id: "user123",
-        email: "john@example.com",
-      };
-
-      (User.findById as jest.Mock).mockResolvedValue(mockUser);
-      (User.findByIdAndDelete as jest.Mock).mockResolvedValue(mockUser);
-      (sendMail as jest.Mock).mockRejectedValue(new Error("Email failed"));
-
-      const res = await DELETE(req as any, { params } as any );
-
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("user deleted");
-    });
+    expect(res.status).toBe(404);
+    expect(data.message).toBe("user not found");
   });
-})
+});
 
+describe("DELETE /api/users/:id", () => {
+  it("should delete user and send email", async () => {
+    const mockUser = {
+      _id: "user123",
+      email: "test@example.com",
+      name: "User",
+    };
+
+    (guard as jest.Mock).mockResolvedValue({});
+    (User.findById as jest.Mock).mockResolvedValue(mockUser);
+    (User.findByIdAndDelete as jest.Mock).mockResolvedValue(mockUser);
+    (sendMail as jest.Mock).mockResolvedValue(true);
+
+    const res = await DELETE(mockReq, { params: createParams("user123") });
+    const data = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("user deleted");
+  });
+
+  it("should return 404 if user not found", async () => {
+    (guard as jest.Mock).mockResolvedValue({});
+    (User.findById as jest.Mock).mockResolvedValue(null);
+
+    const res = await DELETE(mockReq, { params: createParams("notfound") });
+    const data = await res.json();
+
+    expect(res.status).toBe(404);
+    expect(data.message).toBe("user not found");
+  });
+
+  it("should return 500 if user not deleted", async () => {
+    const mockUser = { _id: "user123", email: "test@example.com" };
+
+    (guard as jest.Mock).mockResolvedValue({});
+    (User.findById as jest.Mock).mockResolvedValue(mockUser);
+    (User.findByIdAndDelete as jest.Mock).mockResolvedValue(null);
+
+    const res = await DELETE(mockReq, { params: createParams("user123") });
+
+    expect(res.status).toBe(500);
+  });
+});

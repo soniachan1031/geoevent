@@ -1,41 +1,66 @@
-import { GET } from "./route"; // Import the GET handler
+import { GET } from "./route";
 import SavedEvent from "@/mongoose/models/SavedEvent";
+import { guard } from "@/lib/server/middleware/guard";
 
-// Mock dependencies
+// Mocks
 jest.mock("@/mongoose/models/SavedEvent");
 jest.mock("@/lib/server/middleware/guard", () => ({
-  guard: jest.fn().mockResolvedValue({
-    _id: "user123",
-  }),
+  guard: jest.fn(),
 }));
+jest.mock("@/lib/server/connectDB", () => jest.fn());
 
-describe("Saved Events API", () => {
-  describe("GET /api/events/saved", () => {
-    it("should retrieve all saved events for the user", async () => {
-      const req = { method: "GET" };
+describe("GET /api/events/saved", () => {
+  const mockReq = {} as Request;
 
-      (SavedEvent.find as jest.Mock).mockResolvedValue([
-        { event: { _id: "event123", title: "Test Event" }, user: "user123" },
-      ]);
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-      const res = await GET(req as any);
+  it("should return saved events successfully", async () => {
+    const mockUser = { _id: "user123" };
 
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("Saved events");
-      expect(res.body.data.docs.length).toBe(1);
-      expect(res.body.data.docs[0].event.title).toBe("Test Event");
+    (guard as jest.Mock).mockResolvedValue(mockUser);
+
+    const mockSavedEvents = [
+      {
+        _id: "saved1",
+        event: { _id: "event1", title: "Event One" },
+        user: "user123",
+      },
+      {
+        _id: "saved2",
+        event: { _id: "event2", title: "Event Two" },
+        user: "user123",
+      },
+    ];
+
+    (SavedEvent.find as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue(mockSavedEvents),
     });
 
-    it("should return an empty array if user has no saved events", async () => {
-      const req = { method: "GET" };
+    const res = await GET(mockReq);
+    const data = await res.json();
 
-      (SavedEvent.find as jest.Mock).mockResolvedValue([]);
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("Saved events");
+    expect(data.data.docs).toHaveLength(2);
+    expect(data.data.docs[0].event.title).toBe("Event One");
+  });
 
-      const res = await GET(req as any);
+  it("should return empty array if user has no saved events", async () => {
+    const mockUser = { _id: "user123" };
 
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("Saved events");
-      expect(res.body.data.docs).toEqual([]);
+    (guard as jest.Mock).mockResolvedValue(mockUser);
+
+    (SavedEvent.find as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue([]),
     });
+
+    const res = await GET(mockReq);
+    const data = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("Saved events");
+    expect(data.data.docs).toEqual([]);
   });
 });

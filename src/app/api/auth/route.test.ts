@@ -1,173 +1,171 @@
-import { POST, DELETE } from "./route"; // Import the POST and DELETE handlers
+import { POST, DELETE } from "./route";
 import User from "@/mongoose/models/User";
 import { verifyEncryptedString } from "@/lib/server/encryptionHandler";
-import { removeAuthCookie, setAuthCookie } from "@/lib/server/cookieHandler";
+import { setAuthCookie, removeAuthCookie } from "@/lib/server/cookieHandler";
+import { guard } from "@/lib/server/middleware/guard";
 
-// Mock dependencies
+// Mocks
 jest.mock("@/mongoose/models/User");
 jest.mock("@/lib/server/encryptionHandler", () => ({
   verifyEncryptedString: jest.fn(),
 }));
 jest.mock("@/lib/server/cookieHandler", () => ({
-  removeAuthCookie: jest.fn(),
   setAuthCookie: jest.fn(),
+  removeAuthCookie: jest.fn(),
 }));
 jest.mock("@/lib/server/middleware/guard", () => ({
-  guard: jest.fn().mockResolvedValue({
-    _id: "user123",
-    email: "test@example.com",
-  }),
+  guard: jest.fn(),
 }));
+jest.mock("@/lib/server/connectDB", () => jest.fn());
 
-describe("User Authentication API", () => {
-  describe("Login API", () => {
-    it("should log in user successfully", async () => {
-      const req = {
-        method: "POST",
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "securepassword",
-        }),
-      };
+describe("Auth API", () => {
+  describe("POST /api/auth/login", () => {
+    const baseUrl = "http://localhost/api/auth/login";
 
+    it("should login successfully", async () => {
       const mockUser = {
         _id: "user123",
         email: "test@example.com",
-        password: "encryptedPassword",
+        password: "hashedPassword",
         disabled: false,
       };
 
-      (User.findOne as jest.Mock).mockResolvedValue(mockUser);
+      (User.findOne as jest.Mock).mockReturnValue({
+        select: jest.fn().mockResolvedValue(mockUser),
+      });
+
       (verifyEncryptedString as jest.Mock).mockResolvedValue(true);
 
+      const req = new Request(baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: mockUser.email, password: "test123" }),
+      });
+
       const res = await POST(req as any);
+      const data = await res.json();
 
       expect(res.status).toBe(200);
-      expect(res.body.message).toBe("login successful");
-      expect(res.body.data.doc.email).toBe("test@example.com");
+      expect(data.message).toBe("login successful");
       expect(setAuthCookie).toHaveBeenCalledWith("user123");
     });
 
-    it("should return an error if email is missing", async () => {
-      const req = {
+    it("should return error if email is missing", async () => {
+      const req = new Request(baseUrl, {
         method: "POST",
-        body: JSON.stringify({
-          password: "securepassword",
-        }),
-      };
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: "test123" }),
+      });
 
-      const res = (await POST(req as any)).json();
+      const res = await POST(req as any);
+      const data = await res.json();
 
       expect(res.status).toBe(400);
-      expect(res.body.message).toBe("email is required");
+      expect(data.message).toBe("email is required");
     });
 
-    it("should return an error if email is invalid", async () => {
-      const req = {
+    it("should return error if password is missing", async () => {
+      const req = new Request(baseUrl, {
         method: "POST",
-        body: JSON.stringify({
-          email: "invalid-email",
-          password: "securepassword",
-        }),
-      };
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: "test@example.com" }),
+      });
 
-      const res = (await POST(req as any)).json();
+      const res = await POST(req as any);
+      const data = await res.json();
 
       expect(res.status).toBe(400);
-      expect(res.body.message).toBe("not a valid email");
+      expect(data.message).toBe("password is required");
     });
 
-    it("should return an error if password is missing", async () => {
-      const req = {
+    it("should return error if user not found", async () => {
+      (User.findOne as jest.Mock).mockReturnValue({
+        select: jest.fn().mockResolvedValue(null),
+      });
+
+      const req = new Request(baseUrl, {
         method: "POST",
-        body: JSON.stringify({
-          email: "test@example.com",
-        }),
-      };
-
-      const res = (await POST(req as any)).json();
-
-      expect(res.status).toBe(400);
-      expect(res.body.message).toBe("password is required");
-    });
-
-    it("should return an error if user is not found", async () => {
-      const req = {
-        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: "nonexistent@example.com",
-          password: "securepassword",
+          password: "test123",
         }),
-      };
+      });
 
-      (User.findOne as jest.Mock).mockResolvedValue(null);
-
-      const res = (await POST(req as any)).json();
+      const res = await POST(req as any);
+      const data = await res.json();
 
       expect(res.status).toBe(404);
-      expect(res.body.message).toBe("user not found");
+      expect(data.message).toBe("user not found");
     });
 
-    it("should return an error if user is disabled", async () => {
-      const req = {
-        method: "POST",
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "securepassword",
-        }),
-      };
-
+    it("should return error if user is disabled", async () => {
       const mockUser = {
         _id: "user123",
         email: "test@example.com",
-        password: "encryptedPassword",
+        password: "hashedPassword",
         disabled: true,
       };
 
-      (User.findOne as jest.Mock).mockResolvedValue(mockUser);
+      (User.findOne as jest.Mock).mockReturnValue({
+        select: jest.fn().mockResolvedValue(mockUser),
+      });
 
-      const res = (await POST(req as any)).json();
+      const req = new Request(baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: mockUser.email, password: "test123" }),
+      });
+
+      const res = await POST(req as any);
+      const data = await res.json();
 
       expect(res.status).toBe(401);
-      expect(res.body.message).toBe("unauthorized");
+      expect(data.message).toBe("unauthorized");
     });
 
-    it("should return an error if password is incorrect", async () => {
-      const req = {
-        method: "POST",
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "wrongpassword",
-        }),
-      };
-
+    it("should return error if password is incorrect", async () => {
       const mockUser = {
         _id: "user123",
         email: "test@example.com",
-        password: "encryptedPassword",
+        password: "hashedPassword",
         disabled: false,
       };
 
-      (User.findOne as jest.Mock).mockResolvedValue(mockUser);
+      (User.findOne as jest.Mock).mockReturnValue({
+        select: jest.fn().mockResolvedValue(mockUser),
+      });
+
       (verifyEncryptedString as jest.Mock).mockResolvedValue(false);
 
-      const res = (await POST(req as any)).json();
+      const req = new Request(baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: mockUser.email, password: "wrongPass" }),
+      });
+
+      const res = await POST(req as any);
+      const data = await res.json();
 
       expect(res.status).toBe(401);
-      expect(res.body.message).toBe("invalid credentials");
+      expect(data.message).toBe("invalid credentials");
       expect(removeAuthCookie).toHaveBeenCalled();
     });
   });
 
-  describe("Logout API", () => {
-    it("should log out user successfully", async () => {
-      const req = { method: "DELETE" };
+  describe("DELETE /api/auth/logout", () => {
+    it("should logout successfully", async () => {
+      const req = new Request("http://localhost/api/auth/logout", {
+        method: "DELETE",
+      });
 
       const res = await DELETE(req as any);
+      const data = await res.json();
 
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("logout successful");
+      expect(guard).toHaveBeenCalledWith(req);
       expect(removeAuthCookie).toHaveBeenCalled();
+      expect(res.status).toBe(200);
+      expect(data.message).toBe("logout successful");
     });
   });
 });

@@ -1,41 +1,66 @@
-import { GET } from "./route"; // Import the GET handler
+import { GET } from "./route";
 import EventRegistration from "@/mongoose/models/EventRegistration";
+import { guard } from "@/lib/server/middleware/guard";
 
-// Mock dependencies
+// Mocks
 jest.mock("@/mongoose/models/EventRegistration");
 jest.mock("@/lib/server/middleware/guard", () => ({
-  guard: jest.fn().mockResolvedValue({
-    _id: "user123",
-  }),
+  guard: jest.fn(),
 }));
+jest.mock("@/lib/server/connectDB", () => jest.fn());
 
-describe("Registered Events API", () => {
-  describe("GET /api/events/registered", () => {
-    it("should retrieve all registered events for the user", async () => {
-      const req = { method: "GET" };
+describe("GET /api/events/registered", () => {
+  const mockReq = {} as Request;
 
-      (EventRegistration.find as jest.Mock).mockResolvedValue([
-        { event: { _id: "event123", title: "Test Event" }, user: "user123" },
-      ]);
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-      const res = await GET(req as any);
+  it("should return registered events successfully", async () => {
+    const mockUser = { _id: "user123" };
 
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("Registered events");
-      expect(res.body.data.docs.length).toBe(1);
-      expect(res.body.data.docs[0].event.title).toBe("Test Event");
+    (guard as jest.Mock).mockResolvedValue(mockUser);
+
+    const mockRegistrations = [
+      {
+        _id: "reg1",
+        event: { _id: "event1", title: "Event One" },
+        user: "user123",
+      },
+      {
+        _id: "reg2",
+        event: { _id: "event2", title: "Event Two" },
+        user: "user123",
+      },
+    ];
+
+    (EventRegistration.find as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue(mockRegistrations),
     });
 
-    it("should return an empty array if user has no registered events", async () => {
-      const req = { method: "GET" };
+    const res = await GET(mockReq);
+    const data = await res.json();
 
-      (EventRegistration.find as jest.Mock).mockResolvedValue([]);
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("Registered events");
+    expect(data.data.docs).toHaveLength(2);
+    expect(data.data.docs[0].event.title).toBe("Event One");
+  });
 
-      const res = await GET(req as any);
+  it("should return empty array if user has no registrations", async () => {
+    const mockUser = { _id: "user123" };
 
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("Registered events");
-      expect(res.body.data.docs).toEqual([]);
+    (guard as jest.Mock).mockResolvedValue(mockUser);
+
+    (EventRegistration.find as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue([]),
     });
+
+    const res = await GET(mockReq);
+    const data = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("Registered events");
+    expect(data.data.docs).toEqual([]);
   });
 });

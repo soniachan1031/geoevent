@@ -1,105 +1,138 @@
-import { GET, PATCH, DELETE } from "./route"; // Import API handlers
+import { GET, PATCH, DELETE } from "./route";
 import User from "@/mongoose/models/User";
 import sendMail from "@/lib/server/email/sendMail";
+import { guard } from "@/lib/server/middleware/guard";
 import { uploadImage } from "@/lib/server/s3UploadHandler";
+import deleteProfileTemplate from "@/lib/server/email/templates/deleteProfileTemplate";
 
 // Mock dependencies
-jest.mock("next/headers", () => ({
-  cookies: jest.fn().mockReturnValue({
-    get: jest.fn().mockReturnValue("mockAuthToken"), // Mock authentication cookie
-  }),
+jest.mock("@/mongoose/models/User", () => ({
+  findByIdAndUpdate: jest.fn(),
+  findByIdAndDelete: jest.fn(),
 }));
-jest.mock("@/lib/server/middleware/guard", () => ({
-  guard: jest.fn().mockResolvedValue({
-    _id: "user123",
-    name: "Test User",
-    email: "test@example.com",
-    phone: "1234567890",
-    dateOfBirth: "2000-01-01",
-    bio: "This is a test bio",
-    photo: { url: "https://example.com/photo.jpg", alt: "Test User" },
-  }),
-}));
-jest.mock("@/mongoose/models/User");
 jest.mock("@/lib/server/email/sendMail", () => jest.fn());
 jest.mock("@/lib/server/s3UploadHandler", () => ({
   uploadImage: jest.fn(),
 }));
+jest.mock("@/lib/server/middleware/guard", () => ({
+  guard: jest.fn(),
+}));
+jest.mock("@/lib/server/email/templates/deleteProfileTemplate", () =>
+  jest.fn()
+);
 
-describe("User API", () => {
-  it("should return authenticated user details", async () => {
-    const req = { method: "GET" };
-    const res = await GET(req as any);
+describe("User API Routes", () => {
+  let req: any;
+  let mockUser: any;
 
-    expect(res.status).toBe(200);
-    expect(res.body.message).toBe("success");
-    expect(res.body.data.doc.email).toBe("test@example.com");
-  });
-
-  it("should update user profile", async () => {
-    const req = {
-      method: "PATCH",
-      formData: async () => {
-        const formData = new FormData();
-        formData.append(
-          "data",
-          JSON.stringify({ name: "Updated User", bio: "Updated bio" })
-        );
-        formData.append(
-          "photo",
-          new Blob(["image-content"], { type: "image/png" })
-        );
-        return formData;
-      },
+  beforeEach(() => {
+    mockUser = {
+      _id: "user123",
+      name: "John Doe",
+      email: "john.doe@example.com",
+      phone: "123-456-7890",
+      dateOfBirth: "1990-01-01",
+      bio: "This is a bio",
     };
 
-    (uploadImage as jest.Mock).mockResolvedValue(
-      "https://example.com/new-photo.jpg"
-    );
-
-    const updatedUser = {
-      _id: "user123",
-      name: "Updated User",
-      email: "test@example.com",
-      bio: "Updated bio",
-      photo: { url: "https://example.com/new-photo.jpg", alt: "Updated User" },
+    req = {
+      user: mockUser,
+      formData: jest.fn().mockResolvedValue({
+        get: jest.fn().mockReturnValue(JSON.stringify(mockUser)),
+      }),
     };
-
-    (User.findByIdAndUpdate as jest.Mock).mockResolvedValue(updatedUser);
-
-    const res = await PATCH(req as any);
-
-    expect(res.status).toBe(200);
-    expect(res.body.message).toBe("profile updated");
-    expect(res.body.data.doc.name).toBe("Updated User");
-    expect(res.body.data.doc.photo.url).toBe(
-      "https://example.com/new-photo.jpg"
-    );
   });
 
-  it("should delete user and send confirmation email", async () => {
-    const req = { method: "DELETE" };
+  describe("GET /api/auth/me", () => {
+    it("should return the current user", async () => {
+      // Mock the guard function to return the mock user
+      (guard as jest.Mock).mockResolvedValue(mockUser);
 
-    (User.findByIdAndDelete as jest.Mock).mockResolvedValue({
-      _id: "user123",
-      email: "test@example.com",
+      // Call the GET handler
+      const res = await GET(req);
+      const responseBody = await res.json(); // Parse the response
+
+      // Assert response
+      expect(res.status).toBe(200);
+      expect(responseBody.message).toBe("success");
+      expect(responseBody.data.doc).toEqual(mockUser);
+    });
+  });
+
+  describe("PATCH /api/auth/me", () => {
+    it("should update the user profile", async () => {
+      const updatedUser = { ...mockUser, name: "Updated Name" };
+
+      // Mock the guard function and database update
+      (guard as jest.Mock).mockResolvedValue(mockUser);
+      (User.findByIdAndUpdate as jest.Mock).mockResolvedValue(updatedUser);
+      (uploadImage as jest.Mock).mockResolvedValue(
+        "https://example.com/image.jpg"
+      );
+
+      // Call the PATCH handler
+      const res = await PATCH(req);
+      const responseBody = await res.json(); // Parse the response
+
+      // Assert response
+      expect(res.status).toBe(200);
+      expect(responseBody.message).toBe("profile updated");
+      expect(responseBody.data.doc.name).toBe("Updated Name");
     });
 
-    const res = await DELETE(req as any);
+    it("should update user profile without an image", async () => {
+      const updatedUser = { ...mockUser, name: "Updated Name" };
 
-    expect(res.status).toBe(200);
-    expect(res.body.message).toBe("user deleted");
-    expect(sendMail).toHaveBeenCalled();
+      // Mock the guard function and database update without image
+      (guard as jest.Mock).mockResolvedValue(mockUser);
+      (User.findByIdAndUpdate as jest.Mock).mockResolvedValue(updatedUser);
+
+      // Call the PATCH handler
+      const res = await PATCH(req);
+      const responseBody = await res.json(); // Parse the response
+
+      // Assert response
+      expect(res.status).toBe(200);
+      expect(responseBody.message).toBe("profile updated");
+      expect(responseBody.data.doc.name).toBe("Updated Name");
+    });
   });
 
-  it("should return error if user deletion fails", async () => {
-    const req = { method: "DELETE" };
+  describe("DELETE /api/auth/me", () => {
+    it("should delete the user and send a confirmation email", async () => {
+      // Mock the guard function and user deletion
+      (guard as jest.Mock).mockResolvedValue(mockUser);
+      (User.findByIdAndDelete as jest.Mock).mockResolvedValue(mockUser);
+      (sendMail as jest.Mock).mockResolvedValue(true);
+      (deleteProfileTemplate as jest.Mock).mockReturnValue(
+        "<html>Profile deleted</html>"
+      );
 
-    (User.findByIdAndDelete as jest.Mock).mockResolvedValue(null);
+      // Call the DELETE handler
+      const res = await DELETE(req);
+      const responseBody = await res.json(); // Parse the response
 
-    const res = (await DELETE(req as any)).json();
+      // Assert response
+      expect(res.status).toBe(200);
+      expect(responseBody.message).toBe("user deleted");
+      expect(sendMail).toHaveBeenCalled();
+      expect(deleteProfileTemplate).toHaveBeenCalledWith({
+        user: mockUser,
+        req,
+      });
+    });
 
-    expect(res.status).toBe(500);
-    expect(res.body.message).toBe("user not deleted");
+    it("should return an error if user deletion fails", async () => {
+      // Mock the guard function and simulate deletion failure
+      (guard as jest.Mock).mockResolvedValue(mockUser);
+      (User.findByIdAndDelete as jest.Mock).mockResolvedValue(null); // Simulate deletion failure
+
+      // Call the DELETE handler and expect it to throw an error
+      const res = await DELETE(req);
+      const responseBody = await res.json(); // Parse the response
+
+      expect(res.status).toBe(500);
+      expect(responseBody.message).toBe("user not deleted");
+    });
   });
 });

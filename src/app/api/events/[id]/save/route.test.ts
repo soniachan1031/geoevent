@@ -1,75 +1,72 @@
-import { POST, DELETE } from "./route"; // Import the POST and DELETE handlers
+import { POST, DELETE } from "./route";
 import Event from "@/mongoose/models/Event";
 import SavedEvent from "@/mongoose/models/SavedEvent";
+import { guard } from "@/lib/server/middleware/guard";
 
-// Mock dependencies
 jest.mock("@/mongoose/models/Event");
 jest.mock("@/mongoose/models/SavedEvent");
-jest.mock("@/lib/server/middleware/guard", () => ({
-  guard: jest.fn().mockResolvedValue({
-    _id: "user123",
-  }),
-}));
+jest.mock("@/lib/server/middleware/guard", () => ({ guard: jest.fn() }));
+jest.mock("@/lib/server/connectDB", () => jest.fn());
 
-describe("Event Save API", () => {
-  describe("POST /api/events/[id]/save", () => {
-    it("should successfully save an event for the user", async () => {
-      const req = { method: "POST" };
-      const params = { id: "event123" };
+const createParams = (id: string) => Promise.resolve({ id });
+const mockReq = {} as Request;
 
-      const mockEvent = { _id: "event123" };
+describe("POST /api/events/:id/save", () => {
+  beforeEach(() => jest.clearAllMocks());
 
-      (Event.findById as jest.Mock).mockResolvedValue(mockEvent);
-      (SavedEvent.findOneAndUpdate as jest.Mock).mockResolvedValue({
-        event: "event123",
-        user: "user123",
-      });
+  it("should save event for user", async () => {
+    const user = { _id: "user123" };
+    const event = { _id: "event123", title: "Sample Event" };
 
-      const res = await POST(req as any, { params } as any);
-
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("event saved");
+    (guard as jest.Mock).mockResolvedValue(user);
+    (Event.findById as jest.Mock).mockResolvedValue(event);
+    (SavedEvent.findOneAndUpdate as jest.Mock).mockResolvedValue({
+      _id: "saved1",
+      event: event._id,
+      user: user._id,
     });
 
-    it("should return an error if event does not exist", async () => {
-      const req = { method: "POST" };
-      const params = { id: "event123" };
+    const res = await POST(mockReq, { params: createParams("event123") });
+    const data = await res.json();
 
-      (Event.findById as jest.Mock).mockResolvedValue(null);
-
-      const res = (await POST(req as any, { params } as any)).json();
-
-      expect(res.status).toBe(404);
-      expect(res.body.message).toBe("event not found");
-    });
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("event saved");
   });
 
-  describe("DELETE /api/events/[id]/save", () => {
-    it("should successfully unsave an event", async () => {
-      const req = { method: "DELETE" };
-      const params = { id: "event123" };
+  it("should return 404 if event not found", async () => {
+    (guard as jest.Mock).mockResolvedValue({ _id: "user123" });
+    (Event.findById as jest.Mock).mockResolvedValue(null);
 
-      (SavedEvent.findOneAndDelete as jest.Mock).mockResolvedValue({
-        event: "event123",
-        user: "user123",
-      });
+    const res = await POST(mockReq, { params: createParams("event404") });
+    const data = await res.json();
 
-      const res = await DELETE(req as any, { params } as any);
+    expect(res.status).toBe(404);
+    expect(data.message).toBe("event not found");
+  });
+});
 
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe("Event unsaved");
+describe("DELETE /api/events/:id/save", () => {
+  it("should unsave event for user", async () => {
+    (guard as jest.Mock).mockResolvedValue({ _id: "user123" });
+    (SavedEvent.findOneAndDelete as jest.Mock).mockResolvedValue({
+      _id: "saved1",
     });
 
-    it("should return an error if event was not saved", async () => {
-      const req = { method: "DELETE" };
-      const params = { id: "event123" };
+    const res = await DELETE(mockReq, { params: createParams("event123") });
+    const data = await res.json();
 
-      (SavedEvent.findOneAndDelete as jest.Mock).mockResolvedValue(null);
+    expect(res.status).toBe(200);
+    expect(data.message).toBe("Event unsaved");
+  });
 
-      const res = (await DELETE(req as any, { params } as any)).json();
+  it("should return 400 if event is not saved", async () => {
+    (guard as jest.Mock).mockResolvedValue({ _id: "user123" });
+    (SavedEvent.findOneAndDelete as jest.Mock).mockResolvedValue(null);
 
-      expect(res.status).toBe(400);
-      expect(res.body.message).toBe("Event is not saved");
-    });
+    const res = await DELETE(mockReq, { params: createParams("event123") });
+    const data = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(data.message).toBe("Event is not saved");
   });
 });
