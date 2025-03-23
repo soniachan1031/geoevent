@@ -6,6 +6,9 @@ import { GOOGLE_MAPS_MAP_ID } from "@/lib/credentials";
 import { FaMapMarker } from "react-icons/fa";
 import ReactDOMServer from "react-dom/server";
 import styles from "./eventMap.module.css";
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import Link from "next/link";
+import Image from "next/image";
 
 interface EventMapProps {
   events: IEvent[];
@@ -18,13 +21,14 @@ const mapContainerStyle: React.CSSProperties = {
   height: "100%",
 };
 
-export default function Index({
+export default function EventMap({
   events,
   selectedEventId,
-  onMarkerClick,
 }: Readonly<EventMapProps>) {
   const { isLoaded, loadError } = useGoogleMapsContext();
   const mapRef = useRef<google.maps.Map | null>(null);
+  const clustererRef = useRef<MarkerClusterer | null>(null);
+  const [activeEvent, setActiveEvent] = useState<string | null>(null);
 
   const defaultCenter = useMemo(() => {
     if (events.length > 0) {
@@ -38,6 +42,11 @@ export default function Index({
 
   function handleMapLoad(map: google.maps.Map) {
     mapRef.current = map;
+    clustererRef.current = new MarkerClusterer({ map, markers: [] });
+  }
+
+  function handleMarkerClick(eventId: string) {
+    setActiveEvent(eventId === activeEvent ? null : eventId); // Toggle visibility
   }
 
   if (loadError) {
@@ -60,87 +69,126 @@ export default function Index({
         zoomControl: true,
         disableDefaultUI: true,
       }}
+      onClick={() => setActiveEvent(null)} // Hide floating card when clicking anywhere else
     >
-      {events.map((event) => {
-        return (
-          <EventMarker
-            key={event._id}
-            event={event}
-            selected={event._id === selectedEventId}
-            onClick={onMarkerClick}
-          />
-        );
-      })}
+      {events.map((event) => (
+        <EventMarker
+          key={event._id}
+          event={event}
+          selected={event._id === selectedEventId}
+          isActive={event._id === activeEvent}
+          onClick={handleMarkerClick}
+        />
+      ))}
+
+      {/* Floating Event Card */}
+      {activeEvent && (
+        <FloatingEventCard
+          event={events.find((e) => e._id === activeEvent)!}
+          onClose={() => setActiveEvent(null)}
+        />
+      )}
     </GoogleMap>
   );
 }
 
-function EventMarker({
-  event,
-  selected,
-  onClick,
-}: {
+interface EventMarkerProps {
   event: IEvent;
   selected: boolean;
+  isActive: boolean;
   onClick?: (eventId: string) => void;
-}) {
+}
+
+export function EventMarker({
+  event,
+  selected,
+  isActive,
+  onClick,
+}: EventMarkerProps) {
   const map = useGoogleMap();
   const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(
     null
   );
-  const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
     if (!map || !google?.maps?.marker?.AdvancedMarkerElement) return;
 
-    // Create marker
     const marker = new google.maps.marker.AdvancedMarkerElement({
       map,
-      position: {
-        lat: event.location.lat,
-        lng: event.location.lng,
-      },
+      position: { lat: event.location.lat, lng: event.location.lng },
       title: event.title,
     });
 
-    // Render the react-icons component to a string
-    const iconHtml = ReactDOMServer.renderToString(
+    const div = document.createElement("div");
+    div.className = styles.markerContainer;
+    div.innerHTML = ReactDOMServer.renderToString(
       <FaMapMarker
-        size={selected ? 40: 30}
-        color={selected ? "red" : "black"}
-        className={styles.markerIcon} // ✅ Apply module CSS class
+        size={selected || isActive ? 45 : 30}
+        color={selected || isActive ? "#ff4747" : "#222"}
+        className={styles.markerIcon}
       />
     );
 
-    // Create a container div for the marker
-    const div = document.createElement("div");
-    div.className = styles.markerContainer; // ✅ Apply class from module
-    div.innerHTML = `
-      ${iconHtml}
-      <div class="${styles.eventPreview} ${hovered ? styles.visible : ""}">
-        <strong>${event.title}</strong>
-        <p>${event.category}</p>
-        <p>${new Date(event.date).toLocaleDateString()}</p>
-      </div>
-    `;
-
     marker.content = div;
 
-    // Show preview on hover
-    div.addEventListener("mouseenter", () => setHovered(true));
-    div.addEventListener("mouseleave", () => setHovered(false));
-
-    // Add click listener
-    marker.addListener("gmp-click", () => {
-      onClick?.(event._id);
-    });
+    marker.addListener("gmp-click", () => onClick?.(event._id));
 
     markerRef.current = marker;
 
     return () => {
       marker.map = null;
     };
-  }, [map, event, selected, onClick, hovered]);
+  }, [map, event, selected, isActive, onClick]);
 
   return null;
+}
+
+// Floating Card UI
+interface FloatingEventCardProps {
+  event: IEvent;
+  onClose: () => void;
+}
+
+function FloatingEventCard({
+  event,
+  onClose,
+}: Readonly<FloatingEventCardProps>) {
+  return (
+    <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white rounded-xl shadow-lg overflow-hidden max-w-xs w-full cursor-pointer transition hover:shadow-xl">
+      {/* Close Button */}
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 bg-gray-800 text-white rounded-full p-1 text-sm hover:bg-gray-600"
+      >
+        ✕
+      </button>
+
+      {/* Clickable Link */}
+      <Link href={`/events/${event._id}`} passHref>
+        <div>
+          {/* Event Image */}
+          <div className="relative w-full h-40">
+            <Image
+              src={event.image ?? "logo.png"}
+              alt={event.title}
+              layout="fill"
+              objectFit="cover"
+              className="rounded-t-xl"
+            />
+          </div>
+
+          {/* Event Details */}
+          <div className="p-4">
+            <h3 className="text-lg font-semibold text-gray-900 underline">
+              {event.title}
+            </h3>
+            <p className="text-sm text-gray-500">{event.category}</p>
+            <p className="text-sm text-gray-700 font-medium">
+              {new Date(event.date).toLocaleDateString()} • {event.time}
+            </p>
+          </div>
+        </div>
+      </Link>
+    </div>
+  );
 }

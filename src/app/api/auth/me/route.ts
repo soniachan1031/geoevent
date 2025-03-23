@@ -10,6 +10,7 @@ import deleteProfileTemplate from "@/lib/server/email/templates/deleteProfileTem
 import AppError from "@/lib/server/AppError";
 
 // get user
+// GET /api/auth/me
 export const GET = catchAsync(async (req) => {
   // guard
   await guard(req);

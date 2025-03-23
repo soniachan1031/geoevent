@@ -16,9 +16,13 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-5 p-5">
-      <h1 className="text-3xl">Profile</h1>
-      <div className="md:min-w-[500px]">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6 w-full">
+      {/* Page Title */}
+      <h1 className="text-4xl font-bold text-gray-900 mb-6">Profile</h1>
+  
+      {/* Profile Card */}
+      <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-lg">
+        {/* Profile Form */}
         <ProfileForm
           user={user}
           onSuccess={setUser}
@@ -26,9 +30,14 @@ export default function Profile() {
           requestMethod={EApiRequestMethod.PATCH}
         />
       </div>
-      <DeleteProfileBtn requestUrl="api/auth/me" onSuccess={onProfileDelete} />
+  
+      {/* Delete Account Section */}
+      <div className="mt-6">
+        <DeleteProfileBtn requestUrl="api/auth/me" onSuccess={onProfileDelete} />
+      </div>
     </div>
   );
+  
 }
 
 export const getServerSideProps = serverSidePropsHandler({

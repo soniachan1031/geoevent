@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { IEvent } from "@/types/event.types";
+import { EEventShareMedia, IEvent } from "@/types/event.types";
 import { Input } from "../ui/input";
 
 import {
@@ -25,6 +25,7 @@ import {
 import { FaCopy } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { CiShare2 } from "react-icons/ci";
+import axiosInstance from "@/lib/axiosInstance";
 
 const SocialShareBtn: React.FC<{
   shareUrl: string;
@@ -35,9 +36,18 @@ const SocialShareBtn: React.FC<{
     try {
       await navigator.clipboard.writeText(shareUrl);
       toast.success("Link copied to clipboard");
+      await submitShareDate(EEventShareMedia.URL);
     } catch {
       toast.error("Failed to copy link");
     }
+  };
+
+  const submitShareDate = async (media: EEventShareMedia) => {
+    try {
+      await axiosInstance().post(`/api/events/${event._id}/share`, {
+        media,
+      });
+    } catch {}
   };
 
   return (
@@ -60,11 +70,19 @@ const SocialShareBtn: React.FC<{
               </Button>
             </div>
             <div className="flex items-center gap-3 mt-6">
-              <FacebookShareButton url={shareUrl} title={event.title}>
+              <FacebookShareButton
+                url={shareUrl}
+                title={event.title}
+                onClick={() => submitShareDate(EEventShareMedia.FACEBOOK)}
+              >
                 <FacebookIcon size={32} round />
               </FacebookShareButton>
 
-              <TwitterShareButton url={shareUrl} title={event.title}>
+              <TwitterShareButton
+                url={shareUrl}
+                title={event.title}
+                onClick={() => submitShareDate(EEventShareMedia.TWITTER)}
+              >
                 <TwitterIcon size={32} round />
               </TwitterShareButton>
 
@@ -72,11 +90,17 @@ const SocialShareBtn: React.FC<{
                 url={shareUrl}
                 title={event.title}
                 summary={event.description}
+                source={event.title}
+                onClick={() => submitShareDate(EEventShareMedia.LINKEDIN)}
               >
                 <LinkedinIcon size={32} round />
               </LinkedinShareButton>
 
-              <WhatsappShareButton url={shareUrl} title={event.title}>
+              <WhatsappShareButton
+                url={shareUrl}
+                title={event.title}
+                onClick={() => submitShareDate(EEventShareMedia.WHATSAPP)}
+              >
                 <WhatsappIcon size={32} round />
               </WhatsappShareButton>
             </div>

@@ -11,20 +11,35 @@ import ResetPasswordForm from "@/components/forms/ResetPasswordForm";
 
 export default function Page({ token }: Readonly<{ token: string }>) {
   return (
-    <div className="min-h-screen grid place-items-center p-3">
-      <div className="grid gap-5 place-items-center">
-        <Logo />
+    <div className="flex flex-col items-center justify-center min-h-screen px-6 bg-gray-100">
+      {/* Reset Password Container */}
+      <div className="w-full max-w-lg bg-white p-10 rounded-lg shadow-md">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <Logo width={80} height={80} />
+        </div>
+
+        {/* Heading */}
         {!token ? (
-          <p>Invalid Link</p>
+          <p className="text-xl font-semibold text-center text-red-500">Invalid Link</p>
         ) : (
           <>
-            <p>Reset Password</p>
-            <ResetPasswordForm token={token} />
+            <h1 className="text-2xl font-bold text-center text-gray-900">Reset Password</h1>
+            <p className="text-sm text-gray-500 text-center mt-1">Enter a new password</p>
+
+            {/* Reset Password Form */}
+            <div className="mt-8">
+              <ResetPasswordForm token={token} />
+            </div>
           </>
         )}
-        <Link href="/login" className="underline">
-          Login
-        </Link>
+
+        {/* Login Redirect */}
+        <p className="text-sm text-center mt-5">
+          <Link href="/login" className="text-gray-700 hover:underline font-semibold">
+            Back to Login
+          </Link>
+        </p>
       </div>
     </div>
   );

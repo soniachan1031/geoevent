@@ -10,6 +10,7 @@ import Event from "@/mongoose/models/Event";
 import EventRegistration from "@/mongoose/models/EventRegistration";
 
 // Register for an event (upsert)
+// POST /api/events/[id]/register
 export const POST = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // Extract event ID from params
@@ -66,6 +67,7 @@ export const POST = catchAsync(
           subject: "Registered for event Successfully",
           url: `${getSiteURL(req)}/events/${event._id}`,
           event,
+          user,
           req,
         }),
       });
@@ -78,6 +80,7 @@ export const POST = catchAsync(
 );
 
 // Unregister from an event
+// DELETE /api/events/[id]/register
 export const DELETE = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // Extract event ID from params

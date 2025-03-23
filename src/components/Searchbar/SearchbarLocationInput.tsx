@@ -89,14 +89,19 @@ export default function SearchbarLocationInput({
             type="text"
             name="location.city"
             placeholder="Search city"
-            className="py-1 px-3 border-none"
+            className="py-1 px-3 border-none w-full focus:outline-none"
             value={inputValue}
             onChange={handleInputChange}
             onBlur={clearInput}
           />
         </Autocomplete>
       ) : (
-        <Input type="text" placeholder="Loading location search..." disabled />
+        <Input
+          type="text"
+          placeholder="Loading location search..."
+          className="py-1 px-3 border-none w-full"
+          disabled
+        />
       )}
     </div>
   );

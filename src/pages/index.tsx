@@ -1,17 +1,14 @@
 import {
-  EEventCategory,
-  EEventFormat,
-  EEventLanguage,
+  IEvent,
 } from "@/types/event.types";
-import extractDate from "@/lib/extractDate";
 import { useEventSearchContext } from "@/context/EventSearchContext";
 import { LoadingSkeleton } from "@/components/skeletons/LoadingSkeleton";
-import EventCard from "@/components/EventCard";
 import CustomPagination from "@/components/paginations/CustomPagination";
 import serverSidePropsHandler from "@/lib/server/serverSidePropsHandler";
 import { EAuthStatus } from "@/types/user.types";
 import EventMap from "@/components/maps/EventMap/EventMap";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 export const metadata = {
   title: "GeoEvent",
@@ -24,7 +21,7 @@ export default function Home() {
     searchOptions,
     events,
     pagination,
-    setSearchOptions,
+    // setSearchOptions,
     searchEvents,
   } = useEventSearchContext();
 
@@ -50,88 +47,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center min-h-screen gap-5 w-full">
-      <h1 className="text-3xl font-semibold">GeoEvent</h1>
-      <div className="flex gap-5 items-center">
-        <select
-          value={searchOptions.category ?? ""}
-          onChange={(e) =>
-            setSearchOptions((prev) => ({
-              ...prev,
-              category: e.target.value as EEventCategory,
-            }))
-          }
-          className="p-1 rounded shadow"
-        >
-          <option value="">Category</option>
-          {Object.values(EEventCategory).map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={searchOptions.format ?? ""}
-          onChange={(e) =>
-            setSearchOptions((prev) => ({
-              ...prev,
-              format: e.target.value as EEventFormat,
-            }))
-          }
-          className="p-1 rounded shadow"
-        >
-          <option value="">Format</option>
-          {Object.values(EEventFormat).map((format) => (
-            <option key={format} value={format}>
-              {format}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={searchOptions.language ?? ""}
-          onChange={(e) =>
-            setSearchOptions((prev) => ({
-              ...prev,
-              language: e.target.value as EEventLanguage,
-            }))
-          }
-          className="p-1 rounded shadow"
-        >
-          <option value="">language</option>
-          {Object.values(EEventLanguage).map((language) => (
-            <option key={language} value={language}>
-              {language}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="date"
-          value={searchOptions.dateFrom ?? ""}
-          onChange={(e) =>
-            setSearchOptions((prev) => ({
-              ...prev,
-              dateFrom: extractDate(e.target.value),
-            }))
-          }
-          className="p-1 shadow"
-        />
-
-        <span className="text-black">To</span>
-
-        <input
-          type="date"
-          value={searchOptions.dateTo ?? ""}
-          onChange={(e) =>
-            setSearchOptions((prev) => ({
-              ...prev,
-              dateTo: extractDate(e.target.value),
-            }))
-          }
-          className="p-1 shadow"
-        />
-      </div>
       {loading ? (
         <div className="flex flex-col gap-5 w-full">
           <LoadingSkeleton />
@@ -142,31 +57,33 @@ export default function Home() {
         </div>
       ) : (
         <>
-          <div className="flex gap-5 w-full">
-            <div className="flex-1 h-[500px] sticky top-[75px]">
-              <EventMap
-                events={events}
-                selectedEventId={selectedEventId}
-                onMarkerClick={setSelectedEventId}
-              />
-            </div>
-            <div className="grid gap-5">
+          <div className="flex-1 flex flex-col gap-5 w-full">
+          {/* Map Section */}
+<div className="w-full h-[500px] bg-gray-100 rounded-xl shadow-md border border-gray-200 overflow-hidden">
+  <EventMap
+    events={events}
+    selectedEventId={selectedEventId}
+    onMarkerClick={setSelectedEventId}
+  />
+</div>
+
+            {/* Event Cards Section */}
+            <div className="grid sm:grid-cols-2 md:grid-cols-1 gap-5 place-items-center w-auto">
               {events.map((event) => (
                 <div
                   key={event._id}
-                  ref={(el) => {eventRefs.current[event._id] = el;}}
-                  className={`p-2 rounded max-h-max ${
+                  ref={(el) => {
+                    eventRefs.current[event._id] = el;
+                  }}
+                  className={`w-full p-2 rounded max-h-max ${
                     selectedEventId === event._id ? "shadow-lg" : ""
                   }`}
                 >
-                  <EventCard
-                    event={event}
-                    link={`events/${event._id}`}
-                    horizontal
-                  />
+                  <EventCard event={event} />
                 </div>
               ))}
             </div>
+            
           </div>
           <CustomPagination
             paginationProps={pagination}
@@ -181,3 +98,43 @@ export default function Home() {
 export const getServerSideProps = serverSidePropsHandler({
   access: EAuthStatus.ANY,
 });
+
+const EventCard = ({ event }: Readonly<{ event: IEvent }>) => {
+  const link = `events/${event._id}`;
+
+  return (
+    <Link href={link} className="group block w-full">
+          <div className="w-full flex justify-center">
+      <div
+        className="shadow-md srounded-lg hover:shadow-lg transition duration-300 
+                   w-full max-w-3xl overflow-hidden flex flex-col md:flex-row mx-auto"
+      >
+        {/* Event Image (Left for Desktop, Full Width for Mobile) */}
+        <img
+          src={event.image ?? "/logo.png"}
+          alt={event.title}
+          className="w-full md:w-[220px] h-[150px] object-cover rounded-lg"
+        />
+
+        {/* Event Details (Right for Desktop, Below for Mobile) */}
+        <div className="p-4 flex flex-col justify-center">
+          <h2 className="text-lg md:text-xl font-semibold text-gray-900">{event.title}</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {new Date(event.date).toLocaleDateString("en-US", {
+              timeZone: "UTC",
+              weekday: "short",
+              month: "long",
+              day: "numeric",
+            })}{" "}
+            • {event.time}
+          </p>
+          <p className="text-sm text-gray-600">
+            {event.location.city}, {event.location.state}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    </Link>
+  );
+};

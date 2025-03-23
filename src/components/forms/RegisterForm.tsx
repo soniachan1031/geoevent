@@ -61,78 +61,100 @@ function RegisterForm() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 bg-white p-5 shadow w-full sm:w-[400px]"
-      >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-lg">Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Your name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+  <form
+    onSubmit={form.handleSubmit(onSubmit)}
+    className="space-y-6 bg-white p-6 rounded-lg w-full md:w-[400px]"
+  >
+    {/* Name Field */}
+    <FormField
+      control={form.control}
+      name="name"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-sm font-semibold text-gray-800">Name</FormLabel>
+          <FormControl>
+            <Input 
+              placeholder="Enter your name" 
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
+              {...field} 
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
 
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-lg">Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Your email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-lg">Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="Your password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    {/* Email Field */}
+    <FormField
+      control={form.control}
+      name="email"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-sm font-semibold text-gray-800">Email</FormLabel>
+          <FormControl>
+            <Input 
+              placeholder="Enter your email" 
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
+              {...field} 
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
 
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-lg">Confirm Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Confirm password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button
-          className="text-lg w-full"
-          type="submit"
-          loading={authLoading}
-          loaderProps={{ color: "white" }}
-        >
-          Register
-        </Button>
-      </form>
-    </Form>
+    {/* Password Field */}
+    <FormField
+      control={form.control}
+      name="password"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-sm font-semibold text-gray-800">Password</FormLabel>
+          <FormControl>
+            <Input 
+              type="password" 
+              placeholder="Enter your password" 
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
+              {...field} 
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+    {/* Confirm Password Field */}
+    <FormField
+      control={form.control}
+      name="confirmPassword"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-sm font-semibold text-gray-800">Confirm Password</FormLabel>
+          <FormControl>
+            <Input 
+              type="password" 
+              placeholder="Confirm your password" 
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
+              {...field} 
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+    {/* Register Button */}
+    <Button
+      className="text-lg w-full bg-black text-white py-3 rounded-lg hover:bg-gray-900 transition"
+      type="submit"
+      loading={authLoading}
+      loaderProps={{ color: "white" }}
+    >
+      Register
+    </Button>
+  </form>
+</Form>
+
   );
 }
 

@@ -10,6 +10,7 @@ import deleteProfileTemplate from "@/lib/server/email/templates/deleteProfileTem
 import AppError from "@/lib/server/AppError";
 
 // get user
+// GET /api/users/:id
 export const GET = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // extract id
@@ -29,6 +30,7 @@ export const GET = catchAsync(
 );
 
 // update user
+// PUT /api/users/[id]
 export const PATCH = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // extract id
@@ -86,6 +88,7 @@ export const PATCH = catchAsync(
 );
 
 // delete user
+// DELETE /api/users/[id]
 export const DELETE = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // extract id

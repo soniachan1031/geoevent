@@ -1,6 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYREGULAR.OTF") format("opentype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYBOLD.OTF") format("opentype");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYMEDIUM.OTF") format("opentype");
+  font-weight: 500;
+}
+
+body {
+  font-family: "SF Pro Display", sans-serif;
+}
+
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -73,3 +97,58 @@
     @apply bg-background text-foreground;
   }
 }
+/* Hide Google Translate top bar */
+iframe#\:1\.container {
+  display: none !important;
+}
+
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0px !important;
+}
+
+.goog-te-combo option:not([value="en"]):not([value="fr"]) {
+  display: none !important;
+}
+
+/* Hide default Google Translate styling */
+.goog-te-gadget {
+  font-size: 0; /* Hides the text */
+}
+
+/* Custom styling for the dropdown */
+.goog-te-combo {
+  background-color: rgb(1,1,1); /* Your brand black */
+  color: white !important;
+  border: 1px solid #fff;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Dropdown hover effect */
+.goog-te-combo:hover {
+  background-color: rgb(30,30,30);
+}
+
+/* Hide Google branding */
+.goog-te-banner-frame, .goog-logo-link, .goog-te-gadget span {
+  display: none !important;
+}
+
+/* Remove "Powered by Google" text */
+.goog-te-gadget span {
+  display: none !important;
+}
+
+.notranslate {
+  unicode-bidi: bidi-override;
+  direction: ltr;
+}
+

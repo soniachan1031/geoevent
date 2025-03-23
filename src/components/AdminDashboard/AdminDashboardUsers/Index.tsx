@@ -58,9 +58,9 @@ const AdminDashboardUsers = () => {
   }, []);
 
   return (
-    <div className="grid gap-5 w-full md:min-w-[700px] place-content-center">
+    <div className="grid gap-5 w-full md:min-w-[700px]">
       {loading ? (
-        <div className="grid gap-3 w-full md:min-w-[700px]">
+        <div className="grid gap-3 w-full">
           <LoadingSkeleton />
           <LoadingSkeleton />
           <LoadingSkeleton />
@@ -68,73 +68,146 @@ const AdminDashboardUsers = () => {
           <LoadingSkeleton />
         </div>
       ) : (
-        <div className="grid gap-5 w-full">
-          <Searchbar
-            searchText={searchText}
-            setSearchText={setSearchText}
-            getUsers={getUsers}
-          />
-          <div className="w-full overflow-auto">
-            <table className="bg-white rounded shadow-md">
-              <thead>
-                <tr className="border-b text-left">
-                  <th className="p-2">Photo</th>
-                  <th className="p-2">Id</th>
-                  <th className="p-2">Name</th>
-                  <th className="p-2">Email</th>
-                  <th>Date of birth</th>
-                  <th className="p-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user._id} className="border-b">
-                    <td className="p-2">
-                      {user.photo?.url ? (
-                        <Image
-                          src={user.photo.url}
-                          alt={user.name}
-                          width={40}
-                          height={40}
-                          className="rounded-full"
-                        />
-                      ) : (
-                        <div className="bg-gray-100 w-10 h-10 rounded-full"></div>
-                      )}
-                    </td>
-                    <td className="p-2">
-                      <div className="w-20 overflow-hidden text-ellipsis">
-                        {user._id}
-                      </div>
-                    </td>
-                    <td className="p-2">{user.name}</td>
-                    <td className="p-2">{user.email}</td>
-                    <td className="p-2">{(user.dateOfBirth as string)?.slice(0, 10)}</td>
-                    <td className="flex gap-2 p-2">
-                      <UpdateProfileBtn
-                        user={user}
-                        variant="secondary"
-                        className="p-2"
-                        requestUrl={`api/users/${user._id}`}
-                        onSuccess={() => getUsers({})}
-                      >
-                        <MdEdit />
-                      </UpdateProfileBtn>
-                      <DeleteProfileBtn
-                        variant="secondary"
-                        className="p-2 text-red-500"
-                        requestUrl={`api/users/${user._id}`}
-                        onSuccess={() => getUsers({})}
-                      >
-                        <MdDelete />
-                      </DeleteProfileBtn>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="flex flex-col w-full max-w-screen-xl px-4 sm:px-8 lg:px-16 mx-auto">
+          <div className="w-full max-w-screen-lg mx-auto mb-4">
+            <Searchbar
+              searchText={searchText}
+              setSearchText={setSearchText}
+              getUsers={getUsers}
+            />
           </div>
 
+          {/* 📱 MOBILE VERSION (Card Layout) */}
+          <div className="sm:hidden flex flex-col bg-white rounded-xl shadow-lg overflow-hidden divide-y divide-gray-200">
+            {users.map((user) => (
+              <div key={user._id} className="p-4 flex items-center gap-4">
+                {/* Profile Photo */}
+                <div className="w-12 h-12 flex-shrink-0">
+                  {user.photo?.url ? (
+                    <Image
+                      src={user.photo.url}
+                      alt={user.name}
+                      width={48}
+                      height={48}
+                      className="rounded-full border border-gray-300"
+                    />
+                  ) : (
+                    <div className="bg-gray-200 w-12 h-12 rounded-full"></div>
+                  )}
+                </div>
+
+                {/* User Info */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-900 font-medium">{user.name}</p>
+                  <p className="text-gray-600 text-sm truncate max-w-[150px]">
+                    {user.email}
+                  </p>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <UpdateProfileBtn
+                    user={user}
+                    variant="secondary"
+                    className="p-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-all ease-in-out"
+                    requestUrl={`api/users/${user._id}`}
+                    onSuccess={() => getUsers({})}
+                  >
+                    <MdEdit className="text-gray-600 text-lg" />
+                  </UpdateProfileBtn>
+
+                  <DeleteProfileBtn
+                    variant="secondary"
+                    className="p-2 bg-red-100 hover:bg-red-200 rounded-md text-red-500 transition-all ease-in-out"
+                    requestUrl={`api/users/${user._id}`}
+                    onSuccess={() => getUsers({})}
+                  >
+                    <MdDelete className="text-lg" />
+                  </DeleteProfileBtn>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 🖥 DESKTOP TABLE */}
+          <div className="hidden sm:block w-full max-w-screen-lg mx-auto mt-6 bg-white shadow-lg rounded-xl overflow-x-auto">
+            {/* Table Header */}
+            <div className="grid grid-cols-[10%_20%_20%_20%_20%_10%] min-w-[700px] px-8 py-4 bg-gray-50 border-b text-gray-500 text-sm font-medium">
+              <div className="text-left">Photo</div>
+              <div className="text-left">ID</div>
+              <div className="text-left">Name</div>
+              <div className="text-left">Email</div>
+              <div className="text-left">DOB</div>
+              <div className="text-center">Actions</div>
+            </div>
+
+            {/* Table Rows */}
+            <div className="divide-y divide-gray-100">
+              {users.map((user) => (
+                <div
+                  key={user._id}
+                  className="grid grid-cols-[10%_20%_20%_20%_20%_10%] min-w-[700px] items-center px-8 py-5 hover:bg-gray-50 transition-all ease-in-out"
+                >
+                  {/* Profile Photo */}
+                  <div className="flex justify-left">
+                    {user.photo?.url ? (
+                      <Image
+                        src={user.photo.url}
+                        alt={user.name}
+                        width={48}
+                        height={48}
+                        className="rounded-full border border-gray-300"
+                      />
+                    ) : (
+                      <div className="bg-gray-200 w-12 h-12 rounded-full"></div>
+                    )}
+                  </div>
+
+                  {/* Truncated ID */}
+                  <div className="text-gray-700 text-sm truncate max-w-[100px]">
+                    {user._id.slice(0, 10)}...
+                  </div>
+
+                  {/* Name */}
+                  <div className="text-gray-900 text-base font-medium">
+                    {user.name}
+                  </div>
+
+                  {/* Email */}
+                  <div className="text-gray-700 text-base truncate max-w-[250px]">
+                    {user.email}
+                  </div>
+                  {/* DOB */}
+                  <div className="text-gray-700 text-sm">
+                    {user.dateOfBirth
+                      ? new Date(user.dateOfBirth).toISOString().slice(0, 10)
+                      : ""}
+                  </div>
+                  {/* Actions */}
+                  <div className="flex gap-4 justify-center">
+                    <UpdateProfileBtn
+                      user={user}
+                      variant="secondary"
+                      className="p-3 bg-gray-100 hover:bg-gray-200 rounded-md transition-all ease-in-out"
+                      requestUrl={`api/users/${user._id}`}
+                      onSuccess={() => getUsers({})}
+                    >
+                      <MdEdit className="text-gray-600 text-xl" />
+                    </UpdateProfileBtn>
+
+                    <DeleteProfileBtn
+                      variant="secondary"
+                      className="p-3 bg-red-100 hover:bg-red-200 rounded-md text-red-500 transition-all ease-in-out"
+                      requestUrl={`api/users/${user._id}`}
+                      onSuccess={() => getUsers({})}
+                    >
+                      <MdDelete className="text-xl" />
+                    </DeleteProfileBtn>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           <CustomPagination
             paginationProps={pagination}
             onPageChange={(page) => getUsers({ page })}
@@ -159,27 +232,30 @@ const Searchbar: FC<{
 
   return (
     <div className="flex gap-5 items-center">
-      <div className="flex max-w-max overflow-hidden rounded shadow-md focus-within:shadow-lg transition">
+      {/* Search Input & Button */}
+      <div className="flex items-center border border-gray-300 rounded-lg shadow-md focus-within:shadow-lg transition w-full max-w-screen-lg">
         <input
           type="text"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="Search Id or Name..."
-          className="py-1 px-3 rounded-l"
+          className="py-2 px-4 rounded-l bg-white outline-none text-gray-700 w-full sm:w-full"
         />
         <Button
-          className="rounded-l-none h-full"
+          className="rounded-l-none bg-gray-100 hover:bg-gray-200 px-4 transition"
           onClick={() => getUsers({ search: searchText })}
         >
-          <CiSearch />
+          <CiSearch className="text-gray-600 text-lg" />
         </Button>
       </div>
+
+      {/* Reset Button */}
       <Button
         onClick={reset}
         variant="outline"
-        className="rounded-full h-8 w-8"
+        className="rounded-full h-9 w-9 flex items-center justify-center border border-gray-300 hover:bg-gray-100 transition"
       >
-        <GrPowerReset />
+        <GrPowerReset className="text-gray-600 text-lg" />
       </Button>
     </div>
   );

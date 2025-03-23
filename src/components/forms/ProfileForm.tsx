@@ -117,15 +117,44 @@ function ProfileForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 bg-white p-5 shadow w-full  rounded-lg"
+        className="space-y-6 bg-white p-6 rounded-xl w-full max-w-xl"
       >
+        {/* Profile Picture Preview */}
+        <div className="flex flex-col items-center gap-4">
+          {previewImage ? (
+            <Image
+              src={previewImage}
+              alt="Profile Preview"
+              className="h-24 w-24 object-cover rounded-full shadow"
+              width={96}
+              height={96}
+            />
+          ) : (
+            <div className="h-24 w-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xl">
+              ?
+            </div>
+          )}
+  
+          <div className="text-center">
+            <FormLabel className="text-lg font-medium">Profile Picture</FormLabel>
+            <FormControl>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="text-sm mt-2"
+              />
+            </FormControl>
+          </div>
+        </div>
+  
         {/* Name Field */}
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg">Name</FormLabel>
+              <FormLabel className="text-lg font-medium">Name</FormLabel>
               <FormControl>
                 <Input placeholder="Your name" {...field} />
               </FormControl>
@@ -133,14 +162,14 @@ function ProfileForm({
             </FormItem>
           )}
         />
-
+  
         {/* Email Field */}
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg">Email</FormLabel>
+              <FormLabel className="text-lg font-medium">Email</FormLabel>
               <FormControl>
                 <Input type="email" placeholder="Your email" {...field} />
               </FormControl>
@@ -148,14 +177,14 @@ function ProfileForm({
             </FormItem>
           )}
         />
-
+  
         {/* Phone Field */}
         <FormField
           control={form.control}
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg">Phone</FormLabel>
+              <FormLabel className="text-lg font-medium">Phone</FormLabel>
               <FormControl>
                 <Input type="tel" placeholder="Your phone number" {...field} />
               </FormControl>
@@ -163,14 +192,14 @@ function ProfileForm({
             </FormItem>
           )}
         />
-
+  
         {/* Date of Birth Field */}
         <FormField
           control={form.control}
           name="dateOfBirth"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg">Date of Birth</FormLabel>
+              <FormLabel className="text-lg font-medium">Date of Birth</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
@@ -178,53 +207,29 @@ function ProfileForm({
             </FormItem>
           )}
         />
-
+  
         {/* Bio Field */}
         <FormField
           control={form.control}
           name="bio"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg">Bio</FormLabel>
+              <FormLabel className="text-lg font-medium">Bio</FormLabel>
               <FormControl>
-                <Textarea placeholder="Tell us about yourself..." {...field} />
+                <Textarea
+                  placeholder="Tell us about yourself..."
+                  className="resize-none"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
-        {/* Photo Upload */}
-        <FormField
-          control={form.control}
-          name="photo"
-          render={() => (
-            <FormItem>
-              <FormLabel className="text-lg">Profile Picture</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </FormControl>
-              {previewImage && (
-                <Image
-                  src={previewImage}
-                  alt="Profile Preview"
-                  className="mt-2 h-20 w-20 object-cover rounded-full"
-                  width={80}
-                  height={80}
-                />
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Submit Button */}
+  
+        {/* Update Profile Button */}
         <Button
-          className="text-lg w-full"
+          className="text-lg w-full bg-black text-white hover:opacity-90 rounded-lg transition"
           type="submit"
           loading={loading}
           loaderProps={{ color: "white" }}
@@ -234,6 +239,7 @@ function ProfileForm({
       </form>
     </Form>
   );
+  
 }
 
 export default ProfileForm;

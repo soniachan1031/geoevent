@@ -6,6 +6,7 @@ import Event from "@/mongoose/models/Event";
 import SavedEvent from "@/mongoose/models/SavedEvent";
 
 // save event for user
+// POST /api/events/[id]/save
 export const POST = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // extract id
@@ -32,6 +33,7 @@ export const POST = catchAsync(
 );
 
 // Unsave event for user
+// DELETE /api/events/[id]/save
 export const DELETE = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // Extract event ID

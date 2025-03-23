@@ -18,6 +18,7 @@ import {
 import { getSiteURL } from "@/lib/server/urlGenerator";
 import resetPasswordTemplate from "@/lib/server/email/templates/resetPasswordTemplate";
 
+// POST /api/auth/forgot-password
 export const POST = catchAsync(async (req) => {
   // get data from body
   const { email } = await parseJson(req);
@@ -63,6 +64,7 @@ export const POST = catchAsync(async (req) => {
       html: resetPasswordTemplate({
         passwordResetUrl,
         req,
+        user,
       }),
     });
 

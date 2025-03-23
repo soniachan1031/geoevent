@@ -1,4 +1,3 @@
-import CustomPagination from "@/components/paginations/CustomPagination";
 import { LoadingSkeleton } from "@/components/skeletons/LoadingSkeleton";
 import { Button } from "@/components/ui/button";
 import axiosInstance from "@/lib/axiosInstance";
@@ -12,7 +11,8 @@ import { GrPowerReset } from "react-icons/gr";
 import { IEvent } from "@/types/event.types";
 import UpdateEventBtn from "@/components/buttons/UpdateEventBtn";
 import DeleteEventBtn from "@/components/buttons/DeleteEventBtn";
-import { formatMinutes } from "@/lib/formatHandler";
+import Image from "next/image";
+import CustomPagination from "@/components/paginations/CustomPagination";
 
 type TGetEventProps = {
   page?: number;
@@ -41,7 +41,7 @@ const AdminDashboardEvents = () => {
       setLoading(true);
       // Fetch events data
       const res = await axiosInstance().get("api/events", {
-        params: { page, limit, search },
+        params: { page, limit, search, ticketMaster: false },
       });
       const { docs, pagination } = res.data.data;
       setEvents(docs);
@@ -68,86 +68,148 @@ const AdminDashboardEvents = () => {
           <LoadingSkeleton />
         </div>
       ) : (
-        <div className="grid gap-5">
-          <Searchbar
-            searchText={searchText}
-            setSearchText={setSearchText}
-            getEvents={getEvents}
-          />
-          <div className="w-full overflow-auto">
-            <table className="bg-white rounded shadow-md">
-              <thead>
-                <tr className="border-b text-left">
-                  <th className="p-2">Id</th>
-                  <th className="p-2">Title</th>
-                  <th>Category</th>
-                  <th className="p-2">Date</th>
-                  <th className="p-2">Time</th>
-                  <th>Registration Deadline</th>
-                  <th className="p-2">Organizer</th>
-                  <th className="p-2">Location</th>
-                  <th className="p-2">Format</th>
-                  <th>Duration</th>
-                  <th className="p-2">Capacity</th>
-                </tr>
-              </thead>
-              <tbody>
-                {events.map((event) => (
-                  <tr key={event._id} className="border-b">
-                    <td className="p-2">
-                      <div className="w-20 overflow-hidden text-ellipsis">
-                        {event._id}
-                      </div>
-                    </td>
-                    <td className="p-2">{event.title}</td>
-                    <td>{event.category}</td>
-                    <td className="p-2">
-                      {(event.date as string).slice(0, 10)}
-                    </td>
-                    <td className="p-2">
-                      <input
-                        type="time"
-                        name="eventTime"
-                        id="eventTime"
-                        disabled
-                        value={event.time}
-                      />
-                    </td>
-                    <td>
-                      {(event.registrationDeadline as string).slice(0, 10)}
-                    </td>
-                    <td className="p-2">
-                      {event.organizer && typeof event.organizer === "object"
-                        ? event.organizer.name
-                        : "null"}
-                    </td>
-                    <td className="p-2">{event.location.address}</td>
-                    <td className="p-2">{event.format}</td>
-                    <td>{event.duration && formatMinutes(event.duration)}</td>
-                    <td className="p-2">{event.capacity}</td>
-                    <td className="flex gap-2 p-2">
-                      <UpdateEventBtn
-                        event={event}
-                        variant="secondary"
-                        className="p-2"
-                        requestUrl={`api/events/${event._id}`}
-                        onSuccess={() => getEvents({})}
-                      >
-                        <MdEdit />
-                      </UpdateEventBtn>
-                      <DeleteEventBtn
-                        variant="secondary"
-                        className="p-2 text-red-500"
-                        requestUrl={`api/events/${event._id}`}
-                        onSuccess={() => getEvents({})}
-                      >
-                        <MdDelete />
-                      </DeleteEventBtn>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="flex flex-col w-full max-w-screen-xl px-4 sm:px-8 lg:px-16 mx-auto">
+          <div className="w-full max-w-screen-lg mx-auto mb-4">
+            <Searchbar
+              searchText={searchText}
+              setSearchText={setSearchText}
+              getEvents={getEvents}
+            />
+          </div>
+
+          {/* 📱 MOBILE VERSION (Card Layout) */}
+          <div className="sm:hidden flex flex-col bg-white rounded-xl shadow-lg overflow-hidden divide-y divide-gray-200">
+            {events.map((event) => (
+              <div key={event._id} className="p-4 flex items-center gap-4">
+                {/* Event Image */}
+                <div className="w-14 h-14 flex-shrink-0">
+                  <Image
+                    src={event.image ?? "/logo.png"}
+                    alt={event.title}
+                    width={56}
+                    height={56}
+                    className="rounded-lg shadow-md w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Event Info */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-900 font-medium">{event.title}</p>
+                  <p className="text-gray-600 text-sm truncate">
+                    {(event.date as string)?.slice(0, 10)} •{" "}
+                    {typeof event.organizer === "object" &&
+                    "name" in event.organizer
+                      ? event.organizer.name
+                      : "Unknown"}
+                  </p>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <UpdateEventBtn
+                    event={event}
+                    variant="secondary"
+                    className="p-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-all ease-in-out"
+                    requestUrl={`api/events/${event._id}`}
+                    onSuccess={() => getEvents({})}
+                  >
+                    <MdEdit className="text-gray-600 text-lg" />
+                  </UpdateEventBtn>
+
+                  <DeleteEventBtn
+                    variant="secondary"
+                    className="p-2 bg-red-100 hover:bg-red-200 rounded-md text-red-500 transition-all ease-in-out"
+                    requestUrl={`api/events/${event._id}`}
+                    onSuccess={() => getEvents({})}
+                  >
+                    <MdDelete className="text-lg" />
+                  </DeleteEventBtn>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 🖥 DESKTOP TABLE */}
+          <div className="hidden sm:block w-full max-w-screen-lg mx-auto mt-6 bg-white shadow-lg rounded-xl overflow-x-auto">
+            {/* Table Header */}
+            <div className="grid grid-cols-[10%_15%_15%_20%_15%_15%_10%] min-w-[900px] px-8 py-4 bg-gray-50 border-b text-gray-500 text-sm font-medium">
+              <div className="text-left">Image</div>
+              <div className="text-left">ID</div>
+              <div className="text-left">Title</div>
+              <div className="text-left">Category</div>
+              <div className="text-left">Date</div>
+              <div className="text-left">Organizer</div>
+              <div className="text-center">Actions</div>
+            </div>
+
+            {/* Table Rows */}
+            <div className="divide-y divide-gray-100">
+              {events.map((event) => (
+                <div
+                  key={event._id}
+                  className="grid grid-cols-[10%_15%_15%_20%_15%_15%_10%] min-w-[900px] items-center px-8 py-5 hover:bg-gray-50 transition-all ease-in-out"
+                >
+                  {/* Event Image */}
+                  <div className="flex justify-left">
+                    <Image
+                      src={event.image ?? "/logo.png"}
+                      alt={event.title}
+                      width={50}
+                      height={50}
+                      className="rounded-lg shadow-md w-[50px] h-[50px] object-cover"
+                    />
+                  </div>
+
+                  {/* Truncated ID */}
+                  <div className="text-gray-700 text-sm truncate max-w-[100px]">
+                    {event._id.slice(0, 10)}...
+                  </div>
+
+                  {/* Title */}
+                  <div className="text-gray-900 text-base font-medium">
+                    {event.title}
+                  </div>
+
+                  {/* Category */}
+                  <div className="text-gray-700 text-sm">{event.category}</div>
+
+                  {/* Date */}
+                  <div className="text-gray-700 text-sm">
+                    {(event.date as string)?.slice(0, 10)}
+                  </div>
+
+                  {/* Organizer (Truncated if Long) */}
+                  <div className="text-gray-700 text-sm truncate max-w-[150px]">
+                    {typeof event.organizer === "object" &&
+                    "name" in event.organizer
+                      ? event.organizer.name
+                      : "Unknown"}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-4 justify-center">
+                    <UpdateEventBtn
+                      event={event}
+                      variant="secondary"
+                      className="p-3 bg-gray-100 hover:bg-gray-200 rounded-md transition-all ease-in-out"
+                      requestUrl={`api/events/${event._id}`}
+                      onSuccess={() => getEvents({})}
+                    >
+                      <MdEdit className="text-gray-600 text-xl" />
+                    </UpdateEventBtn>
+
+                    <DeleteEventBtn
+                      variant="secondary"
+                      className="p-3 bg-red-100 hover:bg-red-200 rounded-md text-red-500 transition-all ease-in-out"
+                      requestUrl={`api/events/${event._id}`}
+                      onSuccess={() => getEvents({})}
+                    >
+                      <MdDelete className="text-xl" />
+                    </DeleteEventBtn>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <CustomPagination
@@ -173,28 +235,31 @@ const Searchbar: FC<{
   };
 
   return (
-    <div className="flex gap-5 items-center">
-      <div className="flex max-w-max overflow-hidden rounded shadow-md focus-within:shadow-lg transition">
+    <div className="w-full max-w-screen-lg mx-auto flex gap-3">
+      {/* Search Input & Button */}
+      <div className="flex items-center border border-gray-300 rounded-lg shadow-md focus-within:shadow-lg transition w-full">
         <input
           type="text"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="Search Id or Event title..."
-          className="py-1 px-3 rounded-l"
+          className="py-2 px-4 rounded-l bg-white outline-none text-gray-700 w-full"
         />
         <Button
-          className="rounded-l-none h-full"
+          className="rounded-l-none bg-gray-100 hover:bg-gray-200 px-4 transition"
           onClick={() => getEvents({ search: searchText })}
         >
-          <CiSearch />
+          <CiSearch className="text-gray-600 text-lg" />
         </Button>
       </div>
+
+      {/* Reset Button */}
       <Button
         onClick={reset}
         variant="outline"
-        className="rounded-full h-8 w-8"
+        className="rounded-full h-9 w-9 flex items-center justify-center border border-gray-300 hover:bg-gray-100 transition"
       >
-        <GrPowerReset />
+        <GrPowerReset className="text-gray-600 text-lg" />
       </Button>
     </div>
   );

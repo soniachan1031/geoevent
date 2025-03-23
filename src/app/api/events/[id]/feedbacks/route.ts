@@ -9,6 +9,7 @@ import EventFeedback from "@/mongoose/models/EventFeedback";
 import EventRegistration from "@/mongoose/models/EventRegistration";
 
 // leave feedback for event
+// POST /api/events/[id]/feedbacks
 export const POST = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // extract id
@@ -64,6 +65,7 @@ export const POST = catchAsync(
 );
 
 // retrieve feedbacks for event
+// GET /api/events/[id]/feedbacks
 export const GET = catchAsync(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     // extract id

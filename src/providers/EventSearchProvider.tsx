@@ -6,6 +6,7 @@ import axiosInstance from "@/lib/axiosInstance";
 import getErrorMsg from "@/lib/getErrorMsg";
 import { TPagination } from "@/types/api.types";
 import { IEvent } from "@/types/event.types";
+import { format } from "date-fns";
 import { useRouter } from "next/router";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -16,7 +17,14 @@ function EventSearchProvider({
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchOptions, setSearchOptions] = useState<TEventSearchOptions>({});
+  const [searchOptions, setSearchOptions] = useState<TEventSearchOptions>({
+    location: {
+      city: "kitchener",
+      state: "Ontario",
+      country: "canada",
+    },  
+    dateFrom: format(new Date(), "yyyy-MM-dd"),
+  });
   const [events, setEvents] = useState<IEvent[]>([]);
   const [pagination, setPagination] = useState<TPagination>({
     total: 0,

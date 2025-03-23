@@ -6,6 +6,7 @@ import { clearS3Folder, uploadImage } from "@/lib/server/s3UploadHandler";
 import Event from "@/mongoose/models/Event";
 import { EUserRole } from "@/types/user.types";
 import AppError from "@/lib/server/AppError";
+import getEvent from "@/lib/server/getEvent";
 
 // update event
 export const PATCH = catchAsync(
@@ -24,7 +25,7 @@ export const PATCH = catchAsync(
 
     // check if user is the organizer or admin
     if (
-      event.organizer !== user._id.toString() &&
+      String(event.organizer) !== String(user._id) &&
       user.role !== EUserRole.ADMIN
     ) {
       throw new AppError(403, "forbidden");
@@ -85,7 +86,7 @@ export const PATCH = catchAsync(
         $set: eventData,
       },
       { new: true }
-    );
+    ).populate("organizer");
     // send response
     return new AppResponse(200, "event updated successfully", {
       doc: updatedEvent,
@@ -110,7 +111,7 @@ export const DELETE = catchAsync(
 
     // check if user is the organizer or admin
     if (
-      event.organizer !== user._id.toString() &&
+      String(event.organizer) !== String(user._id) &&
       user.role !== EUserRole.ADMIN
     ) {
       throw new AppError(403, "forbidden");
@@ -126,5 +127,22 @@ export const DELETE = catchAsync(
 
     // send response
     return new AppResponse(200, "event deleted successfully");
+  }
+);
+
+// get event
+export const GET = catchAsync(
+  async (req, { params }: { params: Promise<{ id: string }> }) => {
+    // extract id
+    const { id } = await params;
+
+    const event = await getEvent(id);
+
+    if (!event) {
+      throw new AppError(404, "event not found");
+    }
+
+    // send response
+    return new AppResponse(200, "event found", { doc: event });
   }
 );
