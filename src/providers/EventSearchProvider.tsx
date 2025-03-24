@@ -22,7 +22,7 @@ function EventSearchProvider({
       city: "kitchener",
       state: "Ontario",
       country: "canada",
-    },  
+    },
     dateFrom: format(new Date(), "yyyy-MM-dd"),
   });
   const [events, setEvents] = useState<IEvent[]>([]);
@@ -47,7 +47,9 @@ function EventSearchProvider({
 
         // Fetch events using searchOptions
 
-        const options = newSearchOptions ?? searchOptions;
+        const options = newSearchOptions
+          ? { ...newSearchOptions }
+          : { ...searchOptions };
 
         // copy location object
         const location = { ...options.location };

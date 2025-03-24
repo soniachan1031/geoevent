@@ -21,7 +21,6 @@ export default function Home() {
     searchOptions,
     events,
     pagination,
-    // setSearchOptions,
     searchEvents,
   } = useEventSearchContext();
 
