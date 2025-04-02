@@ -56,7 +56,7 @@ const UpdateEventBtn: React.FC<TUpdateEventBtnProps> = ({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Update Profile</AlertDialogTitle>
+          <AlertDialogTitle>Update Event</AlertDialogTitle>
           <AlertDialogDescription>
             <div className="overflow-auto max-h-[calc(100vh-200px)]">
               <EventForm
