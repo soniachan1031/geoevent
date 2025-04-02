@@ -97,9 +97,8 @@ const AdminDashboardEvents = () => {
                   <p className="text-gray-900 font-medium">{event.title}</p>
                   <p className="text-gray-600 text-sm truncate">
                     {(event.date as string)?.slice(0, 10)} •{" "}
-                    {typeof event.organizer === "object" &&
-                    "name" in event.organizer
-                      ? event.organizer.name
+                    {typeof event.organizer === "object"
+                      ? event.organizer?.name
                       : "Unknown"}
                   </p>
                 </div>
@@ -180,9 +179,8 @@ const AdminDashboardEvents = () => {
 
                   {/* Organizer (Truncated if Long) */}
                   <div className="text-gray-700 text-sm truncate max-w-[150px]">
-                    {typeof event.organizer === "object" &&
-                    "name" in event.organizer
-                      ? event.organizer.name
+                    {typeof event.organizer === "object"
+                      ? event.organizer?.name
                       : "Unknown"}
                   </div>
 
