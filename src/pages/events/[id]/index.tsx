@@ -28,7 +28,7 @@ import { getServerSidePropsSiteUrl } from "@/lib/server/urlGenerator";
 import SocialShareBtn from "@/components/buttons/SocialShareBtn";
 import EventFeedbackSection from "@/components/EventFeedbackSection";
 import FeedbackBtn from "@/components/buttons/FeedbackBtn";
-import GoogleMapDirectionBtn from "@/components/buttons/GoogleMapDirectionsBtn";
+// import GoogleMapDirectionBtn from "@/components/buttons/GoogleMapDirectionsBtn";
 import Link from "next/link";
 import getEvent from "@/lib/server/getEvent";
 import EventOrganizerDropdown from "@/components/EventOrganizerDropdown";
@@ -279,7 +279,7 @@ export default function EventPage({
         <SocialShareBtn shareUrl={shareUrl} event={event} />
 
         {/* Google maps direction */}
-        <GoogleMapDirectionBtn event={event} />
+        {/* <GoogleMapDirectionBtn event={event} /> */}
 
         {/* bookmark button */}
         {!event.external && (
