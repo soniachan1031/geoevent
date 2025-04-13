@@ -5,7 +5,7 @@ import {
   IEvent,
 } from "@/types/event.types";
 
-export default function ticketMasterToLocalEvent(ev: any) {
+export function ticketMasterToLocalEvent(ev: any) {
   const cityName = ev._embedded?.venues?.[0]?.city?.name ?? "";
   const stateName = ev._embedded?.venues?.[0]?.state?.name ?? "";
   const countryName = ev._embedded?.venues?.[0]?.country?.name ?? "";

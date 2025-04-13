@@ -15,7 +15,7 @@ import { getSiteURL } from "@/lib/server/urlGenerator";
 import connectDB from "@/lib/server/connectDB";
 import { TPagination } from "@/types/api.types";
 import { Types } from "mongoose";
-import ticketMasterToLocalEvent from "@/lib/ticketMasterToLocalEvent";
+import { ticketMasterToLocalEvent } from "@/lib/externalToLocalEventHandler";
 
 // create event
 export const POST = catchAsync(async (req) => {

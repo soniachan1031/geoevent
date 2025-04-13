@@ -24,3 +24,5 @@ export const TICKETMASTER_API_KEY = process.env.TICKETMASTER_API_KEY as string;
 export const TICKETMASTER_PHONE = "1-800-653-8000";
 export const TICKETMASTER_EMAIL_lINK =
   "https://help.ticketmaster.ca/hc/en-us/requests/new";
+
+export const EVENTBRITE_API_KEY = process.env.EVENTBRITE_API_KEY!;
