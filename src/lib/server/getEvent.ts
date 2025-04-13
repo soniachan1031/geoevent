@@ -2,8 +2,8 @@ import { IEvent } from "@/types/event.types";
 import { isValidObjectId } from "mongoose";
 import connectDB from "./connectDB";
 import Event from "@/mongoose/models/Event";
-import ticketMasterToLocalEvent from "../ticketMasterToLocalEvent";
 import { TICKETMASTER_API_KEY } from "../credentials";
+import { ticketMasterToLocalEvent } from "../externalToLocalEventHandler";
 
 export default async function getEvent(id: string): Promise<IEvent | null> {
   try {
