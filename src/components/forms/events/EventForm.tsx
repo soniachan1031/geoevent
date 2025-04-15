@@ -266,23 +266,25 @@ const EventForm: FC<TEventFormProps> = ({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="location"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Location</FormLabel>
-              <FormControl>
-                <LocationInput
-                  name={field.name}
-                  onChange={field.onChange}
-                  value={field.value as TLocation}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="relative">
+          <FormField
+            control={form.control}
+            name="location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Location</FormLabel>
+                <FormControl>
+                  <LocationInput
+                    name={field.name}
+                    onChange={field.onChange}
+                    value={field.value as TLocation}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}

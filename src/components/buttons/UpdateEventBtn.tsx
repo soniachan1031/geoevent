@@ -1,18 +1,9 @@
+import { useState } from "react";
 import { Button } from "../ui/button";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { createRef } from "react";
+import { IEvent } from "@/types/event.types";
 import { EApiRequestMethod } from "@/types/api.types";
 import EventForm from "../forms/events/EventForm";
-import { IEvent } from "@/types/event.types";
+import CustomModal from "../modals/CustomModal";
 
 type TUpdateEventBtnProps = {
   event: IEvent;
@@ -38,43 +29,37 @@ const UpdateEventBtn: React.FC<TUpdateEventBtnProps> = ({
   variant = "secondary",
   className,
 }) => {
-  const cancelBtnRef = createRef<HTMLButtonElement>();
+  const [isOpen, setIsOpen] = useState(false);
 
-  const onUpdateComplete = async (event: IEvent) => {
-    if (onSuccess) {
-      await onSuccess(event);
-    }
-    cancelBtnRef.current?.click();
+  const handleClose = () => setIsOpen(false);
+
+  const onUpdateComplete = async (updatedEvent: IEvent) => {
+    if (onSuccess) await onSuccess(updatedEvent);
+    handleClose();
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant={variant} className={className}>
-          {children ?? "Update Event"}
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Update Event</AlertDialogTitle>
-          <AlertDialogDescription>
-            <div className="overflow-auto max-h-[calc(100vh-200px)]">
-              <EventForm
-                event={event}
-                onSuccess={onUpdateComplete}
-                requestUrl={requestUrl}
-                requestMethod={EApiRequestMethod.PATCH}
-              />
-            </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <div className="flex justify-center w-full">
-            <AlertDialogCancel ref={cancelBtnRef}>Cancel</AlertDialogCancel>
-          </div>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <>
+      <Button
+        variant={variant}
+        className={className}
+        onClick={() => setIsOpen(true)}
+      >
+        {children ?? "Update Event"}
+      </Button>
+
+      <CustomModal isOpen={isOpen} onClose={handleClose} title="Update Event">
+        <div className="overflow-auto max-h-[calc(100vh-200px)]">
+          <EventForm
+            event={event}
+            onSuccess={onUpdateComplete}
+            requestUrl={requestUrl}
+            requestMethod={EApiRequestMethod.PATCH}
+          />
+        </div>
+      </CustomModal>
+    </>
   );
 };
+
 export default UpdateEventBtn;
