@@ -1,15 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { IEvent } from "@/types/event.types";
 import { FaCarSide, FaShare, FaWalking } from "react-icons/fa";
 import { IoBicycleSharp, IoBusSharp } from "react-icons/io5";
@@ -22,6 +12,16 @@ import {
 import { useGoogleMapsContext } from "@/providers/GoogleMapsProvider";
 import Link from "next/link";
 import { TLocation } from "@/types/location.types";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+  DialogHeader,
+  DialogFooter,
+  DialogClose,
+} from "../ui/dialog";
 
 const GoogleMapDirectionBtn: React.FC<{
   event: IEvent;
@@ -29,26 +29,32 @@ const GoogleMapDirectionBtn: React.FC<{
   const closeBtnRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
+    <Dialog>
+      <DialogTrigger asChild>
         <Button variant="outline">
           <div className="flex gap-3 items-center">
             <FaShare /> <span>Get Directions</span>
           </div>
         </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Directions to {event.title}</AlertDialogTitle>
-          <AlertDialogDescription>
-            <DirectionsMap destination={event.location} />
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel ref={closeBtnRef}>Close</AlertDialogCancel>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Directions to {event.title}</DialogTitle>
+          <DialogDescription asChild>
+            <div className="pt-2">
+              <DirectionsMap destination={event.location} />
+            </div>
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button ref={closeBtnRef} variant="secondary">
+              Close
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

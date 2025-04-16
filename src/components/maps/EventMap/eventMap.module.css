@@ -54,7 +54,6 @@
   background: rgba(0, 0, 0, 0.8);
 }
 
-
 /* Event Image */
 .cardImage {
   width: 100%;
@@ -94,4 +93,29 @@
 .highlightEvent {
   background: yellow;
   transition: background 0.5s ease-in-out;
+}
+
+.userLocationPulse {
+  width: 20px;
+  height: 20px;
+  background-color: #4285f4;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 rgba(66, 133, 244, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.4);
+  }
+  70% {
+    transform: scale(1.5);
+    box-shadow: 0 0 0 10px rgba(66, 133, 244, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(66, 133, 244, 0);
+  }
 }
