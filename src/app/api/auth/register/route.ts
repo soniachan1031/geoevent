@@ -14,7 +14,7 @@ import registrationSuccessTemplate from "@/lib/server/email/templates/registrati
 // register user
 export const POST = catchAsync(async (req) => {
   // get data from body
-  const { name, email, password, confirmPassword } = await parseJson(req);
+  const { name, email, password, confirmPassword, interestedCategories } = await parseJson(req);
 
   // check data
   if (!name) throw new AppError(400, "name is required");
@@ -38,6 +38,7 @@ export const POST = catchAsync(async (req) => {
     email,
     password,
     role: EUserRole.USER,
+    interestedCategories,
   });
 
   // // set auth cookie with user's id

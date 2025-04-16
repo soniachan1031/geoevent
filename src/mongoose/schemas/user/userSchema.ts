@@ -4,6 +4,7 @@ import isEmail from "@/lib/isEmail";
 import { encryptString } from "@/lib/server/encryptionHandler";
 import defaultSchemaOptions from "../defaultSchemaOptions";
 import photoSchema from "./photoSchema";
+import { EEventCategory } from "@/types/event.types";
 
 const userSchema = new Schema<IUser>(
   {
@@ -60,6 +61,16 @@ const userSchema = new Schema<IUser>(
     bio: { type: String },
     disabled: { type: Boolean, default: false },
     subscribeToEmails: { type: Boolean, default: false },
+    interestedCategories: {
+      type: [String],
+      enum: {
+        values: Object.values(EEventCategory),
+        message: `Invalid category. Allowed categories: ${Object.values(
+          EEventCategory
+        )}`,
+      },
+      default: [],
+    },
   },
   defaultSchemaOptions
 );

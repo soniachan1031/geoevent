@@ -29,7 +29,9 @@ export const PATCH = catchAsync(async (req) => {
   const photo = formData.get("photo") as File;
 
   // extract data
-  const { name, email, phone, dateOfBirth, bio } = data as IUser;
+  const { name, email, phone, dateOfBirth, bio, interestedCategories } =
+    data as IUser;
+
 
   const dataToUpdate = {
     name,
@@ -37,6 +39,7 @@ export const PATCH = catchAsync(async (req) => {
     phone,
     dateOfBirth,
     bio,
+    interestedCategories,
   } as Partial<IUser>;
 
   // handle image

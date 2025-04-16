@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 import { IUser } from "@/types/user.types";
 import { EApiRequestMethod } from "@/types/api.types";
+import { EEventCategory } from "@/types/event.types";
 
 type TProfileFormProps = {
   user?: IUser | null;
@@ -51,6 +52,9 @@ const formSchema = z.object({
   ),
   bio: z.string().max(200, "Bio must be under 200 characters").optional(),
   photo: z.instanceof(File).optional(),
+  interestedCategories: z
+    .array(z.nativeEnum(EEventCategory))
+    .min(1, "Select at least one category"),
 });
 
 function ProfileForm({
@@ -75,6 +79,7 @@ function ProfileForm({
         : "",
       bio: user?.bio ?? "",
       photo: undefined as File | undefined,
+      interestedCategories: user?.interestedCategories ?? [],
     },
   });
 
@@ -134,9 +139,11 @@ function ProfileForm({
               ?
             </div>
           )}
-  
+
           <div className="text-center">
-            <FormLabel className="text-lg font-medium">Profile Picture</FormLabel>
+            <FormLabel className="text-lg font-medium">
+              Profile Picture
+            </FormLabel>
             <FormControl>
               <Input
                 type="file"
@@ -147,7 +154,7 @@ function ProfileForm({
             </FormControl>
           </div>
         </div>
-  
+
         {/* Name Field */}
         <FormField
           control={form.control}
@@ -162,7 +169,7 @@ function ProfileForm({
             </FormItem>
           )}
         />
-  
+
         {/* Email Field */}
         <FormField
           control={form.control}
@@ -177,7 +184,7 @@ function ProfileForm({
             </FormItem>
           )}
         />
-  
+
         {/* Phone Field */}
         <FormField
           control={form.control}
@@ -192,14 +199,16 @@ function ProfileForm({
             </FormItem>
           )}
         />
-  
+
         {/* Date of Birth Field */}
         <FormField
           control={form.control}
           name="dateOfBirth"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-medium">Date of Birth</FormLabel>
+              <FormLabel className="text-lg font-medium">
+                Date of Birth
+              </FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
@@ -207,7 +216,7 @@ function ProfileForm({
             </FormItem>
           )}
         />
-  
+
         {/* Bio Field */}
         <FormField
           control={form.control}
@@ -226,7 +235,45 @@ function ProfileForm({
             </FormItem>
           )}
         />
-  
+
+        {/* Interested Categories Field */}
+        <FormField
+          control={form.control}
+          name="interestedCategories"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-sm font-semibold text-gray-800">
+                Interested Categories
+              </FormLabel>
+              <FormControl>
+                <div className="flex flex-wrap gap-2">
+                  {Object.values(EEventCategory).map((category) => (
+                    <label
+                      key={category}
+                      className="flex items-center space-x-2"
+                    >
+                      <input
+                        type="checkbox"
+                        value={category}
+                        checked={(field.value as any)?.includes(category)}
+                        onChange={(e) => {
+                          const isChecked = e.target.checked;
+                          const newValue = isChecked
+                            ? [...(field.value || []), category]
+                            : field.value?.filter((c) => c !== category);
+                          field.onChange(newValue);
+                        }}
+                      />
+                      <span className="text-sm">{category}</span>
+                    </label>
+                  ))}
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Update Profile Button */}
         <Button
           className="text-lg w-full bg-black text-white hover:opacity-90 rounded-lg transition"
@@ -239,7 +286,6 @@ function ProfileForm({
       </form>
     </Form>
   );
-  
 }
 
 export default ProfileForm;

@@ -1,4 +1,5 @@
 import { Document } from "mongoose";
+import { EEventCategory } from "./event.types";
 
 // enum for authenticated status
 export enum EAuthStatus {
@@ -33,6 +34,7 @@ export interface IUser {
   bio?: string;
   disabled?: boolean;
   subscribeToEmails: boolean;
+  interestedCategories?: EEventCategory[];
 }
 
 // interface of user document from mongoose

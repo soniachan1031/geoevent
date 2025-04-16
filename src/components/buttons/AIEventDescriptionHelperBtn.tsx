@@ -1,19 +1,10 @@
-import { createRef, useState } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
-import toast from "react-hot-toast";
-import getErrorMsg from "@/lib/getErrorMsg";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { BsStars } from "react-icons/bs";
+import toast from "react-hot-toast";
 import axiosInstance from "@/lib/axiosInstance";
+import getErrorMsg from "@/lib/getErrorMsg";
+import CustomModal from "../modals/CustomModal";
 
 type AIEventDescriptionHelperBtnProps = {
   eventTitle?: string;
@@ -24,10 +15,16 @@ export default function AIEventDescriptionHelperBtn({
   eventTitle,
   onSuggestionApproval,
 }: Readonly<AIEventDescriptionHelperBtnProps>) {
-  const cancelBtnRef = createRef<HTMLButtonElement>();
+  const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userPrompt, setUserPrompt] = useState<string | null>(null);
   const [suggestion, setSuggestion] = useState<string | null>(null);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setSuggestion(null);
+    setUserPrompt(null);
+  };
 
   const handleSuggestionGeneration = async () => {
     if (!userPrompt?.trim()) {
@@ -57,74 +54,72 @@ export default function AIEventDescriptionHelperBtn({
     if (suggestion) {
       onSuggestionApproval?.(suggestion);
     }
-    setSuggestion(null);
-    setUserPrompt(null);
-    // Close the dialog
-    cancelBtnRef.current?.click();
+    handleClose();
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
+    <>
+      <Button
+        variant="ghost"
+        className="rounded-full h-7 w-7 flex items-center justify-center animate-pulse"
+        title="Generate event description"
+        onClick={() => setIsOpen(true)}
+      >
+        <BsStars />
+      </Button>
+
+      <CustomModal
+        isOpen={isOpen}
+        onClose={handleClose}
+        title="Let Leo help you!"
+        className="max-w-xl"
+      >
+        <p className="text-sm mb-2">
+          Enter event details below, and we’ll generate a description:
+        </p>
+
+        <textarea
+          className="w-full p-2 border rounded-lg mt-1"
+          placeholder="E.g. The event is a fundraiser for local schools..."
+          value={userPrompt ?? ""}
+          onChange={(e) => setUserPrompt(e.target.value)}
+        />
+
         <Button
-          variant="ghost"
-          className="rounded-full h-7 w-7 flex items-center justify-center animate-pulse"
-          title="Generate event description"
+          variant="default"
+          loading={loading}
+          loaderProps={{ color: "white" }}
+          className="mt-3"
+          onClick={handleSuggestionGeneration}
+          disabled={loading}
         >
-          <BsStars />
+          Generate Suggestion
         </Button>
-      </AlertDialogTrigger>
 
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Let Leo help you!</AlertDialogTitle>
-          <AlertDialogDescription>
-            <p>Enter event details below, and we’ll generate a description:</p>
-
+        {suggestion && (
+          <div className="mt-5">
+            <p className="font-semibold">AI Suggestion:</p>
             <textarea
-              className="w-full p-2 border rounded-lg mt-2"
-              placeholder="E.g. The event is a fundraiser for local schools..."
-              value={userPrompt ?? ""}
-              onChange={(e) => setUserPrompt(e.target.value)}
-            />
-
-            <Button
-              variant="default"
-              loading={loading}
-              loaderProps={{ color: "white" }}
-              className="mt-2"
-              onClick={handleSuggestionGeneration}
+              className="w-full p-2 border rounded-lg mt-2 bg-gray-50"
+              value={suggestion}
+              onChange={(e) => setSuggestion(e.target.value)}
+              rows={8}
               disabled={loading}
-            >
-              Generate Suggestion
-            </Button>
+            />
+          </div>
+        )}
 
-            {suggestion && (
-              <div className="mt-4">
-                <p className="font-semibold">AI Suggestion:</p>
-                <div className="max-h-[300px] overflow-auto">
-                  <textarea
-                    className="w-full p-2 border rounded-lg mt-2 bg-gray-50"
-                    value={suggestion}
-                    onChange={(e) => setSuggestion(e.target.value)}
-                    rows={8}
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-            )}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        <AlertDialogFooter>
-          <AlertDialogCancel ref={cancelBtnRef}>Cancel</AlertDialogCancel>
+        <div className="mt-6 flex justify-between items-center gap-2">
+          <Button variant="outline" onClick={handleClose}>
+            Cancel
+          </Button>
           {suggestion && (
             <Button onClick={handleAcceptSuggestion} disabled={loading}>
               Accept Suggestion
             </Button>
           )}
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        </div>
+      </CustomModal>
+    </>
   );
 }
