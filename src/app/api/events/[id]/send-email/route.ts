@@ -13,10 +13,10 @@ import templateContainer from "@/lib/server/email/templates/emailBodyTemplateCon
 import { EUserRole } from "@/types/user.types";
 
 export const POST = catchAsync(
-  async (req, context: { params: { id: string } }) => {
+  async (req, { params }: { params: Promise<{ id: string }> }) => {
     await connectDB();
     const currentUser = await guard(req);
-    const eventId = context.params.id;
+    const { id: eventId } = await params;
 
     if (!eventId) {
       throw new AppError(400, "Event ID is required");
