@@ -28,12 +28,34 @@ import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
 import { EApiRequestMethod } from "@/types/api.types";
 
-const SendEmailBtn: React.FC<{
+type SendEmailBtnProps = {
   requestUrl: string;
   method: EApiRequestMethod;
   title: string;
+  email?: string;
   onSuccess?: () => Promise<void> | void;
-}> = ({ requestUrl, method, title, onSuccess }) => {
+  children?: React.ReactNode;
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | null;
+  className?: string;
+};
+
+const SendEmailBtn: React.FC<SendEmailBtnProps> = ({
+  requestUrl,
+  method,
+  title,
+  email,
+  onSuccess,
+  children,
+  className,
+  variant = "default",
+}) => {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const [loading, setLoading] = useState(false);
 
@@ -53,7 +75,12 @@ const SendEmailBtn: React.FC<{
   const sendEmail = async () => {
     try {
       setLoading(true);
-      await axiosInstance()[method.toLowerCase()](requestUrl, form.getValues());
+      const payload = {
+        ...form.getValues(),
+        ...(email ? { email } : {}),
+      };
+
+      await axiosInstance()[method.toLowerCase()](requestUrl, payload);
       toast.success("Email sent successfully");
       if (onSuccess) await onSuccess();
       closeBtnRef.current?.click();
@@ -67,57 +94,67 @@ const SendEmailBtn: React.FC<{
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="default">Send Email</Button>
+        <Button variant={variant} className={className}>
+          {children ?? "Send Email"}
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(sendEmail)}
-                className="space-y-8 bg-white p-5 shadow w-full"
-              >
-                <FormField
-                  control={form.control}
-                  name="subject"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-lg">Subject</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Subject of the email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="text"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-lg">Message</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Write your message" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <AlertDialogFooter>
-                  <AlertDialogCancel ref={closeBtnRef}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <Button
-                    type="submit"
-                    loading={loading}
-                    loaderProps={{ color: "white" }}
-                  >
-                    Send Email
-                  </Button>
-                </AlertDialogFooter>
-              </form>
-            </Form>
+            <div className="overflow-auto max-h-[calc(100vh-200px)]">
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(sendEmail)}
+                  className="space-y-8 bg-white p-5 shadow w-full"
+                >
+                  <FormField
+                    control={form.control}
+                    name="subject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-lg">Subject</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Subject of the email"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="text"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-lg">Message</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Write your message"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <AlertDialogFooter>
+                    <AlertDialogCancel ref={closeBtnRef}>
+                      Cancel
+                    </AlertDialogCancel>
+                    <Button
+                      type="submit"
+                      loading={loading}
+                      loaderProps={{ color: "white" }}
+                    >
+                      Send Email
+                    </Button>
+                  </AlertDialogFooter>
+                </form>
+              </Form>
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
       </AlertDialogContent>

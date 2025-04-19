@@ -6,13 +6,16 @@ import { IEvent } from "@/types/event.types";
 import UpdateEventBtn from "./buttons/UpdateEventBtn";
 import DeleteEventBtn from "./buttons/DeleteEventBtn";
 import { useRouter } from "next/navigation";
+import SendEmailBtn from "./buttons/SendEmailBtn";
+import { EApiRequestMethod } from "@/types/api.types";
+import { useAuthContext } from "@/context/AuthContext";
 
 const EventOrganizerDropdown: FC<{
   event: IEvent;
   onEventUpdateSuccess?: (event: IEvent) => Promise<void> | void;
 }> = ({ event, onEventUpdateSuccess }) => {
   const router = useRouter();
-
+  const { user } = useAuthContext();
   const [expand, setExpand] = useState(false);
 
   // callback function to be called after event is deleted
@@ -38,6 +41,14 @@ const EventOrganizerDropdown: FC<{
             requestUrl={`api/events/${event._id}`}
             onSuccess={onEventUpdateSuccess}
           />
+          {user && (
+            <SendEmailBtn
+              variant="outline"
+              title="Send Email to pargicipants"
+              requestUrl={`/api/events/${event._id}/send-email`}
+              method={EApiRequestMethod.POST}
+            ></SendEmailBtn>
+          )}
           <DeleteEventBtn
             requestUrl={`api/events/${event._id}`}
             onSuccess={onDeleteSuccess}

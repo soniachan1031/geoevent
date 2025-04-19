@@ -2,6 +2,7 @@ import catchAsync from "@/lib/server/catchAsync";
 import AppResponse from "@/lib/server/AppResponse";
 import User from "@/mongoose/models/User";
 import { EUserRole } from "@/types/user.types";
+import connectDB from "@/lib/server/connectDB";
 
 // GET /api/organizers
 export const GET = catchAsync(async (req) => {
@@ -18,6 +19,8 @@ export const GET = catchAsync(async (req) => {
       name: { $regex: query, $options: "i" },
     }),
   };
+
+  await connectDB();
 
   const [organizers, total] = await Promise.all([
     User.find(filter)

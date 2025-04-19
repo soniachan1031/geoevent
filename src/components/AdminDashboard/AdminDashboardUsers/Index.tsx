@@ -5,7 +5,7 @@ import axiosInstance from "@/lib/axiosInstance";
 import getErrorMsg from "@/lib/getErrorMsg";
 import { EApiRequestMethod, TPagination } from "@/types/api.types";
 import { IUser } from "@/types/user.types";
-import { MdEdit, MdDelete } from "react-icons/md";
+import { MdEdit, MdDelete, MdEmail } from "react-icons/md";
 import Image from "next/image";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -114,6 +114,19 @@ const AdminDashboardUsers = () => {
 
                 {/* Actions */}
                 <div className="flex gap-2">
+                  {/* Send email button */}
+                  <SendEmailBtn
+                    email={user.email}
+                    title={`Send Email to ${user.name}`}
+                    method={EApiRequestMethod.POST}
+                    requestUrl="/api/send-email"
+                    variant="secondary"
+                    className="p-2 bg-blue-100 hover:bg-blue-200 rounded-md text-blue-600 transition-all ease-in-out"
+                  >
+                    <MdEmail className="text-lg" />
+                  </SendEmailBtn>
+
+                  {/* send email btn */}
                   <UpdateProfileBtn
                     user={user}
                     variant="secondary"
@@ -138,7 +151,7 @@ const AdminDashboardUsers = () => {
           </div>
 
           {/* 🖥 DESKTOP TABLE */}
-          <div className="hidden sm:block w-full max-w-screen-lg mx-auto mt-6 bg-white shadow-lg rounded-xl overflow-x-auto">
+          <div className="hidden sm:block w-full mx-auto mt-6 bg-white shadow-lg rounded-xl overflow-x-auto">
             {/* Table Header */}
             <div className="grid grid-cols-[10%_20%_20%_20%_20%_10%] min-w-[700px] px-8 py-4 bg-gray-50 border-b text-gray-500 text-sm font-medium">
               <div className="text-left">Photo</div>
@@ -193,6 +206,18 @@ const AdminDashboardUsers = () => {
                   </div>
                   {/* Actions */}
                   <div className="flex gap-4 justify-center">
+                    {/* Send email button */}
+                    <SendEmailBtn
+                      email={user.email}
+                      title={`Send Email to ${user.name}`}
+                      method={EApiRequestMethod.POST}
+                      requestUrl="/api/send-email"
+                      variant="secondary"
+                      className="p-2 bg-blue-100 hover:bg-blue-200 rounded-md text-blue-600 transition-all ease-in-out"
+                    >
+                      <MdEmail className="text-lg" />
+                    </SendEmailBtn>
+
                     <UpdateProfileBtn
                       user={user}
                       variant="secondary"

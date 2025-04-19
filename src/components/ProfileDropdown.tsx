@@ -16,8 +16,6 @@ import { EUserRole } from "@/types/user.types";
 
 export default function ProfileDropdown() {
   const { user } = useAuthContext();
-  const canHaveFollowers =
-    user?.role === EUserRole.ORGANIZER || user?.role === EUserRole.ADMIN;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -50,6 +48,17 @@ export default function ProfileDropdown() {
               </Link>
             </DropdownMenuItem>
           )}
+          {(user?.role === EUserRole.ADMIN ||
+            user?.role === EUserRole.ORGANIZER) && (
+            <DropdownMenuItem className="group">
+              <Link
+                href="/organizer"
+                className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
+              >
+                Organizer Dashboard
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem className="group">
             <Link
               href="/profile"
@@ -60,20 +69,13 @@ export default function ProfileDropdown() {
           </DropdownMenuItem>
           <DropdownMenuItem className="group">
             <Link
-              href="/my-hosted-events"
+              href="/my-registered-events"
               className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
             >
               My Events
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem className="group">
-            <Link
-              href="/my-preferences"
-              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
-            >
-              Preferences
-            </Link>
-          </DropdownMenuItem>
+
           <DropdownMenuItem className="group">
             <Link
               href="/my-history"
@@ -90,22 +92,20 @@ export default function ProfileDropdown() {
               Organizers
             </Link>
           </DropdownMenuItem>
-          {canHaveFollowers && (
-            <DropdownMenuItem className="group">
-              <Link
-                href="/my-followers"
-                className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
-              >
-                Followers
-              </Link>
-            </DropdownMenuItem>
-          )}
           <DropdownMenuItem className="group">
             <Link
               href="/my-following"
               className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
             >
               Following
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem className="group">
+            <Link
+              href="/my-preferences"
+              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
+            >
+              Preferences
             </Link>
           </DropdownMenuItem>
         </div>

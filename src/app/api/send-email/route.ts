@@ -18,17 +18,39 @@ export const POST = catchAsync(async (req) => {
     throw new AppError(403, "Only admins can send global emails");
   }
 
-  const { subject, text } = (await parseJson(req)) as {
+  const { subject, text, email } = (await parseJson(req)) as {
     subject: string;
     text: string;
+    email?: string;
   };
 
   if (!subject || !text) {
     throw new AppError(400, "Missing subject or text");
   }
 
+  const html = templateContainer({
+    title: subject,
+    content: `<p>${text}</p>`,
+    req,
+  });
+
+  if (email) {
+    // validate email
+    // send only to specified email
+    await sendMail({
+      smtpUserName: MAIL_SMTP_USERNAME,
+      smtpPassword: MAIL_SMTP_PASSWORD,
+      to: email,
+      subject,
+      html,
+    });
+
+    return new AppResponse(200, `Email sent successfully to ${email}`);
+  }
+
+  // else: send to all users excluding admins
   const users = await User.find({
-    role: { $ne: EUserRole.ADMIN }, // exclude admin
+    role: { $ne: EUserRole.ADMIN },
     email: { $ne: null },
   }).select("email");
 
@@ -37,12 +59,6 @@ export const POST = catchAsync(async (req) => {
   if (!bcc) {
     throw new AppError(400, "No valid user emails found");
   }
-
-  const html = templateContainer({
-    title: subject,
-    content: `<p>${text}</p>`,
-    req,
-  });
 
   await sendMail({
     smtpUserName: MAIL_SMTP_USERNAME,

@@ -39,6 +39,8 @@ export default function EventPageOverview({
   const [registered, setRegistered] = useState(registeredEvent);
   const [registerEventLoading, setRegisterEventLoading] = useState(false);
   const [feedbackLeft, setFeedbackLeft] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(true);
 
   const isAdmin = user?.role === "admin";
 
@@ -111,7 +113,44 @@ export default function EventPageOverview({
     axiosInstance()
       .post(`api/events/${event._id}/views`)
       .catch(() => null);
-  }, [event._id]);
+
+    if (user && !event.external && eventOrganizerId !== user._id) {
+      axiosInstance()
+        .get("/api/organizers/following")
+        .then((res) => {
+          const followedIds = res.data.data.docs.map((org: any) => org._id);
+          setIsFollowing(followedIds.includes(eventOrganizerId));     
+          setFollowLoading(false);
+        })
+        .catch(() => null);
+    }
+  }, [event._id, eventOrganizerId, user, event.external]);
+
+  const handleFollowToggle = async () => {
+    if (!user) return router.push("/login");
+
+    try {
+      setFollowLoading(true);
+
+      if (isFollowing) {
+        await axiosInstance().delete("/api/organizers/following", {
+          data: { organizerId: eventOrganizerId },
+        });
+        toast.success("Unfollowed successfully");
+      } else {
+        await axiosInstance().post("/api/organizers/following", {
+          organizerId: eventOrganizerId,
+        });
+        toast.success("Followed successfully");
+      }
+
+      setIsFollowing((prev) => !prev);
+    } catch (error: any) {
+      toast.error(getErrorMsg(error));
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen p-5 max-w-4xl mx-auto">
@@ -141,18 +180,34 @@ export default function EventPageOverview({
             />
           )}
         </div>
-        <p className="text-gray-500 mt-1">
+        <div className="text-gray-500 mt-1">
           {event.external ? (
             (event.organizer as string)
           ) : (
             <>
-              Hosted by{" "}
-              {typeof event.organizer === "object"
-                ? event.organizer.name
-                : "Unknown Orgainzer"}
+              {typeof event.organizer === "object" ? (
+                <div className="flex gap-5 items-center">
+                  <p>Hosted by {event.organizer.name}</p>
+                  {/* follow/unfollow button */}
+                  {user && eventOrganizerId !== user._id && (
+                    <Button
+                      variant={isFollowing ? "destructive" : "default"}
+                      loaderProps={{ color: "white" }}
+                      onClick={handleFollowToggle}
+                      loading={followLoading}
+                      disabled={followLoading}
+                      className="text-sm px-4 py-1"
+                    >
+                      {isFollowing ? "Unfollow" : "Follow"}
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                "Unknown Orgainzer"
+              )}
             </>
           )}
-        </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 bg-gray-50 p-4 rounded-lg shadow">
           {/* Date & Time */}

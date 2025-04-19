@@ -37,7 +37,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
       />
 
       {/* Modal */}
-      <div className="relative z-[1001] max-w-2xl w-full">
+      <div className="relative z-[1001] max-w-max w-full">
         <div
           className={`bg-white dark:bg-zinc-900 rounded-xl shadow-xl p-6 animate-scaleIn ${className}`}
         >

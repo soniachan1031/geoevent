@@ -5,7 +5,6 @@ import AppError from "@/lib/server/AppError";
 import { guard } from "@/lib/server/middleware/guard";
 import connectDB from "@/lib/server/connectDB";
 import Follower from "@/mongoose/models/Follower";
-import User from "@/mongoose/models/User";
 import { EUserRole } from "@/types/user.types";
 
 export const GET = catchAsync(
@@ -27,11 +26,6 @@ export const GET = catchAsync(
       currentUser.role !== EUserRole.ADMIN
     ) {
       throw new AppError(403, "You are not authorized to view these followers");
-    }
-
-    const organizer = await User.findById(id);
-    if (!organizer || organizer.role !== "organizer") {
-      throw new AppError(404, "Organizer not found");
     }
 
     const followers = await Follower.find({ organizer: id }).populate({
