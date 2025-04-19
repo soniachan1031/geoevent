@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import { EEventCategory } from "./event.types";
 
 // enum for authenticated status
@@ -12,6 +12,7 @@ export enum EAuthStatus {
 export enum EUserRole {
   ADMIN = "admin",
   USER = "user",
+  ORGANIZER = "organizer",
 }
 
 export interface IUserPhoto {
@@ -39,3 +40,9 @@ export interface IUser {
 
 // interface of user document from mongoose
 export type TUserDocument = IUser & Document;
+
+export interface IFollower {
+  follower: Types.ObjectId; // the user who is following
+  organizer: Types.ObjectId; // the organizer being followed
+  followedAt: Date;
+}

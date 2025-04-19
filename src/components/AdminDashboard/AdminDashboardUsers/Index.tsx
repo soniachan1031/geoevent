@@ -3,7 +3,7 @@ import { LoadingSkeleton } from "@/components/skeletons/LoadingSkeleton";
 import { Button } from "@/components/ui/button";
 import axiosInstance from "@/lib/axiosInstance";
 import getErrorMsg from "@/lib/getErrorMsg";
-import { TPagination } from "@/types/api.types";
+import { EApiRequestMethod, TPagination } from "@/types/api.types";
 import { IUser } from "@/types/user.types";
 import { MdEdit, MdDelete } from "react-icons/md";
 import Image from "next/image";
@@ -13,6 +13,7 @@ import { CiSearch } from "react-icons/ci";
 import { GrPowerReset } from "react-icons/gr";
 import DeleteProfileBtn from "@/components/buttons/DeleteProfileBtn";
 import UpdateProfileBtn from "@/components/buttons/UpdateProfileBtn";
+import SendEmailBtn from "@/components/buttons/SendEmailBtn";
 
 type TGetUsersProps = {
   page?: number;
@@ -69,6 +70,13 @@ const AdminDashboardUsers = () => {
         </div>
       ) : (
         <div className="flex flex-col w-full max-w-screen-xl px-4 sm:px-8 lg:px-16 mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <SendEmailBtn
+              title="Send Email to All Users"
+              requestUrl="api/send-email"
+              method={EApiRequestMethod.POST}
+            />
+          </div>
           <div className="w-full max-w-screen-lg mx-auto mb-4">
             <Searchbar
               searchText={searchText}

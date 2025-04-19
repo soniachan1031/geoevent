@@ -6,7 +6,9 @@ import SMTPTransport from "nodemailer/lib/smtp-transport";
 export type TSendMailOptions = {
   smtpUserName: string;
   smtpPassword: string;
-  to: string;
+  to?: string;
+  bcc?: string;
+  cc?: string;
   subject: string;
   html: string;
   attachments?: Attachment[];
@@ -16,6 +18,8 @@ const sendMail = ({
   smtpUserName,
   smtpPassword,
   to,
+  bcc,
+  cc,
   subject,
   html,
   attachments,
@@ -47,7 +51,7 @@ const sendMail = ({
       const info = new Promise((resolve, reject) => {
         // send mail
         transporter.sendMail(
-          { from: smtpUserName, to, subject, html, attachments },
+          { from: smtpUserName, to, bcc, cc, subject, html, attachments },
           (err, info) => {
             if (err) {
               console.error(err);

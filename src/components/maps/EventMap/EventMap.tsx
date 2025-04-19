@@ -49,38 +49,6 @@ export default function EventMap({
     setActiveEvent(eventId === activeEvent ? null : eventId); // Toggle visibility
   }
 
-  useEffect(() => {
-    if (!isLoaded || !mapRef.current) return;
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLatLng = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-
-          // Create a div with pulsing CSS
-          const div = document.createElement("div");
-          div.className = styles.userLocationPulse;
-
-          new google.maps.marker.AdvancedMarkerElement({
-            position: userLatLng,
-            map: mapRef.current!,
-            content: div,
-            title: "Your Location",
-          });
-
-          // Optional: center the map on user location
-          mapRef.current!.setCenter(userLatLng);
-        },
-        (error) => {
-          console.warn("Geolocation error:", error);
-        }
-      );
-    }
-  }, [isLoaded]);
-
   if (loadError) {
     console.error("Google Maps API could not be loaded:", loadError);
     return <div>Map cannot be loaded right now. Please try again later.</div>;

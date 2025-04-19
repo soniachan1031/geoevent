@@ -32,6 +32,14 @@ export const PATCH = catchAsync(async (req) => {
   const { name, email, phone, dateOfBirth, bio, interestedCategories } =
     data as IUser;
 
+  // check if user with the same email exists
+  const existingUser = await User.findOne({
+    email,
+    _id: { $ne: user._id },
+  });
+  if (existingUser) {
+    throw new AppError(400, "user with this email already exists");
+  }
 
   const dataToUpdate = {
     name,

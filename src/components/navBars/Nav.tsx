@@ -26,8 +26,7 @@ export default function Nav() {
           <Logo height={30} width={30} />
         </Link>
 
-        <div className="relative">
-    </div>
+        <div className="relative"></div>
         <div className="flex md:hidden items-center gap-3 mt-2 md:mt-0">
           <Link href="/create-event" className="shrink-0">
             <Button>
@@ -39,12 +38,9 @@ export default function Nav() {
           {user ? (
             <ProfileDropdown />
           ) : (
-            <>
-              <Link href="/login">
-                <Button variant="secondary">Login</Button>
-              </Link>
-            
-            </>
+            <Link href="/login">
+              <Button variant="secondary">Login</Button>
+            </Link>
           )}
         </div>
         {/**
@@ -56,17 +52,15 @@ export default function Nav() {
           <div className="flex-1 min-w-[180px]">
             <Searchbar />
           </div>
-
-         
         </div>
 
         {/* Right: Profile or Login/Register */}
         <div className="hidden md:flex items-center gap-3 mt-2 md:mt-0">
-           {/* "Create Event" button. On mobile, it sits below or next to the search bar depending on space */}
-           <Link href="/create-event" className="shrink-0 hidden md:block">
+          {/* "Create Event" button. On mobile, it sits below or next to the search bar depending on space */}
+          <Link href="/create-event" className="shrink-0 hidden md:block">
             <Button>
               <div className="flex items-center gap-2">
-                <span>Create Event</span> 
+                <span>Create Event</span>
               </div>
             </Button>
           </Link>
@@ -74,12 +68,9 @@ export default function Nav() {
           {user ? (
             <ProfileDropdown />
           ) : (
-            <>
-              <Link href="/login">
-                <Button variant="secondary">Login</Button>
-              </Link>
-             
-            </>
+            <Link href="/login">
+              <Button variant="secondary">Login</Button>
+            </Link>
           )}
         </div>
       </div>

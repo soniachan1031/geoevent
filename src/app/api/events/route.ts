@@ -16,11 +16,20 @@ import connectDB from "@/lib/server/connectDB";
 import { TPagination } from "@/types/api.types";
 import { Types } from "mongoose";
 import { ticketMasterToLocalEvent } from "@/lib/externalToLocalEventHandler";
+import AppError from "@/lib/server/AppError";
+import { EUserRole, IUser } from "@/types/user.types";
+import Follower from "@/mongoose/models/Follower";
+import organizerFollowersTemplate from "@/lib/server/email/templates/OrganizerFollowersTemplate";
 
 // create event
 export const POST = catchAsync(async (req) => {
   // guard
   const user = await guard(req);
+
+  // check if admin or organizer
+  if (user.role !== EUserRole.ADMIN && user.role !== EUserRole.ORGANIZER) {
+    throw new AppError(403, "forbidden");
+  }
 
   const formData = await req.formData();
   const data = JSON.parse(formData.get("data") as string);
@@ -89,6 +98,42 @@ export const POST = catchAsync(async (req) => {
         user,
         req,
       }),
+    });
+  } catch {}
+
+  // send email to followers
+  try {
+    const followers = await Follower.find({ organizer: user._id }).populate<{
+      follower: IUser;
+    }>({
+      path: "follower",
+      select: "email",
+    });
+
+    const bcc = followers
+      .map((f) => f.follower?.email)
+      .filter((email) => email)
+      .join(",");
+
+    if (!bcc) return;
+
+    const subject = `New Event: ${newEvent.title}`;
+    const text = `A new event has been created: ${newEvent.title}`;
+
+    const html = organizerFollowersTemplate({
+      subject,
+      text,
+      organizer: user,
+      event: newEvent,
+      req,
+    });
+
+    await sendMail({
+      smtpUserName: MAIL_SMTP_USERNAME,
+      smtpPassword: MAIL_SMTP_PASSWORD,
+      bcc,
+      subject,
+      html,
     });
   } catch {}
 
@@ -170,9 +215,7 @@ export const GET = catchAsync(async (req) => {
     format: e.format,
     language: e.language,
     capacity: e.capacity,
-    registrationDeadline: e.registrationDeadline
-      ? e.registrationDeadline
-      : undefined,
+    registrationDeadline: e.registrationDeadline ?? undefined,
     image: e.image,
     agenda: e.agenda || [],
     contact: e.contact,
@@ -220,7 +263,7 @@ export const GET = catchAsync(async (req) => {
     const tmData = await tmRes.json();
 
     if (tmData.page) {
-      externalTotal = tmData.page.totalElements || 0; // e.g. 270012
+      externalTotal = tmData.page.totalElements ?? 0; // e.g. 270012
     }
 
     if (tmData._embedded?.events) {
