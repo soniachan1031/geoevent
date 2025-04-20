@@ -40,7 +40,7 @@ export default function EventPageOverview({
   const [registerEventLoading, setRegisterEventLoading] = useState(false);
   const [feedbackLeft, setFeedbackLeft] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [followLoading, setFollowLoading] = useState(true);
+  const [followLoading, setFollowLoading] = useState(!!user);
 
   const isAdmin = user?.role === "admin";
 
