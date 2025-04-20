@@ -119,7 +119,7 @@ export default function EventPageOverview({
         .get("/api/organizers/following")
         .then((res) => {
           const followedIds = res.data.data.docs.map((org: any) => org._id);
-          setIsFollowing(followedIds.includes(eventOrganizerId));     
+          setIsFollowing(followedIds.includes(eventOrganizerId));
           setFollowLoading(false);
         })
         .catch(() => null);
@@ -189,7 +189,7 @@ export default function EventPageOverview({
                 <div className="flex gap-5 items-center">
                   <p>Hosted by {event.organizer.name}</p>
                   {/* follow/unfollow button */}
-                  {user && eventOrganizerId !== user._id && (
+                  {eventOrganizerId !== user?._id && (
                     <Button
                       variant={isFollowing ? "destructive" : "default"}
                       loaderProps={{ color: "white" }}
