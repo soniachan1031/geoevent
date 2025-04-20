@@ -168,7 +168,6 @@ export const GET = catchAsync(async (req) => {
   const cookieValue = (await cookies()).get(ECookieName.AUTH)?.value;
   const user = await getUser(cookieValue).catch(() => null);
 
-  // Initial filters
   const buildFilters = (
     useInterestedCategories = false
   ): Record<string, any> => {
@@ -186,8 +185,11 @@ export const GET = catchAsync(async (req) => {
     if (address)
       filters["location.address"] = { $regex: address, $options: "i" };
 
+    // Exclude past events
+    filters.date = { $gte: new Date() };
+
     if (dateFrom || dateTo) {
-      filters.date = {};
+      filters.date = filters.date || {};
       if (dateFrom) filters.date.$gte = new Date(dateFrom);
       if (dateTo) filters.date.$lte = new Date(dateTo);
     }
