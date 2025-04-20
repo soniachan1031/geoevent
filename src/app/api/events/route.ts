@@ -13,13 +13,16 @@ import {
 import eventSuccessTemplate from "@/lib/server/email/templates/eventSuccessTemplate";
 import { getSiteURL } from "@/lib/server/urlGenerator";
 import connectDB from "@/lib/server/connectDB";
-import { TPagination } from "@/types/api.types";
+import { ECookieName, TPagination } from "@/types/api.types";
 import { Types } from "mongoose";
 import { ticketMasterToLocalEvent } from "@/lib/externalToLocalEventHandler";
 import AppError from "@/lib/server/AppError";
 import { EUserRole, IUser } from "@/types/user.types";
 import Follower from "@/mongoose/models/Follower";
 import organizerFollowersTemplate from "@/lib/server/email/templates/OrganizerFollowersTemplate";
+import getUser from "@/lib/server/getUser";
+import { cookies } from "next/headers";
+import { categoryToClassificationMap } from "@/lib/ticketMaster/ticketMasterDictionary";
 
 // create event
 export const POST = catchAsync(async (req) => {
@@ -143,7 +146,6 @@ export const POST = catchAsync(async (req) => {
 
 // GET /api/events
 export const GET = catchAsync(async (req) => {
-  // Extract query parameters
   const url = new URL(req.url);
   const search = url.searchParams.get("search");
   const city = url.searchParams.get("city");
@@ -157,58 +159,81 @@ export const GET = catchAsync(async (req) => {
   const language = url.searchParams.get("language");
   const ticketMaster = url.searchParams.get("ticketMaster");
 
-  // We'll unify these for local + external
   const page = parseInt(url.searchParams.get("page") ?? "1", 10);
   const limit = parseInt(url.searchParams.get("limit") ?? "30", 10);
 
-  // -------------------------
-  // 1) Build Local Filters
-  // -------------------------
-  const filters: Record<string, any> = {};
-
-  // If 'search' is an ObjectId, assume _id
-  if (search) {
-    if (Types.ObjectId.isValid(search)) {
-      filters._id = search;
-    } else {
-      filters.title = { $regex: search, $options: "i" };
-    }
-  }
-
-  if (city) filters["location.city"] = { $regex: city, $options: "i" };
-  if (state) filters["location.state"] = { $regex: state, $options: "i" };
-  if (country) filters["location.country"] = { $regex: country, $options: "i" };
-  if (address) filters["location.address"] = { $regex: address, $options: "i" };
-
-  if (dateFrom || dateTo) {
-    filters.date = {};
-    if (dateFrom) filters.date.$gte = new Date(dateFrom);
-    if (dateTo) filters.date.$lte = new Date(dateTo);
-  }
-
-  if (category) filters.category = category;
-  if (format) filters.format = format;
-  if (language) filters.language = language;
-
-  // Connect DB
   await connectDB();
 
-  // -------------------------
-  // 2) Query Local Events
-  // -------------------------
-  const localTotal = await Event.countDocuments(filters);
-  const localEvents = await Event.find(filters)
+  // Optional user
+  const cookieValue = (await cookies()).get(ECookieName.AUTH)?.value;
+  const user = await getUser(cookieValue).catch(() => null);
+
+  // Initial filters
+  const buildFilters = (
+    useInterestedCategories = false
+  ): Record<string, any> => {
+    const filters: Record<string, any> = {};
+
+    if (search) {
+      if (Types.ObjectId.isValid(search)) filters._id = search;
+      else filters.title = { $regex: search, $options: "i" };
+    }
+
+    if (city) filters["location.city"] = { $regex: city, $options: "i" };
+    if (state) filters["location.state"] = { $regex: state, $options: "i" };
+    if (country)
+      filters["location.country"] = { $regex: country, $options: "i" };
+    if (address)
+      filters["location.address"] = { $regex: address, $options: "i" };
+
+    if (dateFrom || dateTo) {
+      filters.date = {};
+      if (dateFrom) filters.date.$gte = new Date(dateFrom);
+      if (dateTo) filters.date.$lte = new Date(dateTo);
+    }
+
+    if (format) filters.format = format;
+    if (language) filters.language = language;
+
+    if (category) {
+      filters.category = category;
+    } else if (useInterestedCategories && user?.interestedCategories?.length) {
+      filters.category = { $in: user.interestedCategories };
+    }
+
+    return filters;
+  };
+
+  let filters = buildFilters(true);
+
+  // Initial local query
+  let localEvents = await Event.find(filters)
+    .sort({ date: 1 })
     .skip((page - 1) * limit)
     .limit(limit)
     .populate("organizer", "name");
 
-  // Map local events to IEvent shape
+  let localTotal = await Event.countDocuments(filters);
+
+  // Fallback: If no results and using interestedCategories
+  if (!category && user?.interestedCategories?.length && localTotal === 0) {
+    filters = buildFilters(false); // Remove interested category filtering
+
+    localEvents = await Event.find(filters)
+      .sort({ date: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate("organizer", "name");
+
+    localTotal = await Event.countDocuments(filters);
+  }
+
   const localMapped: IEvent[] = localEvents.map((e) => ({
     _id: e._id.toString(),
     title: e.title,
     description: e.description ?? "",
     location: e.location,
-    date: e.date ?? "", // or keep as Date
+    date: e.date ?? "",
     time: e.time,
     duration: e.duration,
     category: e.category,
@@ -219,52 +244,56 @@ export const GET = catchAsync(async (req) => {
     image: e.image,
     agenda: e.agenda || [],
     contact: e.contact,
-    organizer: e.organizer, // typed as IUser
+    organizer: e.organizer,
     external: false,
     url: undefined,
   }));
 
-  // Determine how many external events to fetch
+  // External Events
   const localCount = localMapped.length;
   const externalLimit = limit - localCount > 0 ? limit - localCount : 0;
 
-  // -------------------------
-  // 3) Query External (Ticketmaster)
-  // -------------------------
   let externalTotal = 0;
   let externalMapped: IEvent[] = [];
 
-  if (TICKETMASTER_API_KEY && ticketMaster !== "false") {
-    // Build Ticketmaster URL
+  if (TICKETMASTER_API_KEY && ticketMaster !== "false" && externalLimit > 0) {
     const tmUrl = new URL(
       "https://app.ticketmaster.com/discovery/v2/events.json"
     );
     tmUrl.searchParams.set("apikey", TICKETMASTER_API_KEY);
 
-    // We’ll pass the same 'search' as 'keyword'
-    if (search) tmUrl.searchParams.set("keyword", search);
-    if (city) tmUrl.searchParams.set("city", city);
-    if (category)
+    // Determine classification names based on user interests
+    let classificationNames: string[] = [];
+
+    if (!category && user?.interestedCategories?.length) {
+      classificationNames = user.interestedCategories
+        .map((cat) => categoryToClassificationMap[cat])
+        .filter(Boolean);
+    } else if (category) {
+      const mappedClassification = categoryToClassificationMap[category];
+      if (mappedClassification) {
+        classificationNames = [mappedClassification];
+      }
+    }
+
+    if (classificationNames.length > 0) {
       tmUrl.searchParams.set(
         "classificationName",
-        category.split(" ").join("-")
+        classificationNames.join(",")
       );
+    }
+
+    if (search) tmUrl.searchParams.set("keyword", search);
+    if (city) tmUrl.searchParams.set("city", city);
     tmUrl.searchParams.set("countryCode", "CA");
-
     tmUrl.searchParams.set("sort", "date,asc");
-
-    // Use the same page/limit approach
-    // Ticketmaster uses 0-based index for "page"
-    // We'll do page - 1 for 0-based
     tmUrl.searchParams.set("page", (page - 1).toString());
     tmUrl.searchParams.set("size", externalLimit.toString());
 
     const tmRes = await fetch(tmUrl.toString());
     const tmData = await tmRes.json();
 
-    if (tmData.page) {
-      externalTotal = tmData.page.totalElements ?? 0; // e.g. 270012
-    }
+    if (tmData.page) externalTotal = tmData.page.totalElements ?? 0;
 
     if (tmData._embedded?.events) {
       externalMapped = tmData._embedded.events.map(
@@ -273,19 +302,10 @@ export const GET = catchAsync(async (req) => {
     }
   }
 
-  // -------------------------
-  // 4) Combine + Single Pagination
-  // -------------------------
-  // We unify the docs from local + external for this page
   const combinedDocs: IEvent[] = [...localMapped, ...externalMapped];
-
-  // For the total, we add localTotal + externalTotal
   const combinedTotal = localTotal + externalTotal;
-
-  // pages = ceiling of combinedTotal / limit
   const combinedPages = Math.ceil(combinedTotal / limit);
 
-  // Return single array + single pagination
   return new AppResponse(200, "Events fetched successfully", {
     docs: combinedDocs,
     pagination: {
