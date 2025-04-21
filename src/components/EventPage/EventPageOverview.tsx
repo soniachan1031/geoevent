@@ -180,6 +180,7 @@ export default function EventPageOverview({
             <EventOrganizerDropdown
               event={event}
               onEventUpdateSuccess={setEvent}
+              variant="dropdown"
             />
           )}
         </div>
