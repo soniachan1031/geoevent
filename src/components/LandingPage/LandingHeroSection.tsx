@@ -31,8 +31,8 @@ const LandingHeroSection = () => {
           <Image
             src="/banner.png"
             alt="GeoEvents Dashboard"
-            height="400"
-            width="400"
+            height="500"
+            width="500"
           />
         </div>
       </div>
