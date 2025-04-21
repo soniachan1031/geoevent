@@ -20,7 +20,6 @@ import {
   Users,
   Heart,
   SlidersHorizontal,
-  LogOut,
   LayoutDashboard,
 } from "lucide-react";
 
@@ -40,7 +39,7 @@ export default function ProfileDropdown() {
 
       <DropdownMenuContent
         align="end"
-        className="w-64 bg-card shadow-xl rounded-xl shadow-lg"
+        className="w-64 bg-card rounded-xl shadow-lg"
       >
         {/* Header */}
         <DropdownMenuLabel className="px-5 pt-4 pb-2 text-muted-foreground text-sm font-semibold border-b border-border">
