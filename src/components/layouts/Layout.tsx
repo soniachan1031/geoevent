@@ -6,7 +6,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
   
   // Define pages where the navbar should be hidden
-  const hideNavbarRoutes = ["/login", "/register", "/forgot-password"];
+  const hideNavbarRoutes = ["/login", "/register", "/forgot-password", "/landing"];
 
   return (
     <div className="min-h-screen flex flex-col">
