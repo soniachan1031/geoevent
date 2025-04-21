@@ -25,7 +25,7 @@ export function ticketMasterToLocalEvent(ev: any) {
     date: ev.dates?.start?.localDate ?? "",
     time: ev.dates?.start?.localTime ?? "00:00",
     duration: undefined,
-    category: ev.classifications?.[0]?.segment?.name ?? EEventCategory.OTHER, // or parse from ev.classifications
+    category: ev.classifications?.[0]?.segment?.name ?? EEventCategory.ANY, // or parse from ev.classifications
     format: EEventFormat.OFFLINE,
     language: EEventLanguage.ENGLISH,
     capacity: undefined,
