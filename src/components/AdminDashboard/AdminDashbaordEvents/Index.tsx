@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import axiosInstance from "@/lib/axiosInstance";
 import getErrorMsg from "@/lib/getErrorMsg";
 import { TPagination } from "@/types/api.types";
-import { MdEdit, MdDelete } from "react-icons/md";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { CiSearch } from "react-icons/ci";
@@ -13,6 +12,7 @@ import UpdateEventBtn from "@/components/buttons/UpdateEventBtn";
 import DeleteEventBtn from "@/components/buttons/DeleteEventBtn";
 import Image from "next/image";
 import CustomPagination from "@/components/paginations/CustomPagination";
+import { Pencil, Trash2 } from "lucide-react";
 
 type TGetEventProps = {
   page?: number;
@@ -78,50 +78,56 @@ const AdminDashboardEvents = () => {
           </div>
 
           {/* 📱 MOBILE VERSION (Card Layout) */}
-          <div className="sm:hidden flex flex-col bg-white rounded-xl shadow-lg overflow-hidden divide-y divide-gray-200">
+          <div className="sm:hidden flex flex-col w-full gap-3">
             {events.map((event) => (
-              <div key={event._id} className="p-4 flex items-center gap-4">
-                {/* Event Image */}
-                <div className="w-14 h-14 flex-shrink-0">
-                  <Image
-                    src={event.image ?? "/logo.png"}
-                    alt={event.title}
-                    width={56}
-                    height={56}
-                    className="rounded-lg shadow-md w-full h-full object-cover"
-                  />
+              <div
+                key={event._id}
+                className="flex items-start justify-between gap-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition"
+              >
+                {/* Left Side: Image + Info */}
+                <div className="flex items-start gap-4">
+                  {/* Event Image */}
+                  <div className="w-14 h-14 flex-shrink-0">
+                    <Image
+                      src={event.image ?? "/logo.png"}
+                      alt={event.title}
+                      width={56}
+                      height={56}
+                      className="rounded-lg shadow-md w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Event Info */}
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-gray-900">{event.title}</p>
+                    <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                      {(event.date as string)?.slice(0, 10)} •{" "}
+                      {typeof event.organizer === "object"
+                        ? event.organizer?.name
+                        : "Unknown"}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Event Info */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-gray-900 font-medium">{event.title}</p>
-                  <p className="text-gray-600 text-sm truncate">
-                    {(event.date as string)?.slice(0, 10)} •{" "}
-                    {typeof event.organizer === "object"
-                      ? event.organizer?.name
-                      : "Unknown"}
-                  </p>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-2">
+                {/* Action Icons */}
+                <div className="flex items-center gap-3 text-muted-foreground text-[18px]">
                   <UpdateEventBtn
                     event={event}
-                    variant="secondary"
-                    className="p-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-all ease-in-out"
+                    variant="ghost"
                     requestUrl={`api/events/${event._id}`}
                     onSuccess={() => getEvents({})}
+                    className="p-0 h-8 w-8 hover:bg-muted rounded-md transition"
                   >
-                    <MdEdit className="text-gray-600 text-lg" />
+                    <Pencil className="h-4 w-4" />
                   </UpdateEventBtn>
 
                   <DeleteEventBtn
-                    variant="secondary"
-                    className="p-2 bg-red-100 hover:bg-red-200 rounded-md text-red-500 transition-all ease-in-out"
+                    variant="ghost"
+                    className="p-0 h-8 w-8 hover:bg-muted rounded-md transition"
                     requestUrl={`api/events/${event._id}`}
                     onSuccess={() => getEvents({})}
                   >
-                    <MdDelete className="text-lg" />
+                    <Trash2 className="h-4 w-4 text-destructive" />
                   </DeleteEventBtn>
                 </div>
               </div>
@@ -165,50 +171,54 @@ const AdminDashboardEvents = () => {
                   </div>
 
                   {/* Title */}
-                  <div className="text-gray-900 text-base font-medium">
+                  <div className="text-gray-900 text-base font-medium truncate max-w-[200px]">
                     {event.title}
                   </div>
 
                   {/* Category */}
-                  <div className="text-gray-700 text-sm">{event.category}</div>
+                  <div className="text-gray-700 text-sm capitalize">
+                    {event.category}
+                  </div>
 
                   {/* Date */}
                   <div className="text-gray-700 text-sm">
                     {(event.date as string)?.slice(0, 10)}
                   </div>
 
-                  {/* Organizer (Truncated if Long) */}
+                  {/* Organizer */}
                   <div className="text-gray-700 text-sm truncate max-w-[150px]">
                     {typeof event.organizer === "object"
                       ? event.organizer?.name
                       : "Unknown"}
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-4 justify-center">
+                  {/* Action Icons */}
+                  <div className="flex items-center justify-center gap-3">
                     <UpdateEventBtn
                       event={event}
-                      variant="secondary"
-                      className="p-3 bg-gray-100 hover:bg-gray-200 rounded-md transition-all ease-in-out"
+                      variant="ghost"
                       requestUrl={`api/events/${event._id}`}
                       onSuccess={() => getEvents({})}
+                      className="p-0 h-8 w-8 hover:bg-muted rounded-md"
                     >
-                      <MdEdit className="text-gray-600 text-xl" />
+                      <Pencil className="h-4 w-4 text-muted-foreground" />
                     </UpdateEventBtn>
 
                     <DeleteEventBtn
-                      variant="secondary"
-                      className="p-3 bg-red-100 hover:bg-red-200 rounded-md text-red-500 transition-all ease-in-out"
                       requestUrl={`api/events/${event._id}`}
                       onSuccess={() => getEvents({})}
+                      variant="ghost"
+                      className="p-0 h-8 w-8 hover:bg-muted rounded-md"
                     >
-                      <MdDelete className="text-xl" />
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </DeleteEventBtn>
                   </div>
                 </div>
               ))}
             </div>
           </div>
+
+
 
           <CustomPagination
             paginationProps={pagination}
@@ -233,32 +243,42 @@ const Searchbar: FC<{
   };
 
   return (
-    <div className="w-full max-w-screen-lg mx-auto flex gap-3">
-      {/* Search Input & Button */}
-      <div className="flex items-center border border-gray-300 rounded-lg shadow-md focus-within:shadow-lg transition w-full">
+    <div className="w-full max-w-screen-lg mx-auto flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center">
+      <div className="relative w-full flex items-center border border-primary/40 rounded-lg bg-white focus-within:ring-2 focus-within:ring-primary">
+        {/* Search Input */}
         <input
           type="text"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="Search Id or Event title..."
-          className="py-2 px-4 rounded-l bg-white outline-none text-gray-700 w-full"
+          className="w-full py-2 pl-4 pr-20 text-sm bg-transparent outline-none rounded-lg text-gray-700 placeholder:text-muted-foreground"
         />
-        <Button
-          className="rounded-l-none bg-gray-100 hover:bg-gray-200 px-4 transition"
-          onClick={() => getEvents({ search: searchText })}
-        >
-          <CiSearch className="text-gray-600 text-lg" />
-        </Button>
-      </div>
 
-      {/* Reset Button */}
-      <Button
-        onClick={reset}
-        variant="outline"
-        className="rounded-full h-9 w-9 flex items-center justify-center border border-gray-300 hover:bg-gray-100 transition"
-      >
-        <GrPowerReset className="text-gray-600 text-lg" />
-      </Button>
+        {/* Divider Line */}
+        <div className="absolute right-12 top-2 bottom-2 w-px bg-border" />
+
+        {/* Icon Buttons */}
+        <div className="absolute right-2 flex gap-1">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="p-1 hover:bg-muted"
+            onClick={() => getEvents({ search: searchText })}
+            type="button"
+          >
+            <CiSearch className="h-5 w-5 text-muted-foreground" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="p-1 hover:bg-muted"
+            onClick={reset}
+            type="button"
+          >
+            <GrPowerReset className="h-4 w-4 text-muted-foreground" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

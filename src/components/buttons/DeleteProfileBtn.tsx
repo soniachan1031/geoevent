@@ -65,9 +65,9 @@ const DeleteProfileBtn: React.FC<TDeleteProfileBtnProps> = ({
       <AlertDialogTrigger asChild>
         <Button
           variant="ghost"
-          className="text-destructive hover:underline hover:bg-transparent focus-visible:ring-0"
-        >
-          Permanently delete my account
+          className={className || "text-destructive hover:underline hover:bg-transparent focus-visible:ring-0"}
+  >
+    {children ?? "Permanently delete my account"}
         </Button>
 
       </AlertDialogTrigger>

@@ -38,7 +38,7 @@ const Searchbar = () => {
   return (
     <form
   onSubmit={handleSubmit}
-  className="group flex items-center gap-2 w-full md:max-w-[500px] rounded-full border border-border bg-input px-4 py-2 shadow-sm focus-within:ring-1 focus-within:ring-ring transition"
+  className="group flex items-center gap-2 w-full md:max-w-[500px] rounded-full border border-border bg-white px-4 py-2 shadow-sm focus-within:ring-1 focus-within:ring-ring transition"
 >
   {/* Search Icon (left, hidden on md) */}
   <button type="submit" className="text-muted-foreground md:hidden">

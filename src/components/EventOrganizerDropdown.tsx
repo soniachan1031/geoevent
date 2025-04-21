@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import SendEmailBtn from "./buttons/SendEmailBtn";
 import { EApiRequestMethod } from "@/types/api.types";
 import { useAuthContext } from "@/context/AuthContext";
+import { BarChart3, Mail, Pencil, Trash2 } from "lucide-react";
 
 const EventOrganizerDropdown: FC<{
   event: IEvent;
@@ -23,42 +24,50 @@ const EventOrganizerDropdown: FC<{
     router.push("/");
   };
   return (
-    <div className="relative">
-      <Button
-        className="p-1 rounded-full w-8 h-8 flex items-center justify-center bg-white text-black hover:text-white"
-        onClick={() => setExpand(!expand)}
-      >
-        <BsThreeDots />
+    <div className="flex items-center gap-2">
+    {/* View Analytics */}
+    <Link href={`/events/${event._id}/analytics`} title="Analytics">
+      <Button size="icon" variant="ghost">
+        <BarChart3 className="h-4 w-4 text-muted-foreground" />
       </Button>
-      {expand && (
-        <div className="grid gap-3 p-3 bg-white absolute top-10 right-0 z-10 shadow-lg rounded-lg">
-          <Button variant="outline" className="w-full">
-            <Link href={`/events/${event._id}/analytics`}>Analytics</Link>
-          </Button>
-          <UpdateEventBtn
-            variant="outline"
-            event={event}
-            requestUrl={`api/events/${event._id}`}
-            onSuccess={onEventUpdateSuccess}
-          />
-          {user && (
-            <SendEmailBtn
-              variant="outline"
-              title="Send Email to pargicipants"
-              requestUrl={`/api/events/${event._id}/send-email`}
-              method={EApiRequestMethod.POST}
-            ></SendEmailBtn>
-          )}
-          <DeleteEventBtn
-            requestUrl={`api/events/${event._id}`}
-            onSuccess={onDeleteSuccess}
-            className="w-full"
-          >
-            Cancel Event
-          </DeleteEventBtn>
-        </div>
-      )}
-    </div>
+    </Link>
+
+    {/* Edit */}
+    <UpdateEventBtn
+      event={event}
+      variant="ghost"
+      className="p-0 h-8 w-8"
+      requestUrl={`api/events/${event._id}`}
+      onSuccess={onEventUpdateSuccess}
+    
+    >
+      <Pencil className="h-4 w-4 text-muted-foreground" />
+    </UpdateEventBtn>
+
+    {/* Send Email */}
+    {user && (
+      <SendEmailBtn
+        variant="ghost"
+        title="Email Participants"
+        className="p-0 h-8 w-8"
+        requestUrl={`/api/events/${event._id}/send-email`}
+        method={EApiRequestMethod.POST}
+      >
+        <Mail className="h-4 w-4 text-muted-foreground" />
+      </SendEmailBtn>
+    )}
+
+    {/* Delete */}
+    <DeleteEventBtn
+  variant="ghost"
+  className="p-0 h-8 w-8"
+  requestUrl={`api/events/${event._id}`}
+  onSuccess={onDeleteSuccess}
+>
+  <Trash2 className="h-4 w-4 text-destructive" />
+</DeleteEventBtn>
+
+  </div>
   );
 };
 

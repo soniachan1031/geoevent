@@ -62,30 +62,37 @@ const BecomeOrganizerForm: React.FC<TBecomeOrganizerFormProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl w-full max-w-xl space-y-6">
-      <p className="text-sm text-gray-600 text-center max-w-md mx-auto">
-        Please confirm your name and profile photo. This will be used for your
-        public organizer profile and is important for building trust and
-        recognition with your audience.
-      </p>
-      <div className="flex flex-col items-center gap-4">
-        {previewImage ? (
-          <Image
-            src={previewImage}
-            alt="Profile Preview"
-            className="h-24 w-24 object-cover rounded-full shadow"
-            width={96}
-            height={96}
-          />
-        ) : (
-          <div className="h-24 w-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xl">
-            ?
-          </div>
-        )}
-
-        <div className="text-center space-y-2 w-full">
+    <div className="min-h-screen flex items-center justify-center px-4 pb-12 pt-8">
+    <div className="w-full max-w-sm flex flex-col items-center gap-6">
+      <h1 className="text-2xl font-bold text-center text-foreground">
+        You must become an organizer first!
+      </h1>
+  
+      <div className="bg-muted/10 p-6 rounded-xl w-full  shadow-lg space-y-6">
+        <p className="text-sm text-muted-foreground text-center">
+          Please confirm your name and profile photo. This will be used for your public organizer profile and is important for building trust and recognition with your audience.
+        </p>
+  
+        {/* Profile Image */}
+        <div className="flex justify-center">
+          {previewImage ? (
+            <Image
+              src={previewImage}
+              alt="Profile Preview"
+              className="h-24 w-24 object-cover rounded-full shadow"
+              width={96}
+              height={96}
+            />
+          ) : (
+            <div className="h-24 w-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xl">
+              ?
+            </div>
+          )}
+        </div>
+  
+        <div className="space-y-4">
           <div>
-            <Label className="text-lg font-medium">Your Name</Label>
+            <Label className="text-sm font-medium">Your Name</Label>
             <Input
               type="text"
               value={name}
@@ -94,31 +101,32 @@ const BecomeOrganizerForm: React.FC<TBecomeOrganizerFormProps> = ({
               placeholder="Enter your full name"
             />
           </div>
-
-          <div className="mt-4">
-            <Label className="text-sm font-medium">
-              Upload a Profile Photo
-            </Label>
+  
+          <div>
+            <Label className="text-sm font-medium">Upload a Profile Photo</Label>
             <Input
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              className="text-sm mt-2"
+              className="mt-1 text-sm"
             />
           </div>
         </div>
+  
+        <Button
+          type="button"
+          onClick={handleBecomeOrganizer}
+          className="w-full text-base font-semibold"
+          loading={loading}
+          loaderProps={{ color: "white" }}
+        >
+          Become an Organizer
+        </Button>
       </div>
-
-      <Button
-        type="button"
-        onClick={handleBecomeOrganizer}
-        className="text-lg w-full bg-black text-white hover:opacity-90 rounded-lg transition"
-        loading={loading}
-        loaderProps={{ color: "white" }}
-      >
-        Become an Organizer
-      </Button>
     </div>
+  </div>
+  
+
   );
 };
 

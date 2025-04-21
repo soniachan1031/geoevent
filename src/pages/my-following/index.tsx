@@ -72,7 +72,7 @@ export default function MyFollowing({
     content = following.map((org) => (
       <div
         key={org._id}
-        className="flex items-center justify-between gap-5 p-4 bg-card text-card-foreground rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200"
+        className="flex items-center justify-between gap-5 p-4 border border-primary/20 rounded-xl bg-white shadow-sm text-card-foreground hover:shadow-md transition-shadow duration-200"
       >
         <div className="flex items-center gap-4">
           {org.photo?.url ? (
@@ -109,7 +109,7 @@ export default function MyFollowing({
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen gap-5 p-5 w-full bg-gray-50">
+    <div className="flex flex-col items-center min-h-screen gap-5 p-5 w-full">
       <h1 className="text-3xl font-semibold text-center">My Followings</h1>
 
       <div className="w-full max-w-2xl space-y-4">{content}</div>

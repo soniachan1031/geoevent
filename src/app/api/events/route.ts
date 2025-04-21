@@ -118,7 +118,12 @@ export const POST = catchAsync(async (req) => {
       .filter((email) => email)
       .join(",");
 
-    if (!bcc) return;
+      if (!bcc) {
+        return new AppResponse(200, "Event created successfully (no followers to notify)", {
+          doc: newEvent,
+        });
+      }
+      
 
     const subject = `New Event: ${newEvent.title}`;
     const text = `A new event has been created: ${newEvent.title}`;

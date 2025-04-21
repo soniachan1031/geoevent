@@ -27,21 +27,23 @@ export default AdminDashboard;
 
 const SectionToggle = ({ section, setSection }) => {
   return (
-    <div className="flex gap-3 bg-white shadow-md p-2 rounded-xl">
+    <div className="flex justify-center">
+    <div className="flex bg-white p-1 rounded-full shadow-sm border border-border">
       {Object.values(EAdminDashboardSection).map((value) => (
-        <Button
+        <button
           key={value}
           onClick={() => setSection(value)}
-          className={`px-5 py-2 rounded-lg font-medium transition-all ${
+          className={`px-4 py-2 rounded-full text-sm font-medium transition ${
             section === value
-              ? "bg-gray-900 text-white shadow-md"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              ? "bg-primary text-primary-foreground shadow"
+              : "text-muted-foreground hover:bg-muted"
           }`}
         >
           {value}
-        </Button>
+        </button>
       ))}
     </div>
+  </div>
   );
 };
 

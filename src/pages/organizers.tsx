@@ -116,7 +116,7 @@ export default function Organizers() {
           return (
             <div
               key={org._id}
-              className="flex items-center justify-between gap-5 p-4 bg-card text-card-foreground rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200"
+              className="flex items-center justify-between gap-5 p-4 bg-white border border-primary/20 text-card-foreground rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200"
             >
               {/* Organizer Info */}
               <div className="flex items-center gap-4">
