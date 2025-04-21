@@ -49,9 +49,8 @@ const eventSchema = new Schema<IEvent>(
       required: [true, "Event date is required"],
       validate: {
         validator: (date: Date) => {
-          const inputDate = startOfDay(toZonedTime(date, timeZone)); // Convert input date to UTC
-          const today = startOfUTC(); // Convert today's date to UTC
-
+          const inputDate = startOfDay(toZonedTime(date, timeZone));
+          const today = startOfUTC();
           return (
             isAfter(inputDate, today) || inputDate.getTime() === today.getTime()
           );
@@ -69,13 +68,12 @@ const eventSchema = new Schema<IEvent>(
     },
     registrationDeadline: {
       type: Date,
+      required: false,
       validate: {
         validator: function (this: IEvent, deadline: Date) {
-          if (!this.date) return true; // Skip validation if event date is not set
-
+          if (!deadline || !this.date) return true;
           const deadlineDate = startOfDay(toZonedTime(deadline, timeZone));
           const eventDate = startOfDay(toZonedTime(this.date, timeZone));
-
           return deadlineDate <= eventDate;
         },
         message: "Registration deadline must be on or before the event date",
@@ -83,6 +81,7 @@ const eventSchema = new Schema<IEvent>(
     },
     duration: {
       type: Number,
+      required: false,
       min: [10, "Event duration must be at least 10 minutes"],
     },
     category: {
@@ -99,14 +98,16 @@ const eventSchema = new Schema<IEvent>(
       type: String,
       enum: Object.values(EEventLanguage),
       default: EEventLanguage.ENGLISH,
+      required: false,
     },
     capacity: {
       type: Number,
+      required: false,
       min: [1, "Event capacity must be at least 1 person"],
     },
-
     image: {
       type: String,
+      required: false,
       validate: {
         validator: (url: string) =>
           /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)$/.test(url),

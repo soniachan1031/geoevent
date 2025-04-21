@@ -118,12 +118,15 @@ export const POST = catchAsync(async (req) => {
       .filter((email) => email)
       .join(",");
 
-      if (!bcc) {
-        return new AppResponse(200, "Event created successfully (no followers to notify)", {
+    if (!bcc) {
+      return new AppResponse(
+        200,
+        "Event created successfully (no followers to notify)",
+        {
           doc: newEvent,
-        });
-      }
-      
+        }
+      );
+    }
 
     const subject = `New Event: ${newEvent.title}`;
     const text = `A new event has been created: ${newEvent.title}`;
@@ -201,7 +204,7 @@ export const GET = catchAsync(async (req) => {
     }
 
     if (dateFrom || dateTo) {
-      filters.date = filters.date || {};
+      filters.date = filters.date ?? {};
       if (dateFrom) filters.date.$gte = new Date(dateFrom);
       if (dateTo) filters.date.$lte = new Date(dateTo);
     }
