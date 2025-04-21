@@ -14,7 +14,7 @@ export enum EEventCategory {
   GOVERNMENT = "Government",
   FITNESS = "Fitness",
   HOLIDAYS = "Holidays",
-  ANY = "any",
+  ANY = "Any",
 }
 
 export enum EEventFormat {

@@ -6,6 +6,7 @@ import { GetServerSideProps } from "next";
 import connectDB from "@/lib/server/connectDB";
 import { ECookieName } from "@/types/api.types";
 import getUser from "@/lib/server/getUser";
+import Link from "next/link";
 
 interface IMyHistoryProps {
   previouslyRegisteredEvents: any[]; // or a typed array if you have a TS interface
@@ -17,62 +18,61 @@ export default function MyHistory({
   eventSuggestions,
 }: Readonly<IMyHistoryProps>) {
   return (
-    <div className="flex flex-col items-center min-h-screen gap-8 p-6">
-      {/* Page Title */}
-      <h1 className="text-4xl font-bold text-gray-900 border-b-2 pb-2">
-        My History
-      </h1>
+    <div className="flex flex-col items-center min-h-screen gap-10 p-6 w-full">
+    {/* Page Title */}
+    <h1 className="text-4xl font-bold text-foreground">My History</h1>
   
-      {/* Previously Registered Events */}
-      <section className="w-full max-w-7xl">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-          Previously Registered Events
-        </h2>
+    {/* Previously Registered Events */}
+    <section className="w-full max-w-5xl">
+      <h2 className="text-center text-2xl font-semibold text-foreground mb-6 mt-6">
+        Previously Registered Events
+      </h2>
   
-        {previouslyRegisteredEvents.length === 0 ? (
-          <div className="flex flex-col items-center justify-center bg-gray-100 p-6 rounded-lg shadow">
-            <p className="text-gray-600">No past registered events found.</p>
-            <a
-              href="/events"
-              className="mt-3 text-blue-600 hover:underline font-medium"
-            >
-              Explore Upcoming Events →
-            </a>
-          </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 md:grid-cols-1 gap-5 place-items-center w-auto">
-            {previouslyRegisteredEvents.map((event) => (
-              <EventCard key={event._id} event={event} />
-            ))}
-          </div>
-        )}
-      </section>
+      {previouslyRegisteredEvents.length === 0 ? (
+        <div className="flex flex-col items-center justify-center bg-muted p-6 rounded-xl border border-border shadow-sm">
+          <p className="text-muted-foreground">No past registered events found.</p>
+          <Link
+            href="/"
+            className="mt-3 text-sm font-medium text-primary hover:underline"
+          >
+            Explore Upcoming Events →
+          </Link>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 md:grid-cols-1 gap-5 place-items-center w-auto">
+          {previouslyRegisteredEvents.map((event) => (
+            <EventCard key={event._id} event={event} />
+          ))}
+        </div>
+      )}
+    </section>
   
-      {/* Ongoing Event Suggestions */}
-      <section className="w-full max-w-7xl mt-10">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-          Event Suggestions for You
-        </h2>
+    {/* Ongoing Event Suggestions */}
+    <section className="w-full max-w-5xl">
+      <h2 className="text-center text-2xl font-semibold text-foreground mb-6 mt-6">
+        Event Suggestions for You
+      </h2>
   
-        {eventSuggestions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center bg-gray-100 p-6 rounded-lg shadow">
-            <p className="text-gray-600">No ongoing events found.</p>
-            <a
-              href="/discover"
-              className="mt-3 text-blue-600 hover:underline font-medium"
-            >
-              Discover New Events →
-            </a>
-          </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 md:grid-cols-1 gap-5 place-items-center w-auto">
-            {eventSuggestions.map((event) => (
-              <EventCard key={event._id} event={event} />
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
+      {eventSuggestions.length === 0 ? (
+        <div className="flex flex-col items-center justify-center bg-muted p-6 rounded-xl border border-border shadow-sm">
+          <p className="text-muted-foreground">No ongoing events found.</p>
+          <Link
+            href="/discover"
+            className="mt-3 text-sm font-medium text-primary hover:underline"
+          >
+            Discover New Events →
+          </Link>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 md:grid-cols-1 gap-5 place-items-center w-auto">
+          {eventSuggestions.map((event) => (
+            <EventCard key={event._id} event={event} />
+          ))}
+        </div>
+      )}
+    </section>
+  </div>
+  
   );
 }
 

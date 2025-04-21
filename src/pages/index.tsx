@@ -57,14 +57,14 @@ export default function Home() {
       ) : (
         <>
           <div className="flex-1 flex flex-col gap-5 w-full">
-          {/* Map Section */}
-<div className="w-full h-[500px] bg-gray-100 rounded-xl shadow-md border border-gray-200 overflow-hidden">
-  <EventMap
-    events={events}
-    selectedEventId={selectedEventId}
-    onMarkerClick={setSelectedEventId}
-  />
-</div>
+            {/* Map Section */}
+            <div className="w-full h-[500px] rounded-xl bg-muted shadow-lg overflow-hidden">
+              <EventMap
+                events={events}
+                selectedEventId={selectedEventId}
+                onMarkerClick={setSelectedEventId}
+              />
+            </div>
 
             {/* Event Cards Section */}
             <div className="grid sm:grid-cols-2 md:grid-cols-1 gap-5 place-items-center w-auto">
@@ -74,15 +74,14 @@ export default function Home() {
                   ref={(el) => {
                     eventRefs.current[event._id] = el;
                   }}
-                  className={`w-full p-2 rounded max-h-max ${
-                    selectedEventId === event._id ? "shadow-lg" : ""
-                  }`}
+                  className={`w-full p-2 rounded max-h-max ${selectedEventId === event._id ? "shadow-lg" : ""
+                    }`}
                 >
                   <EventCard event={event} />
                 </div>
               ))}
             </div>
-            
+
           </div>
           <CustomPagination
             paginationProps={pagination}
@@ -103,37 +102,36 @@ const EventCard = ({ event }: Readonly<{ event: IEvent }>) => {
 
   return (
     <Link href={link} className="group block w-full">
-          <div className="w-full flex justify-center">
-      <div
-        className="shadow-md srounded-lg hover:shadow-lg transition duration-300 
-                   w-full max-w-3xl overflow-hidden flex flex-col md:flex-row mx-auto"
-      >
-        {/* Event Image (Left for Desktop, Full Width for Mobile) */}
-        <img
-          src={event.image ?? "/logo.png"}
-          alt={event.title}
-          className="w-full md:w-[220px] h-[150px] object-cover rounded-lg"
-        />
+      <div className="flex justify-center">
+        <div className="bg-card text-card-foreground shadow-sm hover:shadow-lg rounded-xl transition duration-300 w-full max-w-3xl overflow-hidden flex flex-col md:flex-row mx-auto">
 
-        {/* Event Details (Right for Desktop, Below for Mobile) */}
-        <div className="p-4 flex flex-col justify-center">
-          <h2 className="text-lg md:text-xl font-semibold text-gray-900">{event.title}</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            {new Date(event.date).toLocaleDateString("en-US", {
-              timeZone: "UTC",
-              weekday: "short",
-              month: "long",
-              day: "numeric",
-            })}{" "}
-            • {event.time}
-          </p>
-          <p className="text-sm text-gray-600">
-            {event.location.city}, {event.location.state}
-          </p>
+          {/* Event Image */}
+          <img
+            src={event.image ?? "/logo.png"}
+            alt={event.title}
+            className="w-full md:w-[220px] h-[150px] object-cover md:rounded-l-xl md:rounded-r-none rounded-t-xl md:rounded-t-none"
+          />
+
+          {/* Event Details */}
+          <div className="p-4 flex flex-col justify-center gap-1">
+            <h2 className="text-lg md:text-xl font-semibold text-foreground">{event.title}</h2>
+            <p className="text-sm text-muted-foreground">
+              {new Date(event.date).toLocaleDateString("en-US", {
+                timeZone: "UTC",
+                weekday: "short",
+                month: "long",
+                day: "numeric",
+              })}{" "}
+              • {event.time}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {event.location.city}, {event.location.state}
+            </p>
+          </div>
+
         </div>
       </div>
-    </div>
-
     </Link>
+
   );
 };

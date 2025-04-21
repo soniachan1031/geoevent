@@ -72,7 +72,7 @@ export default function MyFollowing({
     content = following.map((org) => (
       <div
         key={org._id}
-        className="flex items-center justify-between p-4 border rounded-lg shadow-sm bg-white"
+        className="flex items-center justify-between gap-5 p-4 bg-card text-card-foreground rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200"
       >
         <div className="flex items-center gap-4">
           {org.photo?.url ? (
@@ -100,7 +100,7 @@ export default function MyFollowing({
           variant="destructive"
           onClick={() => unfollow(org._id)}
           disabled={loadingId === org._id}
-          className="px-4 py-1 text-sm font-medium rounded disabled:opacity-50"
+          className="px-4 py-1 text-sm font-medium rounded-lg"
         >
           {loadingId === org._id ? "Unfollowing..." : "Unfollow"}
         </Button>

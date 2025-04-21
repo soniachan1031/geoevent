@@ -28,23 +28,23 @@ body {
   :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card: 270 100% 98%;
+    --card-foreground: 270 100% 25%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
+    --primary: 270 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 270 100% 90%;
+    --secondary-foreground: 270 100% 20%;
+    --muted: 270 100% 90%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
+    --accent: 270 100% 85%;
+    --accent-foreground: 270 100% 25%;
+    --destructive: 0 85% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 270 100% 88%;
+    --input: 270 100% 96%;
+    --ring: 270 100% 70%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -52,6 +52,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -79,10 +80,12 @@ body {
     --chart-5: 340 75% 55%;
   }
 }
+
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -92,10 +95,12 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
+
 /* Hide Google Translate top bar */
 iframe#\:1\.container {
   display: none !important;
@@ -115,12 +120,14 @@ body {
 
 /* Hide default Google Translate styling */
 .goog-te-gadget {
-  font-size: 0; /* Hides the text */
+  font-size: 0;
+  /* Hides the text */
 }
 
 /* Custom styling for the dropdown */
 .goog-te-combo {
-  background-color: rgb(1, 1, 1); /* Your brand black */
+  background-color: rgb(1, 1, 1);
+  /* Your brand black */
   color: white !important;
   border: 1px solid #fff;
   border-radius: 8px;
@@ -158,6 +165,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -168,6 +176,7 @@ body {
     opacity: 0;
     transform: scale(0.95);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);

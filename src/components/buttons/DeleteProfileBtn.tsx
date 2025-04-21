@@ -19,13 +19,13 @@ type TDeleteProfileBtnProps = {
   children?: React.ReactNode;
   onSuccess?: () => Promise<void> | void;
   variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link"
-    | null;
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost"
+  | "link"
+  | null;
   className?: string;
 };
 
@@ -63,10 +63,15 @@ const DeleteProfileBtn: React.FC<TDeleteProfileBtnProps> = ({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={variant} className={className}>
-          {children ?? "Delete Profile"}
+        <Button
+          variant="ghost"
+          className="text-destructive hover:underline hover:bg-transparent focus-visible:ring-0"
+        >
+          Permanently delete my account
         </Button>
+
       </AlertDialogTrigger>
+
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -75,6 +80,7 @@ const DeleteProfileBtn: React.FC<TDeleteProfileBtnProps> = ({
             profile.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
         <AlertDialogFooter>
           <AlertDialogCancel ref={cancelBtnRef}>Cancel</AlertDialogCancel>
           <Button
@@ -83,11 +89,12 @@ const DeleteProfileBtn: React.FC<TDeleteProfileBtnProps> = ({
             loaderProps={{ color: "white" }}
             onClick={handleProfileDelete}
           >
-            Delete Profile
+            Delete my account
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+
   );
 };
 export default DeleteProfileBtn;

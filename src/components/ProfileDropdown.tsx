@@ -13,6 +13,17 @@ import { FaUserCircle } from "react-icons/fa";
 import Link from "next/link";
 import LogoutBtn from "./buttons/LogoutBtn";
 import { EUserRole } from "@/types/user.types";
+import {
+  User,
+  CalendarCheck,
+  Clock,
+  Users,
+  Heart,
+  SlidersHorizontal,
+  LogOut,
+  LayoutDashboard,
+} from "lucide-react";
+
 
 export default function ProfileDropdown() {
   const { user } = useAuthContext();
@@ -21,7 +32,7 @@ export default function ProfileDropdown() {
       <DropdownMenuTrigger>
         <Avatar className="cursor-pointer transition-all hover:scale-105">
           <AvatarImage src={user?.photo?.url} className="rounded-full" />
-          <AvatarFallback className="flex items-center justify-center bg-gray-200 text-gray-600">
+          <AvatarFallback className="flex items-center justify-center text-muted-foreground">
             <FaUserCircle className="text-3xl" />
           </AvatarFallback>
         </Avatar>
@@ -29,95 +40,109 @@ export default function ProfileDropdown() {
 
       <DropdownMenuContent
         align="end"
-        className="w-56 bg-white shadow-xl rounded-lg overflow-hidden"
+        className="w-64 bg-card shadow-xl rounded-xl shadow-lg"
       >
         {/* Header */}
-        <DropdownMenuLabel className="px-4 py-2 text-gray-700 text-sm font-semibold border-b">
+        <DropdownMenuLabel className="px-5 pt-4 pb-2 text-muted-foreground text-sm font-semibold border-b border-border">
           My Account
         </DropdownMenuLabel>
 
         {/* Menu Items */}
-        <div className="py-2">
+        <div className="flex flex-col gap-1 py-3 px-2">
           {user?.role === EUserRole.ADMIN && (
-            <DropdownMenuItem className="group">
+            <DropdownMenuItem asChild>
               <Link
                 href="/admin"
-                className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
+                className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted rounded-md transition"
               >
-                Admin Dashboard
+                <LayoutDashboard className="w-4 h-4 text-muted-foreground" />
+                <span className="w-full">Admin Dashboard</span>
               </Link>
             </DropdownMenuItem>
           )}
-          {(user?.role === EUserRole.ADMIN ||
-            user?.role === EUserRole.ORGANIZER) && (
-            <DropdownMenuItem className="group">
+
+          {(user?.role === EUserRole.ADMIN || user?.role === EUserRole.ORGANIZER) && (
+            <DropdownMenuItem asChild>
               <Link
                 href="/organizer"
-                className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
+                className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted rounded-md transition"
               >
-                Organizer Dashboard
+                <LayoutDashboard className="w-4 h-4 text-muted-foreground" />
+                <span className="w-full">Organizer Dashboard</span>
               </Link>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem className="group">
+
+          <DropdownMenuItem asChild>
             <Link
               href="/profile"
-              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
+              className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted rounded-md transition"
             >
-              Profile
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="group">
-            <Link
-              href="/my-registered-events"
-              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
-            >
-              My Events
+              <User className="w-4 h-4 text-muted-foreground" />
+              <span className="w-full">Profile</span>
             </Link>
           </DropdownMenuItem>
 
-          <DropdownMenuItem className="group">
+          <DropdownMenuItem asChild>
+            <Link
+              href="/my-registered-events"
+              className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted rounded-md transition"
+            >
+              <CalendarCheck className="w-4 h-4 text-muted-foreground" />
+              <span className="w-full">My Events</span>
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem asChild>
             <Link
               href="/my-history"
-              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
+              className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted rounded-md transition"
             >
-              History
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <span className="w-full">History</span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem className="group">
+
+          <DropdownMenuItem asChild>
             <Link
               href="/organizers"
-              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
+              className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted rounded-md transition"
             >
-              Organizers
+              <Users className="w-4 h-4 text-muted-foreground" />
+              <span className="w-full">Organizers</span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem className="group">
+
+          <DropdownMenuItem asChild>
             <Link
               href="/my-following"
-              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
+              className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted rounded-md transition"
             >
-              Following
+              <Heart className="w-4 h-4 text-muted-foreground" />
+              <span className="w-full">Following</span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem className="group">
+
+          <DropdownMenuItem asChild>
             <Link
               href="/my-preferences"
-              className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 transition rounded"
+              className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted rounded-md transition"
             >
-              Preferences
+              <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+              <span className="w-full">Preferences</span>
             </Link>
           </DropdownMenuItem>
         </div>
 
-        {/* Logout Button - Separated for Emphasis */}
+        {/* Logout Button */}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={(e) => e.preventDefault()} className="p-0">
-          <div className="w-full text-center py-2 text-white rounded transition">
+        <DropdownMenuItem asChild>
+          <div className="px-2 pb-3">
             <LogoutBtn />
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+
   );
 }

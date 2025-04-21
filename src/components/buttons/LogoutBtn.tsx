@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import getErrorMsg from "@/lib/getErrorMsg";
 import { useRouter } from "next/router";
 import axiosInstance from "@/lib/axiosInstance";
+import { LogOut } from "lucide-react";
 
 export default function LogoutBtn() {
   const router = useRouter();
@@ -33,8 +34,19 @@ export default function LogoutBtn() {
   };
 
   return (
-    <Button variant="secondary" loading={authLoading} onClick={initiateLogout}>
-      Logout
-    </Button>
+    <Button
+  variant="secondary"
+  onClick={initiateLogout}
+  loading={authLoading}
+  className="w-full px-4 py-3 rounded-b-xl text-sm"
+>
+  <span className="flex items-center justify-center gap-2 w-full">
+    <LogOut className="w-4 h-4" />
+    Logout
+  </span>
+</Button>
+
+  
+
   );
 }
