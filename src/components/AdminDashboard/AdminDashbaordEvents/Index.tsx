@@ -41,7 +41,14 @@ const AdminDashboardEvents = () => {
       setLoading(true);
       // Fetch events data
       const res = await axiosInstance().get("api/events", {
-        params: { page, limit, search, ticketMaster: false },
+        params: {
+          page,
+          limit,
+          search,
+          ticketMaster: false,
+          showPastEvents: true,
+          showPreferredCategories: false,
+        },
       });
       const { docs, pagination } = res.data.data;
       setEvents(docs);

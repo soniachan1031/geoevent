@@ -1,5 +1,6 @@
 import BecomeOrganizerForm from "@/components/forms/BecomeOrganizerForm";
 import EventForm from "@/components/forms/events/EventForm";
+import { EOrganizerDashboardSection } from "@/components/OrganizerDashboard/Index";
 import { useAuthContext } from "@/context/AuthContext";
 import serverSidePropsHandler from "@/lib/server/serverSidePropsHandler";
 import { EApiRequestMethod } from "@/types/api.types";
@@ -19,7 +20,9 @@ export default function CreateEvent() {
   if (!user) return router.push("/login");
 
   const onSuccess = () => {
-    router.push("/my-hosted-events");
+    router.push(
+      `/organizer?activeSection=${EOrganizerDashboardSection.EVENTS}`
+    );
   };
 
   const handleBecomeOrganizerSuccess = (user: IUser) => {

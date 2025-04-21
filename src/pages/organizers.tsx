@@ -106,7 +106,7 @@ export default function Organizers() {
           }
 
           return organizers.map((org) => {
-            const showFollowBtn = !user || user && org._id !== user._id;
+            const showFollowBtn = !user || (user && org._id !== user._id);
             const isCurrentUser = user && org._id === user._id;
 
             return (

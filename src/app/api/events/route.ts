@@ -158,6 +158,10 @@ export const GET = catchAsync(async (req) => {
   const format = url.searchParams.get("format");
   const language = url.searchParams.get("language");
   const ticketMaster = url.searchParams.get("ticketMaster");
+  const showPreferredCategories = url.searchParams.get(
+    "showPreferredCategories"
+  );
+  const showPastEvents = url.searchParams.get("showPastEvents");
 
   const page = parseInt(url.searchParams.get("page") ?? "1", 10);
   const limit = parseInt(url.searchParams.get("limit") ?? "30", 10);
@@ -185,8 +189,11 @@ export const GET = catchAsync(async (req) => {
     if (address)
       filters["location.address"] = { $regex: address, $options: "i" };
 
-    // Exclude past events
-    filters.date = { $gte: new Date() };
+    const isShowPastEvents = showPastEvents?.toLowerCase() === "true";
+
+    if (!isShowPastEvents) {
+      filters.date = { $gte: new Date() };
+    }
 
     if (dateFrom || dateTo) {
       filters.date = filters.date || {};
@@ -206,7 +213,11 @@ export const GET = catchAsync(async (req) => {
     return filters;
   };
 
-  let filters = buildFilters(true);
+  // Determine if we should use the user's interested categories
+  const useInterestedCategories =
+    showPreferredCategories?.toLowerCase() !== "false";
+
+  let filters = buildFilters(useInterestedCategories);
 
   // Initial local query
   let localEvents = await Event.find(filters)
