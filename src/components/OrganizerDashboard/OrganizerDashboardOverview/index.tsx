@@ -96,120 +96,94 @@ const OrganizerDashboardOverview = () => {
   const { eventStats, audience, highlights, trends } = overview;
 
   return (
-    <div className="flex flex-col gap-8 w-full p-4 md:p-6">
-      {/* Event Stats */}
-      <section className="bg-white shadow-md rounded-xl p-5">
-        <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4">
-          Event Performance
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <OverviewCard title="Total Events" value={eventStats.totalEvents} />
-          <OverviewCard
-            title="Upcoming Events"
-            value={eventStats.upcomingEvents}
-          />
-          <OverviewCard
-            title="Completed Events"
-            value={eventStats.completedEvents}
-          />
-          <OverviewCard title="Total Views" value={eventStats.totalViews} />
-          <OverviewCard
-            title="Total Registrations"
-            value={eventStats.totalEventRegistrations}
-          />
-          <OverviewCard
-            title="Avg. Rating"
-            value={`${eventStats.averageRating?.toFixed(2)} / 5`}
-          />
-        </div>
-      </section>
+    <div className="w-full flex flex-col gap-8 w-full p-4 md:p-6">
+  {/* Event Stats */}
+  <section className="bg-white rounded-2xl shadow-sm border border-border p-5">
+    <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4">Event Performance</h2>
+    <div className=" grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+      <OverviewCard title="Total Events" value={eventStats.totalEvents} />
+      <OverviewCard title="Upcoming Events" value={eventStats.upcomingEvents} />
+      <OverviewCard title="Completed Events" value={eventStats.completedEvents} />
+      <OverviewCard title="Total Views" value={eventStats.totalViews} />
+      <OverviewCard title="Total Registrations" value={eventStats.totalEventRegistrations} />
+      <OverviewCard title="Avg. Rating" value={`${eventStats.averageRating?.toFixed(2)} / 5`} />
+    </div>
+  </section>
 
-      {/* Followers */}
-      <section className="bg-white shadow-md rounded-xl p-5">
-        <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4">
-          Audience
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <OverviewCard
-            title="Total Followers"
-            value={audience.totalFollowers}
-          />
-        </div>
-      </section>
+  {/* Followers */}
+  <section className="bg-white rounded-2xl shadow-sm border border-border p-5">
+    <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4">Audience</h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <OverviewCard title="Total Followers" value={audience.totalFollowers} />
+    </div>
+  </section>
 
-      {/* Highlights */}
-      <section className="bg-white shadow-md rounded-xl p-5">
-        <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4">
-          Highlights
-        </h2>
-        <div className="grid gap-6 md:grid-cols-2">
-          <ChartCard title="Top Registered Events">
-            <Bar
-              data={{
-                labels: highlights.topRegisteredEvents.map((e) => e.eventTitle),
-                datasets: [
-                  {
-                    label: "Registrations",
-                    data: highlights.topRegisteredEvents.map(
-                      (e) => e.registrations
-                    ),
-                    backgroundColor: "#36a2eb",
-                  },
-                ],
-              }}
-              options={{ responsive: true, indexAxis: "y" }}
-            />
-          </ChartCard>
-
-          <ChartCard title="Top Viewed Events">
-            <Bar
-              data={{
-                labels: highlights.topViewedEvents.map((e) => e.title),
-                datasets: [
-                  {
-                    label: "Views",
-                    data: highlights.topViewedEvents.map((e) => e.views),
-                    backgroundColor: "#f39c12",
-                  },
-                ],
-              }}
-              options={{ responsive: true }}
-            />
-          </ChartCard>
-        </div>
-      </section>
-
-      {/* Trends */}
-      <section className="bg-white shadow-md rounded-xl p-5">
-        <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4">
-          Trends
-        </h2>
-        <ChartCard title="Registrations Over Time">
+  {/* Highlights */}
+  <section className="bg-white rounded-2xl shadow-sm border border-border p-5">
+    <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4">Highlights</h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <ChartCard title="Top Registered Events">
+        <div className="overflow-x-auto">
           <Bar
             data={{
-              labels: trends.registrationsOverTime.map(
-                (d) => `${d._id.year}-${d._id.month}-${d._id.day}`
-              ),
-              datasets: [
-                {
-                  label: "Registrations",
-                  data: trends.registrationsOverTime.map((d) => d.count),
-                  backgroundColor: "#2ecc71",
-                },
-              ],
+              labels: highlights.topRegisteredEvents.map((e) => e.eventTitle),
+              datasets: [{
+                label: "Registrations",
+                data: highlights.topRegisteredEvents.map((e) => e.registrations),
+                backgroundColor: "#36a2eb",
+              }],
             }}
-            options={{
-              responsive: true,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                },
-              },
-            }}
+            options={{ responsive: true, indexAxis: "y" }}
           />
-        </ChartCard>
-      </section>
+        </div>
+      </ChartCard>
+
+      <ChartCard title="Top Viewed Events">
+        <div className="overflow-x-auto">
+          <Bar
+            data={{
+              labels: highlights.topViewedEvents.map((e) => e.title),
+              datasets: [{
+                label: "Views",
+                data: highlights.topViewedEvents.map((e) => e.views),
+                backgroundColor: "#f39c12",
+              }],
+            }}
+            options={{ responsive: true }}
+          />
+        </div>
+      </ChartCard>
     </div>
+  </section>
+
+  {/* Trends */}
+  <section className="bg-white rounded-2xl shadow-sm border border-border p-5">
+    <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4">Trends</h2>
+    <ChartCard title="Registrations Over Time">
+      <div className="overflow-x-auto">
+        <Bar
+          data={{
+            labels: trends.registrationsOverTime.map(
+              (d) => `${d._id.year}-${d._id.month}-${d._id.day}`
+            ),
+            datasets: [{
+              label: "Registrations",
+              data: trends.registrationsOverTime.map((d) => d.count),
+              backgroundColor: "#2ecc71",
+            }],
+          }}
+          options={{
+            responsive: true,
+            scales: {
+              y: { beginAtZero: true },
+            },
+          }}
+        />
+      </div>
+    </ChartCard>
+  </section>
+</div>
+
   );
 };
 

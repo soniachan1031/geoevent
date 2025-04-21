@@ -21,7 +21,7 @@ export default function Footer() {
         {/* Logo & Brand Name */}
         <Link href="/" className="hover:text-black transition">
           <div className="flex items-center gap-2">
-            <Logo className="h-8 w-8" />
+            <Logo className="h-8 w-6" />
             <span className="notranslate text-lg font-semibold tracking-wide text-gray-900">GeoEvent</span>
           </div>
         </Link>

@@ -8,6 +8,7 @@ import {
   Mail,
   Bookmark,
   BookmarkCheck,
+  Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -24,6 +25,7 @@ import Link from "next/link";
 import EventOrganizerDropdown from "@/components/EventOrganizerDropdown";
 import { TICKETMASTER_EMAIL_lINK, TICKETMASTER_PHONE } from "@/lib/credentials";
 import { EventPageProps } from "./Index";
+import { BsHeartFill } from "react-icons/bs";
 
 export default function EventPageOverview({
   event: eventData,
@@ -170,49 +172,69 @@ export default function EventPageOverview({
       </div>
 
       {/* Event Info */}
-      <div className="mt-6">
-        <div className="flex justify-between">
-          <h1 className="text-3xl font-bold">{event.title}</h1>
+      <div className="mt-6 space-y-4">
+        {/* Title & Organizer Dropdown */}
+        <div className="flex justify-between items-start">
+          <h1 className="text-3xl font-bold text-foreground">{event.title}</h1>
           {showOrganizerDropDown && (
             <EventOrganizerDropdown
               event={event}
               onEventUpdateSuccess={setEvent}
+              variant="dropdown"
             />
           )}
         </div>
-        <div className="text-gray-500 mt-1">
-          {event.external ? (
-            (event.organizer as string)
-          ) : (
-            <>
-              {typeof event.organizer === "object" ? (
-                <div className="flex gap-5 items-center">
-                  <p>Hosted by {event.organizer.name}</p>
-                  {/* follow/unfollow button */}
-                  {eventOrganizerId !== user?._id && (
-                    <Button
-                      variant={isFollowing ? "destructive" : "default"}
-                      loaderProps={{ color: "white" }}
-                      onClick={handleFollowToggle}
-                      loading={followLoading}
-                      disabled={followLoading}
-                      className="text-sm px-4 py-1"
-                    >
-                      {isFollowing ? "Unfollow" : "Follow"}
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                "Unknown Orgainzer"
-              )}
-            </>
-          )}
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 bg-gray-50 p-4 rounded-lg shadow">
-          {/* Date & Time */}
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-gray-600" />
+        {/* Host Info */}
+        {event.external ? (
+          <div className="text-muted-foreground text-sm">{event.organizer as string}</div>
+        ) : typeof event.organizer === "object" ? (
+          <div className="flex items-center gap-4 mt-4  mb-4 ">
+            {/* Profile Photo */}
+            {event.organizer.photo?.url ? (
+              <Image
+                src={event.organizer.photo.url}
+                alt={event.organizer.name}
+                width={36}
+                height={36}
+                className="rounded-full object-cover"
+              />
+            ) : (
+              <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
+                ?
+              </div>
+            )}
+
+            {/* Name */}
+            <p className="text-sm text-foreground">
+              <span className="text-muted-foreground">Hosted by </span>
+              <span className="font-semibold">{event.organizer.name}</span>
+            </p>
+
+            {/* Follow Button */}
+            {eventOrganizerId !== user?._id && (
+              <Button
+                variant={isFollowing ? "destructive" : "default"}
+                loaderProps={{ color: "white" }}
+                onClick={handleFollowToggle}
+                loading={followLoading}
+                disabled={followLoading}
+                className="ml-auto text-sm px-4 py-1"
+              >
+                {isFollowing ? "Unfollow" : "Follow"}
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="text-sm text-muted-foreground">Unknown Organizer</div>
+        )}
+
+
+        {/* Event Details Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-card border border-border rounded-xl p-5 shadow-sm">
+          {/* Date */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Calendar className="w-5 h-5" />
             <span>
               {new Date(event.date).toLocaleDateString("en-US", {
                 timeZone: "UTC",
@@ -224,52 +246,38 @@ export default function EventPageOverview({
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-gray-600" />
+          {/* Time */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="w-5 h-5" />
             <span>
-              <input type="time" value={event.time} disabled />
+              <input
+                type="time"
+                value={event.time}
+                disabled
+                className="bg-transparent outline-none"
+              />
             </span>
           </div>
 
           {/* Location */}
-          <div className="flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-gray-600" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="w-5 h-5" />
             <span>
-              {event.location.address}, {event.location.state},{" "}
-              {event.location.country}
+              {event.location.address}, {event.location.state}, {event.location.country}
             </span>
           </div>
 
           {/* Capacity */}
-          <div className="flex items-center gap-2">
-            <User className="w-5 h-5 text-gray-600" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <User className="w-5 h-5" />
             <span>{event.capacity} people</span>
           </div>
 
-          {/* Category */}
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-blue-500 text-white text-xs rounded-full">
-              {event.category}
-            </span>
-          </div>
-
-          {/* Format & Language */}
-          <div className="flex flex-wrap gap-2">
-            <span className="px-3 py-1 bg-green-500 text-white text-xs rounded-full">
-              {event.format}
-            </span>
-            <span className="px-3 py-1 bg-purple-500 text-white text-xs rounded-full">
-              {event.language}
-            </span>
-          </div>
-
-          {/* Registration Deadline */}
-          <div className="flex items-center gap-2">
-            <span className="text-gray-600">Registration Deadline:</span>
+          {/* Registration Deadline (Full Width) */}
+          <div className="col-span-1 md:col-span-2 flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="font-medium">Registration Deadline:</span>
             <span>
-              {new Date(
-                event.registrationDeadline ?? event.date
-              ).toLocaleString("en-US", {
+              {new Date(event.registrationDeadline ?? event.date).toLocaleDateString("en-US", {
                 timeZone: "UTC",
                 weekday: "long",
                 month: "long",
@@ -278,9 +286,22 @@ export default function EventPageOverview({
               })}
             </span>
           </div>
+
+          {/* Pills - Category, Format, Language */}
+          <div className="col-span-1 md:col-span-2 flex flex-wrap gap-2 mt-2">
+            {[event.category, event.format, event.language].map((item) => (
+              <span
+                key={item}
+                className="text-xs px-3 py-1 rounded-full bg-muted text-muted-foreground"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
+      {/* Buttons: Register, Unregister, Share, Directions, Bookmark */}
       <div className="flex flex-wrap gap-5 items-center mt-6">
         {!event.external ? (
           <>
@@ -311,13 +332,6 @@ export default function EventPageOverview({
             <Button tabIndex={-1}>Register</Button>
           </Link>
         )}
-
-        {/* Social Share Buttons */}
-        <SocialShareBtn shareUrl={shareUrl} event={event} />
-
-        {/* Google maps direction */}
-        <GoogleMapDirectionBtn event={event} />
-
         {/* bookmark button */}
         {!event.external && (
           <Button
@@ -327,74 +341,95 @@ export default function EventPageOverview({
           >
             {bookMarked ? (
               <div className="flex items-center gap-2">
-                <BookmarkCheck className="w-5 h-5" />
-                <span>BookMarked</span>
+                <BsHeartFill className="w-5 h-5" />
+                <span>Remove from Saved</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Bookmark className="w-5 h-5" />
-                <span>BookMark</span>
+                <Heart className="w-5 h-5" />
+                <span>Add to Saved</span>
               </div>
             )}
           </Button>
         )}
-      </div>
+        {/* Social Share Buttons */}
+        <SocialShareBtn shareUrl={shareUrl} event={event} />
 
+        {/* Google maps direction */}
+        <GoogleMapDirectionBtn event={event} />
+
+
+      </div>
+      
       {/* Event Description */}
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold">Event Description</h2>
-        <p className="mt-2 text-gray-700 whitespace-pre-line">
-          {event.description ?? "No description provided"}
-        </p>
-      </div>
+      <div className="mt-8">
+        <h2 className="text-lg md:text-xl font-semibold text-foreground mb-2">Description</h2>
 
-      {/* Contact Information */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg shadow">
-        <h2 className="text-xl font-semibold">Contact Information</h2>
-        <div className="flex flex-col gap-2 mt-2">
-          <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-gray-600" />
-            {event.external ? (
-              <Link
-                href={TICKETMASTER_EMAIL_lINK}
-                className="underline"
-                target="_blank"
-              >
-                Send an Email
-              </Link>
-            ) : (
-              <span>{event.contact.email}</span>
+        <div className="bg-white border border-muted/30 rounded-xl p-5 shadow-sm text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
+          <p className="text-foreground font-medium mb-2">
+            {event.title}
+          </p>
+          <p>
+            {event.description ?? (
+              <span className="italic">No description provided.</span>
             )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Phone className="w-5 h-5 text-gray-600" />
-            <span>
-              {event.external ? (
-                <Link href={`tel:+${TICKETMASTER_PHONE}`}>
-                  {TICKETMASTER_PHONE}
-                </Link>
-              ) : (
-                event.contact.phone
-              )}
-            </span>
-          </div>
+          </p>
         </div>
       </div>
 
-      {/* feedback section */}
-      {!event.external && (
-        <>
-          <div className="my-6">
-            {allowFeedback && (
-              <FeedbackBtn
-                eventId={event._id}
-                onSuccess={() => setFeedbackLeft(true)}
-              />
-            )}
-          </div>
-          <EventFeedbackSection eventId={event._id} />
-        </>
+{/* Contact Information */}
+<div className="mt-8 p-5 bg-muted/20 border border-muted/30 rounded-lg">
+  <h2 className="text-lg font-semibold mb-3">Contact Information</h2>
+  <div className="flex flex-col gap-3 text-sm text-foreground">
+    {/* Email */}
+    <div className="flex items-center gap-2">
+      <Mail className="w-4 h-4 text-muted-foreground" />
+      {event.external ? (
+        <Link
+          href={TICKETMASTER_EMAIL_lINK}
+          className="underline hover:text-primary transition"
+          target="_blank"
+        >
+          Send an Email
+        </Link>
+      ) : (
+        <span>{event.contact.email}</span>
       )}
+    </div>
+
+    {/* Phone */}
+    <div className="flex items-center gap-2">
+      <Phone className="w-4 h-4 text-muted-foreground" />
+      {event.external ? (
+        <Link
+          href={`tel:+${TICKETMASTER_PHONE}`}
+          className="hover:underline"
+        >
+          {TICKETMASTER_PHONE}
+        </Link>
+      ) : (
+        <span>{event.contact.phone}</span>
+      )}
+    </div>
+  </div>
+</div>
+
+
+     {/* Feedback Section */}
+{!event.external && (
+  <div className="mt-8">
+    {allowFeedback && (
+      <div className="mb-4">
+        <FeedbackBtn
+          eventId={event._id}
+          onSuccess={() => setFeedbackLeft(true)}
+        />
+      </div>
+    )}
+    <EventFeedbackSection eventId={event._id} />
+  </div>
+)}
+
     </div>
   );
 }

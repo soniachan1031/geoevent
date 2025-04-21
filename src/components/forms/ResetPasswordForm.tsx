@@ -65,61 +65,62 @@ export default function ResetPasswordForm({
 
   return (
     <Form {...form}>
-  <form
-    onSubmit={form.handleSubmit(onSubmit)}
-    className="space-y-6 bg-white p-6 rounded-lg w-full md:w-[400px]"
-  >
-    {/* New Password Field */}
-    <FormField
-      control={form.control}
-      name="password"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel className="text-sm font-semibold text-gray-800">New Password</FormLabel>
-          <FormControl>
-            <Input 
-              type="password" 
-              placeholder="Enter new password" 
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
-              {...field} 
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-
-    {/* Confirm Password Field */}
-    <FormField
-      control={form.control}
-      name="confirmPassword"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel className="text-sm font-semibold text-gray-800">Confirm Password</FormLabel>
-          <FormControl>
-            <Input 
-              type="password" 
-              placeholder="Confirm new password" 
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
-              {...field} 
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-
-    {/* Reset Password Button */}
-    <Button
-      className="text-lg w-full bg-black text-white py-3 rounded-lg hover:bg-gray-900 transition"
-      type="submit"
-      loading={loading}
-      loaderProps={{ color: "white" }}
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-6 w-full"
     >
-      Reset Password
-    </Button>
-  </form>
-</Form>
+      {/* New Password */}
+      <FormField
+        control={form.control}
+        name="password"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-sm font-medium text-foreground">New Password</FormLabel>
+            <FormControl>
+              <Input
+                type="password"
+                placeholder="Enter new password"
+                className="w-full px-4 py-3 bg-input border border-input text-foreground placeholder:text-muted-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring transition"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+  
+      {/* Confirm Password */}
+      <FormField
+        control={form.control}
+        name="confirmPassword"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-sm font-medium text-foreground">Confirm Password</FormLabel>
+            <FormControl>
+              <Input
+                type="password"
+                placeholder="Confirm new password"
+                className="w-full px-4 py-3 bg-input border border-input text-foreground placeholder:text-muted-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring transition"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+  
+      {/* Submit Button */}
+      <Button
+        type="submit"
+        loading={loading}
+        loaderProps={{ color: "white" }}
+        className="w-full py-3 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98] rounded-md transition shadow-md"
+      >
+        Reset Password
+      </Button>
+    </form>
+  </Form>
+  
 
   );
 }

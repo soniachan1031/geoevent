@@ -18,6 +18,7 @@ import getErrorMsg from "@/lib/getErrorMsg";
 import toast from "react-hot-toast";
 import { Input } from "../ui/input";
 import { EEventCategory } from "@/types/event.types";
+import { cn } from "@/lib/utils";
 
 const formSchema = z
   .object({
@@ -44,7 +45,7 @@ function RegisterForm() {
       email: "",
       password: "",
       confirmPassword: "",
-      interestedCategories: [],
+      interestedCategories: [] as EEventCategory[],
     },
   });
 
@@ -65,145 +66,148 @@ function RegisterForm() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 bg-white p-6 rounded-lg w-full md:w-[400px]"
-      >
-        {/* Name Field */}
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-semibold text-gray-800">
-                Name
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter your name"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
-                  {...field}
+  <form
+    onSubmit={form.handleSubmit(onSubmit)}
+    className="space-y-6 w-full"
+  >
+    {/* Name */}
+    <FormField
+      control={form.control}
+      name="name"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-sm font-medium text-foreground">Name</FormLabel>
+          <FormControl>
+            <Input
+              placeholder="Enter your name"
+              className="w-full px-4 py-3 bg-input border border-input text-foreground placeholder:text-muted-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring transition"
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+    {/* Email */}
+    <FormField
+      control={form.control}
+      name="email"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-sm font-medium text-foreground">Email</FormLabel>
+          <FormControl>
+            <Input
+              placeholder="Enter your email"
+              className="w-full px-4 py-3 bg-input border border-input text-foreground placeholder:text-muted-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring transition"
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+    {/* Password */}
+    <FormField
+      control={form.control}
+      name="password"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-sm font-medium text-foreground">Password</FormLabel>
+          <FormControl>
+            <Input
+              type="password"
+              placeholder="Enter your password"
+              className="w-full px-4 py-3 bg-input border border-input text-foreground placeholder:text-muted-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring transition"
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+    {/* Confirm Password */}
+    <FormField
+      control={form.control}
+      name="confirmPassword"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-sm font-medium text-foreground">Confirm Password</FormLabel>
+          <FormControl>
+            <Input
+              type="password"
+              placeholder="Confirm your password"
+              className="w-full px-4 py-3 bg-input border border-input text-foreground placeholder:text-muted-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring transition"
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+    {/* Categories */}
+    <FormField
+  control={form.control}
+  name="interestedCategories"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel className="text-sm font-medium text-foreground">
+        Interested Categories
+      </FormLabel>
+      <FormControl>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {Object.values(EEventCategory).map((category) => {
+            const isSelected = field.value?.includes(category);
+            return (
+              <label
+                key={category}
+                className={cn(
+                  "flex items-center justify-center text-sm px-4 py-2 rounded-full border cursor-pointer transition",
+                  isSelected
+                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                    : "bg-input text-muted-foreground border-border hover:bg-accent/30"
+                )}
+              >
+                <input
+                  type="checkbox"
+                  value={category}
+                  checked={isSelected}
+                  onChange={(e) => {
+                    const isChecked = e.target.checked;
+                    const newValue = isChecked
+                      ? [...(field.value || []), category]
+                      : field.value?.filter((c) => c !== category);
+                    field.onChange(newValue);
+                  }}
+                  className="hidden"
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                {category}
+              </label>
+            );
+          })}
+        </div>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
-        {/* Email Field */}
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-semibold text-gray-800">
-                Email
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter your email"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
-        {/* Password Field */}
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-semibold text-gray-800">
-                Password
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Enter your password"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    {/* Submit Button */}
+    <Button
+      type="submit"
+      loading={authLoading}
+      loaderProps={{ color: "white" }}
+      className="w-full py-3 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98] rounded-md transition shadow-md"
+    >
+      Register
+    </Button>
+  </form>
+</Form>
 
-        {/* Confirm Password Field */}
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-semibold text-gray-800">
-                Confirm Password
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Confirm your password"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Interested Categories Field */}
-        <FormField
-          control={form.control}
-          name="interestedCategories"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-semibold text-gray-800">
-                Interested Categories
-              </FormLabel>
-              <FormControl>
-                <div className="flex flex-wrap gap-2">
-                  {Object.values(EEventCategory).map((category) => (
-                    <label
-                      key={category}
-                      className="flex items-center space-x-2"
-                    >
-                      <input
-                        type="checkbox"
-                        value={category}
-                        checked={(field.value as any)?.includes(category)}
-                        onChange={(e) => {
-                          const isChecked = e.target.checked;
-                          const newValue = isChecked
-                            ? [...(field.value || []), category]
-                            : field.value?.filter((c) => c !== category);
-                          field.onChange(newValue);
-                        }}
-                      />
-                      <span className="text-sm">{category}</span>
-                    </label>
-                  ))}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Register Button */}
-        <Button
-          className="text-lg w-full bg-black text-white py-3 rounded-lg hover:bg-gray-900 transition"
-          type="submit"
-          loading={authLoading}
-          loaderProps={{ color: "white" }}
-        >
-          Register
-        </Button>
-      </form>
-    </Form>
   );
 }
 

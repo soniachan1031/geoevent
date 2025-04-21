@@ -122,12 +122,15 @@ export function EventMarker({
     const div = document.createElement("div");
     div.className = styles.markerContainer;
     div.innerHTML = ReactDOMServer.renderToString(
-      <FaMapMarker
-        size={selected || isActive ? 45 : 30}
-        color={selected || isActive ? "#ff4747" : "#222"}
-        className={styles.markerIcon}
-      />
+      <div
+        className={`${styles.customMarker} ${
+          selected || isActive ? styles.active : ""
+        }`}
+      >
+        <div className={styles.innerDot} />
+      </div>
     );
+    
 
     marker.content = div;
 
@@ -179,7 +182,7 @@ function FloatingEventCard({
 
           {/* Event Details */}
           <div className="p-4">
-            <h3 className="text-lg font-semibold text-gray-900 underline">
+            <h3 className="text-lg font-semibold text-gray-900 hover:underline">
               {event.title}
             </h3>
             <p className="text-sm text-gray-500">{event.category}</p>

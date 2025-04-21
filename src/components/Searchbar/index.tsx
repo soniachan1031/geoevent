@@ -37,49 +37,52 @@ const Searchbar = () => {
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className="group flex items-center gap-1 w-full md:max-w-[450px] 
-                 rounded-full border px-2 py-1 transition-shadow duration-300 
-                 focus-within:shadow-lg focus-within:shadow-gray-400 group"
-    >
-      <div className="flex flex-1 items-center relative">
-        <button type="submit">
-          <CiSearch />
-        </button>
-        <input
-          type="text"
-          className="py-1 px-3 focus:outline-none flex-1 min-w-[100px]"
-          placeholder="Search events"
-          value={search ?? ""}
-          onChange={(e) =>
-            setSearchOptions({ ...searchOptions, search: e.target.value })
-          }
-        />
-        <div className="">
-          <FilterBtn />
-        </div>
-        <span className="hidden md:block h-6 w-[1px] bg-gray-300 mx-1" />
-        <div className="hidden md:flex items-center absolute md:static left-0 top-[calc(100%+10px)] bg-white md:bg-none shadow-md md:shadow-none rounded-lg p-2 md:p-0 w-full md:w-auto group-hover:flex">
-          <LuMapPin />
+  onSubmit={handleSubmit}
+  className="group flex items-center gap-2 w-full md:max-w-[500px] rounded-full border border-border bg-white px-4 py-2 shadow-sm focus-within:ring-1 focus-within:ring-ring transition"
+>
+  {/* Search Icon (left, hidden on md) */}
+  <button type="submit" className="text-muted-foreground md:hidden">
+    <CiSearch />
+  </button>
 
-          <div className="flex-1 min-w-[120px] md:max-w-[200px]">
-            <SearchbarLocationInput
-              value={location}
-              onChange={(loc) =>
-                setSearchOptions({ ...searchOptions, location: loc })
-              }
-            />
-          </div>
-        </div>
-      </div>
+  {/* Search Input */}
+  <input
+    type="text"
+    className="bg-transparent flex-1 px-2 py-1 focus:outline-none text-foreground placeholder:text-muted-foreground"
+    placeholder="Search events"
+    value={search ?? ""}
+    onChange={(e) =>
+      setSearchOptions({ ...searchOptions, search: e.target.value })
+    }
+  />
 
-      <button
-        type="submit"
-        className="rounded-full bg-slate-800 text-white text-xl font-bold p-2 mt-1 sm:mt-0 hidden md:block"
-      >
-        <CiSearch />
-      </button>
-    </form>
+  {/* Filter Button */}
+  <div className="pl-2 border-l border-border">
+    <FilterBtn />
+  </div>
+
+  {/* Location Input (hidden on mobile) */}
+  <div className="hidden md:flex items-center gap-2 border-l pl-3">
+    <LuMapPin className="text-muted-foreground" />
+    <div className="flex-1 min-w-[100px] md:max-w-[200px]">
+      <SearchbarLocationInput
+        value={location}
+        onChange={(loc) =>
+          setSearchOptions({ ...searchOptions, location: loc })
+        }
+      />
+    </div>
+  </div>
+
+  {/* Search Button (desktop only) */}
+  <button
+    type="submit"
+    className="hidden md:block rounded-full bg-border hover:bg-primary text-foreground hover:text-primary-foreground transition p-2"
+  >
+    <CiSearch />
+  </button>
+</form>
+
   );
 };
 
@@ -109,99 +112,105 @@ function FilterBtn() {
         </Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Search Filter</AlertDialogTitle>
-          <AlertDialogDescription>
-            <div className="flex flex-wrap gap-5 items-center justify-center">
-              <select
-                value={options.category ?? ""}
-                onChange={(e) =>
-                  setOptions((prev) => ({
-                    ...prev,
-                    category: e.target.value as EEventCategory,
-                  }))
-                }
-                className="p-1 rounded shadow"
-              >
-                <option value="">Category</option>
-                {Object.values(EEventCategory).map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
+{/** Search Filter Dialog */}
+<AlertDialogContent>
+  <AlertDialogHeader>
+    <AlertDialogTitle>Search Filter</AlertDialogTitle>
+    <AlertDialogDescription>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
 
-              <select
-                value={options.format ?? ""}
-                onChange={(e) =>
-                  setOptions((prev) => ({
-                    ...prev,
-                    format: e.target.value as EEventFormat,
-                  }))
-                }
-                className="p-1 rounded shadow"
-              >
-                <option value="">Format</option>
-                {Object.values(EEventFormat).map((format) => (
-                  <option key={format} value={format}>
-                    {format}
-                  </option>
-                ))}
-              </select>
+        {/* Category */}
+        <select
+          value={options.category ?? ""}
+          onChange={(e) =>
+            setOptions((prev) => ({
+              ...prev,
+              category: e.target.value as EEventCategory,
+            }))
+          }
+          className="w-full px-3 py-2 bg-input border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
+        >
+          <option value="">Category</option>
+          {Object.values(EEventCategory).map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
 
-              <select
-                value={options.language ?? ""}
-                onChange={(e) =>
-                  setOptions((prev) => ({
-                    ...prev,
-                    language: e.target.value as EEventLanguage,
-                  }))
-                }
-                className="p-1 rounded shadow"
-              >
-                <option value="">language</option>
-                {Object.values(EEventLanguage).map((language) => (
-                  <option key={language} value={language}>
-                    {language}
-                  </option>
-                ))}
-              </select>
+        {/* Format */}
+        <select
+          value={options.format ?? ""}
+          onChange={(e) =>
+            setOptions((prev) => ({
+              ...prev,
+              format: e.target.value as EEventFormat,
+            }))
+          }
+          className="w-full px-3 py-2 bg-input border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
+        >
+          <option value="">Format</option>
+          {Object.values(EEventFormat).map((format) => (
+            <option key={format} value={format}>
+              {format}
+            </option>
+          ))}
+        </select>
 
-              <input
-                type="date"
-                value={options.dateFrom ?? ""}
-                onChange={(e) =>
-                  setOptions((prev) => ({
-                    ...prev,
-                    dateFrom: extractDate(e.target.value),
-                  }))
-                }
-                className="p-1 shadow"
-              />
+        {/* Language */}
+        <select
+          value={options.language ?? ""}
+          onChange={(e) =>
+            setOptions((prev) => ({
+              ...prev,
+              language: e.target.value as EEventLanguage,
+            }))
+          }
+          className="w-full px-3 py-2 bg-input border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
+        >
+          <option value="">Language</option>
+          {Object.values(EEventLanguage).map((language) => (
+            <option key={language} value={language}>
+              {language}
+            </option>
+          ))}
+        </select>
 
-              <span className="text-black">To</span>
+        {/* Date From */}
+        <input
+          type="date"
+          value={options.dateFrom ?? ""}
+          onChange={(e) =>
+            setOptions((prev) => ({
+              ...prev,
+              dateFrom: extractDate(e.target.value),
+            }))
+          }
+          className="w-full px-3 py-2 bg-input border border-input rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
+        />
 
-              <input
-                type="date"
-                value={options.dateTo ?? ""}
-                onChange={(e) =>
-                  setOptions((prev) => ({
-                    ...prev,
-                    dateTo: extractDate(e.target.value),
-                  }))
-                }
-                className="p-1 shadow"
-              />
-            </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+        {/* Date To */}
+        <input
+          type="date"
+          value={options.dateTo ?? ""}
+          onChange={(e) =>
+            setOptions((prev) => ({
+              ...prev,
+              dateTo: extractDate(e.target.value),
+            }))
+          }
+          className="w-full px-3 py-2 bg-input border border-input rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
+        />
+      </div>
+    </AlertDialogDescription>
+  </AlertDialogHeader>
 
-        <AlertDialogFooter>
-          <AlertDialogCancel ref={cancelBtnRef}>Cancel</AlertDialogCancel>
-          <Button onClick={handleFilter}>Filter</Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
+  <AlertDialogFooter className="pt-4">
+    <AlertDialogCancel ref={cancelBtnRef}>Cancel</AlertDialogCancel>
+    <Button onClick={handleFilter}>Filter</Button>
+  </AlertDialogFooter>
+</AlertDialogContent>
+
     </AlertDialog>
   );
 }

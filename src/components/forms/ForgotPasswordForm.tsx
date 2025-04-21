@@ -52,7 +52,7 @@ export default function ForgotPasswordForm() {
     <Form {...form}>
     <form
       onSubmit={form.handleSubmit(onSubmit)}
-      className="space-y-6 bg-white p-6 rounded-lg w-full md:w-[400px]"
+      className="space-y-6 w-full"
     >
       {/* Email Field */}
       <FormField
@@ -60,12 +60,12 @@ export default function ForgotPasswordForm() {
         name="email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-semibold text-gray-800">Email</FormLabel>
+            <FormLabel className="text-sm font-medium text-foreground">Email</FormLabel>
             <FormControl>
-              <Input 
-                placeholder="Enter your email" 
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
-                {...field} 
+              <Input
+                placeholder="Enter your email"
+                className="w-full px-4 py-3 bg-input border border-input text-foreground placeholder:text-muted-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring transition"
+                {...field}
               />
             </FormControl>
             <FormMessage />
@@ -73,17 +73,18 @@ export default function ForgotPasswordForm() {
         )}
       />
   
-      {/* Send Reset Link Button */}
+      {/* Submit Button */}
       <Button
-        className="text-lg w-full bg-black text-white py-3 rounded-lg hover:bg-gray-900 transition"
         type="submit"
         loading={loading}
         loaderProps={{ color: "white" }}
+        className="w-full py-3 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98] rounded-md transition shadow-md"
       >
         Send Reset Link
       </Button>
     </form>
   </Form>
+  
   
   );
 }

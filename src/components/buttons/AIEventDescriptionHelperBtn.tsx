@@ -59,14 +59,22 @@ export default function AIEventDescriptionHelperBtn({
 
   return (
     <>
-      <Button
-        variant="ghost"
-        className="rounded-full h-7 w-7 flex items-center justify-center animate-pulse"
-        title="Generate event description"
-        onClick={() => setIsOpen(true)}
-      >
-        <BsStars />
-      </Button>
+   <Button
+  variant="ghost"
+  onClick={() => setIsOpen(true)}
+  title="Generate event description"
+  className="relative flex items-center justify-start gap-2 text-primary text-sm px-3 py-1.5 rounded-md hover:bg-muted"
+>
+  {/* Icon positioned inside */}
+  <span className="absolute top-1/2 left-2 -translate-y-1/2">
+    <BsStars className="h-4 w-4" />
+  </span>
+
+  {/* Offset text so it doesn't overlap icon */}
+  <span className="pl-5">Generate with AI</span>
+</Button>
+
+
 
       <CustomModal
         isOpen={isOpen}

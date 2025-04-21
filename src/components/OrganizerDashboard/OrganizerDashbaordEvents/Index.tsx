@@ -92,9 +92,9 @@ const OrganizerDashboardEvents = () => {
           </div>
 
           {/* 📱 MOBILE VERSION (Card Layout) */}
-          <div className="sm:hidden flex flex-col bg-white rounded-xl shadow-lg overflow-hidden divide-y divide-gray-200">
+          <div className="mt-4 sm:hidden flex flex-col bg-white rounded-xl shadow-lg overflow-hidden divide-y divide-gray-200">
             {events.map((event) => (
-              <div key={event._id} className="p-4 flex items-center gap-4">
+              <div key={event._id} className="p-4 flex items-start gap-4">
                 {/* Event Image */}
                 <div className="w-14 h-14 flex-shrink-0">
                   <Image
@@ -106,38 +106,38 @@ const OrganizerDashboardEvents = () => {
                   />
                 </div>
 
-                {/* Event Info */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-gray-900 font-medium">{event.title}</p>
-                  <p className="text-gray-600 text-sm truncate">
-                    {(event.date as string)?.slice(0, 10)} •{" "}
-                    {typeof event.organizer === "object"
-                      ? event.organizer?.name
-                      : "Unknown"}
-                  </p>
-                </div>
+                {/* Event Info + Actions */}
+                <div className="flex-1 flex flex-col gap-2 justify-between">
+                  {/* Title */}
+                  <div>
+                    <p className="text-gray-900 font-semibold">{event.title}</p>
+                    <p className="text-gray-500 text-sm">
+                      {(event.date as string)?.slice(0, 10)}
+                    </p>
+                  </div>
 
-                {/* Actions */}
-                <div className="flex gap-2">
-                  <EventOrganizerDropdown
-                    event={event}
-                    onEventUpdateSuccess={setEvent}
-                  />
+                  {/* Action Icons */}
+                  <div className="flex gap-4 text-muted-foreground text-[18px] mt-2">
+                    <EventOrganizerDropdown
+                      event={event}
+                      onEventUpdateSuccess={setEvent}
+                    />
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* 🖥 DESKTOP TABLE */}
+
           <div className="hidden sm:block w-full max-w-screen-lg mx-auto mt-6 bg-white shadow-lg rounded-xl overflow-x-auto">
             {/* Table Header */}
-            <div className="grid grid-cols-[10%_15%_15%_20%_15%_15%_10%] min-w-[900px] px-8 py-4 bg-gray-50 border-b text-gray-500 text-sm font-medium">
+            <div className="grid grid-cols-[10%_15%_25%_15%_15%_20%] min-w-[900px] px-8 py-4 bg-gray-50 border-b text-gray-500 text-sm font-medium">
               <div className="text-left">Image</div>
               <div className="text-left">ID</div>
               <div className="text-left">Title</div>
               <div className="text-left">Category</div>
               <div className="text-left">Date</div>
-              <div className="text-left">Organizer</div>
               <div className="text-center">Actions</div>
             </div>
 
@@ -146,9 +146,9 @@ const OrganizerDashboardEvents = () => {
               {events.map((event) => (
                 <div
                   key={event._id}
-                  className="grid grid-cols-[10%_15%_15%_20%_15%_15%_10%] min-w-[900px] items-center px-8 py-5 hover:bg-gray-50 transition-all ease-in-out"
+                  className="grid grid-cols-[10%_15%_25%_15%_15%_20%] min-w-[900px] items-center px-8 py-5 hover:bg-gray-50 transition-all ease-in-out"
                 >
-                  {/* Event Image */}
+                  {/* Image */}
                   <div className="flex justify-left">
                     <Image
                       src={event.image ?? "/logo.png"}
@@ -159,7 +159,7 @@ const OrganizerDashboardEvents = () => {
                     />
                   </div>
 
-                  {/* Truncated ID */}
+                  {/* ID */}
                   <div className="text-gray-700 text-sm truncate max-w-[100px]">
                     {event._id.slice(0, 10)}...
                   </div>
@@ -170,22 +170,17 @@ const OrganizerDashboardEvents = () => {
                   </div>
 
                   {/* Category */}
-                  <div className="text-gray-700 text-sm">{event.category}</div>
+                  <div className="text-gray-700 text-sm capitalize">
+                    {event.category}
+                  </div>
 
                   {/* Date */}
                   <div className="text-gray-700 text-sm">
                     {(event.date as string)?.slice(0, 10)}
                   </div>
 
-                  {/* Organizer (Truncated if Long) */}
-                  <div className="text-gray-700 text-sm truncate max-w-[150px]">
-                    {typeof event.organizer === "object"
-                      ? event.organizer?.name
-                      : "Unknown"}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-4 justify-center">
+                  {/* Actions (icon-based, already handled) */}
+                  <div className="flex gap-4 justify-center text-muted-foreground text-[18px]">
                     <EventOrganizerDropdown
                       event={event}
                       onEventUpdateSuccess={setEvent}
@@ -219,32 +214,44 @@ const Searchbar: FC<{
   };
 
   return (
-    <div className="w-full max-w-screen-lg mx-auto flex gap-3">
-      {/* Search Input & Button */}
-      <div className="flex items-center border border-gray-300 rounded-lg shadow-md focus-within:shadow-lg transition w-full">
-        <input
-          type="text"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Search Id or Event title..."
-          className="py-2 px-4 rounded-l bg-white outline-none text-gray-700 w-full"
-        />
+    <div className="w-full max-w-screen-lg mx-auto flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center">
+    <div className="relative w-full flex items-center border border-primary/40 rounded-lg bg-white focus-within:ring-2 focus-within:ring-primary">
+      {/* Search Input */}
+      <input
+        type="text"
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        placeholder="Search Id or Event title..."
+        className="w-full py-2 pl-4 pr-20 text-sm bg-transparent outline-none rounded-lg text-gray-700 placeholder:text-muted-foreground"
+      />
+  
+      {/* Divider Line */}
+      <div className="absolute right-12 top-2 bottom-2 w-px bg-border" />
+  
+      {/* Icon Buttons */}
+      <div className="absolute right-2 flex gap-1">
         <Button
-          className="rounded-l-none bg-gray-100 hover:bg-gray-200 px-4 transition"
+          size="icon"
+          variant="ghost"
+          className="p-1 hover:bg-muted"
           onClick={() => getEvents({ search: searchText })}
+          type="button"
         >
-          <CiSearch className="text-gray-600 text-lg" />
+          <CiSearch className="h-5 w-5 text-muted-foreground" />
+        </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="p-1 hover:bg-muted"
+          onClick={reset}
+          type="button"
+        >
+          <GrPowerReset className="h-4 w-4 text-muted-foreground" />
         </Button>
       </div>
-
-      {/* Reset Button */}
-      <Button
-        onClick={reset}
-        variant="outline"
-        className="rounded-full h-9 w-9 flex items-center justify-center border border-gray-300 hover:bg-gray-100 transition"
-      >
-        <GrPowerReset className="text-gray-600 text-lg" />
-      </Button>
     </div>
+  </div>
+  
+  
   );
 };

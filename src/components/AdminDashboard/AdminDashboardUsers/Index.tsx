@@ -14,6 +14,7 @@ import { GrPowerReset } from "react-icons/gr";
 import DeleteProfileBtn from "@/components/buttons/DeleteProfileBtn";
 import UpdateProfileBtn from "@/components/buttons/UpdateProfileBtn";
 import SendEmailBtn from "@/components/buttons/SendEmailBtn";
+import { Mail, Pencil, Trash2 } from "lucide-react";
 
 type TGetUsersProps = {
   page?: number;
@@ -70,13 +71,7 @@ const AdminDashboardUsers = () => {
         </div>
       ) : (
         <div className="flex flex-col w-full max-w-screen-xl px-4 sm:px-8 lg:px-16 mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <SendEmailBtn
-              title="Send Email to All Users"
-              requestUrl="api/send-email"
-              method={EApiRequestMethod.POST}
-            />
-          </div>
+
           <div className="w-full max-w-screen-lg mx-auto mb-4">
             <Searchbar
               searchText={searchText}
@@ -86,79 +81,88 @@ const AdminDashboardUsers = () => {
           </div>
 
           {/* 📱 MOBILE VERSION (Card Layout) */}
-          <div className="sm:hidden flex flex-col bg-white rounded-xl shadow-lg overflow-hidden divide-y divide-gray-200">
+          <div className="sm:hidden flex flex-col w-full gap-3">
             {users.map((user) => (
-              <div key={user._id} className="p-4 flex items-center gap-4">
-                {/* Profile Photo */}
-                <div className="w-12 h-12 flex-shrink-0">
+              <div
+                key={user._id}
+                className="flex items-start gap-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition"
+              >
+                {/* Avatar */}
+                <div className="w-14 h-14 flex-shrink-0">
                   {user.photo?.url ? (
                     <Image
                       src={user.photo.url}
                       alt={user.name}
-                      width={48}
-                      height={48}
-                      className="rounded-full border border-gray-300"
+                      width={56}
+                      height={56}
+                      className="rounded-full border border-gray-300 object-cover w-full h-full"
                     />
                   ) : (
-                    <div className="bg-gray-200 w-12 h-12 rounded-full"></div>
+                    <div className="h-14 w-14 bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center text-gray-500 text-lg font-semibold">
+                      {user.name?.charAt(0).toUpperCase() ?? "?"}
+                    </div>
                   )}
                 </div>
 
-                {/* User Info */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-gray-900 font-medium">{user.name}</p>
-                  <p className="text-gray-600 text-sm truncate max-w-[150px]">
-                    {user.email}
-                  </p>
-                </div>
+                {/* Content */}
+                <div className="flex-1 flex flex-col justify-between gap-2">
+                  {/* Name + Email + DOB */}
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-gray-900">{user.name}</p>
+                    <p className="text-sm text-gray-500 truncate max-w-[200px]">
+                      {user.email}
+                    </p>
 
-                {/* Actions */}
-                <div className="flex gap-2">
-                  {/* Send email button */}
-                  <SendEmailBtn
-                    email={user.email}
-                    title={`Send Email to ${user.name}`}
-                    method={EApiRequestMethod.POST}
-                    requestUrl="/api/send-email"
-                    variant="secondary"
-                    className="p-2 bg-blue-100 hover:bg-blue-200 rounded-md text-blue-600 transition-all ease-in-out"
-                  >
-                    <MdEmail className="text-lg" />
-                  </SendEmailBtn>
+                  </div>
 
-                  {/* send email btn */}
-                  <UpdateProfileBtn
-                    user={user}
-                    variant="secondary"
-                    className="p-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-all ease-in-out"
-                    requestUrl={`api/users/${user._id}`}
-                    onSuccess={() => getUsers({})}
-                  >
-                    <MdEdit className="text-gray-600 text-lg" />
-                  </UpdateProfileBtn>
+                  {/* Actions (Lucide) */}
+                  <div className="flex items-center gap-3 text-muted-foreground text-[18px]">
+                    <SendEmailBtn
+                      email={user.email}
+                      title={`Send Email to ${user.name}`}
+                      method={EApiRequestMethod.POST}
+                      requestUrl="/api/send-email"
+                      variant="ghost"
+                      className="p-0 h-8 w-8 rounded-md hover:bg-muted transition"
+                    >
+                      <Mail className="h-4 w-4" />
+                    </SendEmailBtn>
 
-                  <DeleteProfileBtn
-                    variant="secondary"
-                    className="p-2 bg-red-100 hover:bg-red-200 rounded-md text-red-500 transition-all ease-in-out"
-                    requestUrl={`api/users/${user._id}`}
-                    onSuccess={() => getUsers({})}
-                  >
-                    <MdDelete className="text-lg" />
-                  </DeleteProfileBtn>
+                    <UpdateProfileBtn
+                      user={user}
+                      variant="ghost"
+                      requestUrl={`api/users/${user._id}`}
+                      onSuccess={() => getUsers({})}
+                      className="p-0 h-8 w-8 rounded-md hover:bg-muted transition"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </UpdateProfileBtn>
+
+                    <DeleteProfileBtn
+                      requestUrl={`api/users/${user._id}`}
+                      onSuccess={() => getUsers({})}
+                      variant="ghost"
+                      className="p-0 h-8 w-8 rounded-md hover:bg-muted transition"
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </DeleteProfileBtn>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
+
+
           {/* 🖥 DESKTOP TABLE */}
           <div className="hidden sm:block w-full mx-auto mt-6 bg-white shadow-lg rounded-xl overflow-x-auto">
             {/* Table Header */}
-            <div className="grid grid-cols-[10%_20%_20%_20%_20%_10%] min-w-[700px] px-8 py-4 bg-gray-50 border-b text-gray-500 text-sm font-medium">
-              <div className="text-left">Photo</div>
-              <div className="text-left">ID</div>
-              <div className="text-left">Name</div>
-              <div className="text-left">Email</div>
-              <div className="text-left">DOB</div>
+            <div className="grid grid-cols-[10%_20%_20%_20%_20%_10%] min-w-[700px] px-6 py-3 bg-gray-50 border-b text-xs text-muted-foreground font-semibold uppercase tracking-wide">
+              <div>Photo</div>
+              <div>ID</div>
+              <div>Name</div>
+              <div>Email</div>
+              <div>DOB</div>
               <div className="text-center">Actions</div>
             </div>
 
@@ -167,80 +171,87 @@ const AdminDashboardUsers = () => {
               {users.map((user) => (
                 <div
                   key={user._id}
-                  className="grid grid-cols-[10%_20%_20%_20%_20%_10%] min-w-[700px] items-center px-8 py-5 hover:bg-gray-50 transition-all ease-in-out"
+                  className="grid grid-cols-[10%_20%_20%_20%_20%_10%] min-w-[700px] items-center px-6 py-4 hover:bg-gray-50 transition"
                 >
                   {/* Profile Photo */}
-                  <div className="flex justify-left">
+                  <div className="flex justify-start">
                     {user.photo?.url ? (
                       <Image
                         src={user.photo.url}
                         alt={user.name}
                         width={48}
                         height={48}
-                        className="rounded-full border border-gray-300"
+                        className="rounded-full border border-gray-300 object-cover"
                       />
                     ) : (
-                      <div className="bg-gray-200 w-12 h-12 rounded-full"></div>
+                      <div className="h-12 w-12 bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center text-gray-500 text-lg font-semibold">
+                        {user.name?.charAt(0).toUpperCase() ?? "?"}
+                      </div>
                     )}
                   </div>
 
                   {/* Truncated ID */}
-                  <div className="text-gray-700 text-sm truncate max-w-[100px]">
+                  <div className="text-gray-600 text-sm truncate max-w-[120px]">
                     {user._id.slice(0, 10)}...
                   </div>
 
                   {/* Name */}
-                  <div className="text-gray-900 text-base font-medium">
-                    {user.name}
-                  </div>
+                  <div className="text-gray-900 font-medium">{user.name}</div>
 
                   {/* Email */}
-                  <div className="text-gray-700 text-base truncate max-w-[250px]">
+                  <div className="text-gray-700 text-sm truncate max-w-[240px]">
                     {user.email}
                   </div>
+
                   {/* DOB */}
-                  <div className="text-gray-700 text-sm">
+                  <div className="text-gray-500 text-sm">
                     {user.dateOfBirth
                       ? new Date(user.dateOfBirth).toISOString().slice(0, 10)
-                      : ""}
+                      : "—"}
                   </div>
+
                   {/* Actions */}
-                  <div className="flex gap-4 justify-center">
-                    {/* Send email button */}
+                  <div className="flex items-center justify-center gap-4">
+                    {/* Send Email */}
                     <SendEmailBtn
                       email={user.email}
                       title={`Send Email to ${user.name}`}
                       method={EApiRequestMethod.POST}
                       requestUrl="/api/send-email"
-                      variant="secondary"
-                      className="p-2 bg-blue-100 hover:bg-blue-200 rounded-md text-blue-600 transition-all ease-in-out"
+                      variant="ghost"
+                      className="p-0 h-8 w-8 rounded-md hover:bg-accent transition"
                     >
-                      <MdEmail className="text-lg" />
+                      <Mail className="h-4 w-4 text-muted-foreground" />
                     </SendEmailBtn>
 
+                    {/* Update Profile */}
                     <UpdateProfileBtn
                       user={user}
-                      variant="secondary"
-                      className="p-3 bg-gray-100 hover:bg-gray-200 rounded-md transition-all ease-in-out"
+                      variant="ghost"
+                      className="p-0 h-8 w-8 rounded-md hover:bg-accent transition"
                       requestUrl={`api/users/${user._id}`}
                       onSuccess={() => getUsers({})}
                     >
-                      <MdEdit className="text-gray-600 text-xl" />
+                      <Pencil className="h-4 w-4 text-muted-foreground" />
                     </UpdateProfileBtn>
 
+                    {/* Delete Profile */}
                     <DeleteProfileBtn
-                      variant="secondary"
-                      className="p-3 bg-red-100 hover:bg-red-200 rounded-md text-red-500 transition-all ease-in-out"
                       requestUrl={`api/users/${user._id}`}
                       onSuccess={() => getUsers({})}
+                      variant="ghost"
+                      className="p-0 h-8 w-8 rounded-md hover:bg-accent transition"
                     >
-                      <MdDelete className="text-xl" />
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </DeleteProfileBtn>
                   </div>
+
+
                 </div>
               ))}
             </div>
           </div>
+
           <CustomPagination
             paginationProps={pagination}
             onPageChange={(page) => getUsers({ page })}
@@ -264,32 +275,59 @@ const Searchbar: FC<{
   };
 
   return (
-    <div className="flex gap-5 items-center">
-      {/* Search Input & Button */}
-      <div className="flex items-center border border-gray-300 rounded-lg shadow-md focus-within:shadow-lg transition w-full max-w-screen-lg">
-        <input
-          type="text"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Search Id or Name..."
-          className="py-2 px-4 rounded-l bg-white outline-none text-gray-700 w-full sm:w-full"
+    <div className="flex flex-col w-full max-w-screen-xl px-4 sm:px-8 lg:px-16 mx-auto">
+
+      {/* Actions Row: Send Email + Searchbar */}
+      <div className="w-full max-w-screen-lg mx-auto mb-6 flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+
+        {/* Send Email Button */}
+        <SendEmailBtn
+          title="Send Email to All Users"
+          requestUrl="api/send-email"
+          method={EApiRequestMethod.POST}
+          className="w-full sm:w-auto bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium shadow hover:shadow-md transition"
         />
-        <Button
-          className="rounded-l-none bg-gray-100 hover:bg-gray-200 px-4 transition"
-          onClick={() => getUsers({ search: searchText })}
-        >
-          <CiSearch className="text-gray-600 text-lg" />
-        </Button>
+
+        {/* Search Bar */}
+        <div className="relative w-full flex items-center border border-primary/40 rounded-lg bg-white focus-within:ring-2 focus-within:ring-primary">
+          {/* Search Input */}
+          <input
+            type="text"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder="Search Id or Event title..."
+            className="w-full py-2 pl-4 pr-20 text-sm bg-transparent outline-none rounded-lg text-gray-700 placeholder:text-muted-foreground"
+          />
+
+          {/* Divider Line */}
+          <div className="absolute right-12 top-2 bottom-2 w-px bg-border" />
+
+          {/* Icon Buttons */}
+          <div className="absolute right-2 flex gap-1">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="p-1 hover:bg-muted"
+              onClick={() => getUsers({ search: searchText })}
+              type="button"
+            >
+              <CiSearch className="h-5 w-5 text-muted-foreground" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="p-1 hover:bg-muted"
+              onClick={reset}
+              type="button"
+            >
+              <GrPowerReset className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {/* Reset Button */}
-      <Button
-        onClick={reset}
-        variant="outline"
-        className="rounded-full h-9 w-9 flex items-center justify-center border border-gray-300 hover:bg-gray-100 transition"
-      >
-        <GrPowerReset className="text-gray-600 text-lg" />
-      </Button>
+      {/* The rest of your admin table goes here... */}
     </div>
+
   );
 };

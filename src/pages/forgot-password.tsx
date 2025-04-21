@@ -6,17 +6,17 @@ import Link from "next/link";
 
 export default function ForgotPassword() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-6 bg-gray-100">
+    <div className="w-full flex flex-col items-center justify-center min-h-screen px-6 bg-background">
     {/* Forgot Password Container */}
-    <div className="w-full max-w-lg bg-white p-10 rounded-lg shadow-md">
+    <div className="w-full max-w-md sm:max-w-lg md:max-w-xl bg-card text-card-foreground  p-10 rounded-2xl shadow-lg">
       {/* Logo */}
       <div className="flex justify-center mb-6">
-        <Logo width={80} height={80} />
+        <Logo width={50} height={50} />
       </div>
 
       {/* Heading */}
-      <h1 className="text-2xl font-bold text-center text-gray-900">Forgot Password?</h1>
-      <p className="text-sm text-gray-500 text-center mt-1">
+      <h1 className="text-2xl font-bold text-center text-foreground">Forgot Password?</h1>
+      <p className="text-sm text-muted-foreground text-center mt-1">
         Enter your email to receive a reset link.
       </p>
 
@@ -26,8 +26,8 @@ export default function ForgotPassword() {
       </div>
 
       {/* Login Redirect */}
-      <p className="text-sm text-center mt-5">
-        <Link href="/login" className="text-gray-700 hover:underline font-semibold">
+      <p className="text-sm text-center mt-5 text-muted-foreground">
+        <Link href="/login" className="text-primary hover:underline font-semibold">
           Back to Login
         </Link>
       </p>

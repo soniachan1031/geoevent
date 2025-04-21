@@ -16,13 +16,13 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6 w-full">
+    <div className="min-h-screen w-full flex items-center justify-center bg-background px-4 py-12">
+    <div className="flex flex-col items-center w-full max-w-2xl gap-8">
       {/* Page Title */}
-      <h1 className="text-4xl font-bold text-gray-900 mb-6">Profile</h1>
+      <h1 className="text-4xl font-bold text-foreground">Profile</h1>
   
       {/* Profile Card */}
-      <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-lg">
-        {/* Profile Form */}
+      <div className="w-full bg-card text-card-foreground shadow-xl rounded-xl p-8">
         <ProfileForm
           user={user}
           onSuccess={setUser}
@@ -32,10 +32,13 @@ export default function Profile() {
       </div>
   
       {/* Delete Account Section */}
-      <div className="mt-6">
+      <div className="w-full text-center">
         <DeleteProfileBtn requestUrl="api/auth/me" onSuccess={onProfileDelete} />
       </div>
     </div>
+  </div>
+  
+  
   );
   
 }

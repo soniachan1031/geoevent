@@ -33,9 +33,7 @@ export default function CreateEvent() {
   if (!isOrganizer) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-5">
-        <h1 className="text-3xl font-semibold">
-          You must become an organizer first!
-        </h1>
+        
         <BecomeOrganizerForm
           user={user}
           onSuccess={handleBecomeOrganizerSuccess}
@@ -45,14 +43,23 @@ export default function CreateEvent() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-5">
-      <h1 className="text-3xl font-semibold">Create Event</h1>
-      <EventForm
-        requestUrl="api/events"
-        requestMethod={EApiRequestMethod.POST}
-        onSuccess={onSuccess}
-      />
+    <div className="w-full min-h-screen flex flex-col items-center px-4 py-10">
+  <div className="max-w-2xl w-full space-y-8 bg-white p-6 md:p-10 rounded-xl shadow-sm border border-primary/10">
+    <div className="text-center space-y-1">
+      <h1 className="text-3xl font-semibold">Create an Event</h1>
+      <p className="text-muted-foreground text-sm mt-1">
+        Fill in the event details below to publish and attract attendees.
+      </p>
     </div>
+
+    <EventForm
+      requestUrl="api/events"
+      requestMethod={EApiRequestMethod.POST}
+      onSuccess={onSuccess}
+    />
+  </div>
+</div>
+
   );
 }
 

@@ -33,25 +33,34 @@ export default EventPage;
 
 const SectionToggle = ({ section, setSection }) => {
   return (
-    <div className="flex gap-3 bg-white shadow-md p-2 rounded-full">
-      {Object.values(EEventPageSection).map((value) => (
-        <Button
-          key={value}
-          onClick={() => setSection(value)}
-          className={`px-5 py-2 rounded-full font-medium transition-all ${(() => {
-            const activeClass =
-              section === EEventPageSection.LIVE
-                ? "bg-red-500 text-white shadow-md"
-                : "bg-gray-900 text-white shadow-md";
-            return section === value
-              ? activeClass
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200";
-          })()}`}
-        >
-          {value}
-        </Button>
-      ))}
-    </div>
+    <div className="flex gap-1 p-1 rounded-full border border-primary/30 bg-white w-fit">
+  {Object.values(EEventPageSection).map((value) => {
+    const isActive = section === value;
+    const isLive = value === EEventPageSection.LIVE;
+
+    return (
+      <Button
+        key={value}
+        onClick={() => setSection(value)}
+        className={`relative rounded-full px-8 py-2 text-sm font-semibold transition-all ${
+          isActive
+            ? "bg-primary text-white shadow-sm"
+            : "bg-transparent text-muted-foreground hover:bg-muted/50"
+        }`}
+      >
+        {value}
+
+        {isLive && (
+          <span className="absolute top-2.5 right-2.5 h-3.5 w-3.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-600"></span>
+          </span>
+        )}
+      </Button>
+    );
+  })}
+</div>
+
   );
 };
 

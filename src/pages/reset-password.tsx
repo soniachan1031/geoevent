@@ -11,37 +11,37 @@ import ResetPasswordForm from "@/components/forms/ResetPasswordForm";
 
 export default function Page({ token }: Readonly<{ token: string }>) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-6 bg-gray-100">
-      {/* Reset Password Container */}
-      <div className="w-full max-w-lg bg-white p-10 rounded-lg shadow-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <Logo width={80} height={80} />
-        </div>
-
-        {/* Heading */}
-        {!token ? (
-          <p className="text-xl font-semibold text-center text-red-500">Invalid Link</p>
-        ) : (
-          <>
-            <h1 className="text-2xl font-bold text-center text-gray-900">Reset Password</h1>
-            <p className="text-sm text-gray-500 text-center mt-1">Enter a new password</p>
-
-            {/* Reset Password Form */}
-            <div className="mt-8">
-              <ResetPasswordForm token={token} />
-            </div>
-          </>
-        )}
-
-        {/* Login Redirect */}
-        <p className="text-sm text-center mt-5">
-          <Link href="/login" className="text-gray-700 hover:underline font-semibold">
-            Back to Login
-          </Link>
-        </p>
+    <div className="flex flex-col items-center justify-center min-h-screen px-6 bg-background">
+    {/* Reset Password Container */}
+    <div className="w-full max-w-md sm:max-w-lg md:max-w-xl bg-card text-card-foreground p-10 rounded-2xl shadow-lg">
+      {/* Logo */}
+      <div className="flex justify-center mb-6">
+        <Logo width={50} height={50} />
       </div>
+
+      {/* Conditional Heading */}
+      {!token ? (
+        <p className="text-xl font-semibold text-center text-destructive">Invalid or expired reset link</p>
+      ) : (
+        <>
+          <h1 className="text-2xl font-bold text-center text-foreground">Reset Password</h1>
+          <p className="text-sm text-muted-foreground text-center mt-1">Enter a new password</p>
+
+          {/* Reset Password Form */}
+          <div className="mt-8">
+            <ResetPasswordForm token={token} />
+          </div>
+        </>
+      )}
+
+      {/* Login Redirect */}
+      <p className="text-sm text-center mt-5 text-muted-foreground">
+        <Link href="/login" className="text-primary hover:underline font-semibold">
+          Back to Login
+        </Link>
+      </p>
     </div>
+  </div>
   );
 }
 

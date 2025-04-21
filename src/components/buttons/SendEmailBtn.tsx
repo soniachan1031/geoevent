@@ -93,72 +93,83 @@ const SendEmailBtn: React.FC<SendEmailBtnProps> = ({
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant={variant} className={className}>
-          {children ?? "Send Email"}
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>
-            <div className="overflow-auto max-h-[calc(100vh-200px)]">
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(sendEmail)}
-                  className="space-y-8 bg-white p-5 shadow w-full"
-                >
-                  <FormField
-                    control={form.control}
-                    name="subject"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-lg">Subject</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Subject of the email"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+  <AlertDialogTrigger asChild>
+    <Button variant={variant} className={className}>
+      {children ?? "Send Email"}
+    </Button>
+  </AlertDialogTrigger>
+
+  <AlertDialogContent className="max-w-md w-full rounded-xl p-6">
+    <AlertDialogHeader>
+      <AlertDialogTitle className="text-lg md:text-xl font-semibold">
+        {title}
+      </AlertDialogTitle>
+    </AlertDialogHeader>
+
+    <AlertDialogDescription className="mt-4">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(sendEmail)}
+          className="space-y-5"
+        >
+          <FormField
+            control={form.control}
+            name="subject"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Subject
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Subject of the email"
+                    {...field}
                   />
-                  <FormField
-                    control={form.control}
-                    name="text"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-lg">Message</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Write your message"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="text"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Message
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Write your message"
+                    rows={5}
+                    {...field}
                   />
-                  <AlertDialogFooter>
-                    <AlertDialogCancel ref={closeBtnRef}>
-                      Cancel
-                    </AlertDialogCancel>
-                    <Button
-                      type="submit"
-                      loading={loading}
-                      loaderProps={{ color: "white" }}
-                    >
-                      Send Email
-                    </Button>
-                  </AlertDialogFooter>
-                </form>
-              </Form>
-            </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-      </AlertDialogContent>
-    </AlertDialog>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <AlertDialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 space-y-3 sm:space-y-0">
+            <AlertDialogCancel className="w-full sm:w-auto">
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              type="submit"
+              loading={loading}
+              loaderProps={{ color: "white" }}
+              className="w-full sm:w-auto"
+            >
+              Send Email
+            </Button>
+          </AlertDialogFooter>
+        </form>
+      </Form>
+    </AlertDialogDescription>
+  </AlertDialogContent>
+</AlertDialog>
+
   );
 };
 

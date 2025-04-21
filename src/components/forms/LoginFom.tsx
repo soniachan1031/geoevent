@@ -63,60 +63,61 @@ export default function LoginForm() {
   }
   return (
     <Form {...form}>
-    <form
-      onSubmit={form.handleSubmit(onSubmit)}
-      className="space-y-6 bg-white p-6 rounded-lg w-full md:w-[400px]"
+  <form
+    onSubmit={form.handleSubmit(onSubmit)}
+    className="space-y-6 w-full"
+  >
+    {/* Email Field */}
+    <FormField
+      control={form.control}
+      name="email"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-sm font-medium text-foreground">Email</FormLabel>
+          <FormControl>
+            <Input
+              placeholder="Enter your email"
+              className="w-full px-4 py-3 bg-input border border-input text-foreground placeholder:text-muted-foreground rounded-md focus:ring-2 focus:ring-ring focus:outline-none transition"
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+    {/* Password Field */}
+    <FormField
+      control={form.control}
+      name="password"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-sm font-medium text-foreground">Password</FormLabel>
+          <FormControl>
+            <Input
+              type="password"
+              placeholder="Enter your password"
+              className="w-full px-4 py-3 bg-input border border-input text-foreground placeholder:text-muted-foreground rounded-md focus:ring-2 focus:ring-ring focus:outline-none transition"
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+    {/* Login Button */}
+    <Button
+      type="submit"
+      loading={authLoading}
+      loaderProps={{ color: "white" }}
+      className="w-full py-3 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98] rounded-md transition shadow-md"
     >
-      {/* Email Field */}
-      <FormField
-        control={form.control}
-        name="email"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm font-semibold text-gray-800">Email</FormLabel>
-            <FormControl>
-              <Input 
-                placeholder="Enter your email" 
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
-                {...field} 
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-  
-      {/* Password Field */}
-      <FormField
-        control={form.control}
-        name="password"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm font-semibold text-gray-800">Password</FormLabel>
-            <FormControl>
-              <Input 
-                type="password" 
-                placeholder="Enter your password" 
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600"
-                {...field} 
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-  
-      {/* Login Button */}
-      <Button
-        className="text-lg w-full bg-black text-white py-3 rounded-lg hover:bg-gray-900 transition"
-        type="submit"
-        loading={authLoading}
-        loaderProps={{ color: "white" }}
-      >
-        Login
-      </Button>
-    </form>
-  </Form>
+      Login
+    </Button>
+  </form>
+</Form>
+
   
   );
 }

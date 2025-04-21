@@ -39,6 +39,11 @@ import { eventTimeRegex } from "@/lib/regex";
 import { EApiRequestMethod } from "@/types/api.types";
 import AIEventDescriptionHelperBtn from "@/components/buttons/AIEventDescriptionHelperBtn";
 
+
+
+
+
+
 type TEventFormProps = {
   event?: IEvent | null;
   onSuccess?: (event: IEvent) => Promise<void> | void;
@@ -74,17 +79,18 @@ const formSchema = z
       }
     ),
     time: z.string().regex(eventTimeRegex, "Invalid time format, e.g. 11:00"),
-    registrationDeadline: z.string().optional(),
+    registrationDeadline: z
+      .preprocess((val) => (val === "" ? undefined : val), z.string().optional()),
+
     duration: z
-      .number()
-      .min(10, "Event duration must be at least 10 minutes")
-      .optional(),
+      .preprocess((val) => (val === "" ? undefined : Number(val)), z.number().min(10).optional()),
     category: z.nativeEnum(EEventCategory, { message: "Invalid category" }),
     format: z.nativeEnum(EEventFormat, { message: "Invalid format" }),
     language: z
       .nativeEnum(EEventLanguage, { message: "Invalid language" })
-      .default(EEventLanguage.ENGLISH),
-    capacity: z.number().min(1, "Capacity must be at least 1").optional(),
+      .optional(),
+    capacity: z
+      .preprocess((val) => (val === "" ? undefined : Number(val)), z.number().min(1).optional()),
     image: z.instanceof(File).optional(),
     contact: z.object({
       email: z.string().email("Invalid email format"),
@@ -93,17 +99,19 @@ const formSchema = z
   })
   .refine(
     (data) => {
-      if (!data.registrationDeadline) return true; // If no deadline, skip validation
+      const val = data.registrationDeadline;
+      if (!val || val.trim() === "") return true; // Skip validation if empty
 
-      const deadlineDate = new Date(data.registrationDeadline);
+      const deadlineDate = new Date(val);
       const eventDate = new Date(data.date);
       return deadlineDate <= eventDate;
     },
     {
       message: "Registration deadline must be on or before the event date",
-      path: ["registrationDeadline"], // Assigns the error message to the deadline field
+      path: ["registrationDeadline"],
     }
-  );
+  )
+
 
 const EventForm: FC<TEventFormProps> = ({
   event,
@@ -116,6 +124,8 @@ const EventForm: FC<TEventFormProps> = ({
   const [previewImage, setPreviewImage] = useState<string | null>(
     event?.image ?? null
   );
+
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -140,7 +150,7 @@ const EventForm: FC<TEventFormProps> = ({
         : "",
       category: event?.category ?? ("" as any),
       format: event?.format ?? ("" as any),
-      language: event?.language ?? ("" as any),
+      language: event?.language ?? undefined,
       capacity: event?.capacity ?? ("" as any),
       duration: event?.duration ?? ("" as any),
       image: undefined as File | undefined,
@@ -153,6 +163,9 @@ const EventForm: FC<TEventFormProps> = ({
 
   // Submit handler
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!values.language) {
+      values.language = EEventLanguage.ENGLISH;
+    }
     try {
       setLoading(true);
 
@@ -194,49 +207,54 @@ const EventForm: FC<TEventFormProps> = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 bg-white p-5 shadow w-full md:min-w-[700px]"
+        className="space-y-8 w-full"
       >
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Image</FormLabel>
-              <FormControl>
-                <Input
-                  name={field.name}
-                  ref={(ref) => {
-                    field.ref(ref);
-                    fileInputRef.current = ref;
-                  }}
-                  type="file"
-                  accept="image/jpg, image/jpeg, image/png"
-                  placeholder="Upload image"
-                  onChange={handleFileChange}
-                />
-              </FormControl>
-              {/* do not show preview image on successful event creation */}
-              {previewImage && (
-                <Image
-                  src={previewImage}
-                  alt="Event image Preview"
-                  className="mt-2 md:max-w-[500px] object-cover"
-                  width={200}
-                  height={200}
-                />
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* =================== EVENT BASICS =================== */}
+        <div className="space-y-6">
+          <h2 className="text-lg font-semibold text-gray-800">Basic Information</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Image Upload */}
+          <FormField
+            control={form.control}
+            name="image"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Image</FormLabel>
+                <FormControl>
+                  <Input
+                    name={field.name}
+                    ref={(ref) => {
+                      field.ref(ref);
+                      fileInputRef.current = ref;
+                    }}
+                    type="file"
+                    accept="image/jpg, image/jpeg, image/png"
+                    onChange={handleFileChange}
+                  />
+                </FormControl>
+                {previewImage && (
+                  <Image
+                    src={previewImage}
+                    alt="Event image preview"
+                    className="mt-2 rounded-lg shadow-sm max-w-xs object-cover"
+                    width={200}
+                    height={200}
+                  />
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Title */}
           <FormField
             control={form.control}
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Event Title</FormLabel>
+                <FormLabel>
+                  Event Title <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Enter event title" {...field} />
                 </FormControl>
@@ -245,189 +263,18 @@ const EventForm: FC<TEventFormProps> = ({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Event Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="time"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Event Time</FormLabel>
-                <FormControl>
-                  <Input type="time" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="registrationDeadline"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Registration Deadline</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(EEventCategory).map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="format"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Format</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a Format" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(EEventFormat).map((format) => (
-                      <SelectItem key={format} value={format}>
-                        {format}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="language"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Language</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a Language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(EEventLanguage).map((language) => (
-                      <SelectItem key={language} value={language}>
-                        {language}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="capacity"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Capacity</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    name={field.name}
-                    placeholder="Enter event capacity"
-                    value={field.value}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value ? Number(e.target.value) : ""
-                      )
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="duration"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Duration (minutes)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    name={field.name}
-                    placeholder="Enter event duration"
-                    value={field.value}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value ? Number(e.target.value) : ""
-                      )
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Full width items */}
-        <div className="mt-6">
           {/* Description */}
           <FormField
             control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-5">
-                  <span>Description</span>
+                <FormLabel className="flex items-center gap-2">
+                  <span>Description <span className="text-red-500">*</span></span>
                   <AIEventDescriptionHelperBtn
                     eventTitle={form.getValues("title")}
-                    onSuggestionApproval={(suggestion) =>
-                      form.setValue("description", suggestion)
+                    onSuggestionApproval={(text) =>
+                      form.setValue("description", text)
                     }
                   />
                 </FormLabel>
@@ -438,14 +285,19 @@ const EventForm: FC<TEventFormProps> = ({
               </FormItem>
             )}
           />
+        </div>
 
-          {/* Location */}
+        {/* =================== LOCATION =================== */}
+        <div className="space-y-6">
+          <h2 className="text-lg font-semibold text-gray-800">Location</h2>
           <FormField
             control={form.control}
             name="location"
             render={({ field }) => (
-              <FormItem className="mt-6">
-                <FormLabel>Location</FormLabel>
+              <FormItem>
+                <FormLabel>
+                  Event Location <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
                   <LocationInput
                     name={field.name}
@@ -457,53 +309,250 @@ const EventForm: FC<TEventFormProps> = ({
               </FormItem>
             )}
           />
+        </div>
 
-          {/* Contact Info (already 2 columns) */}
-          <div className="space-y-4 *:mt-6">
-            <h3 className="text-lg font-medium">Contact Information</h3>
+        {/* =================== DATE & TYPE =================== */}
+        <div className="space-y-6">
+          <h2 className="text-lg font-semibold text-gray-800">Event Schedule & Type</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Date */}
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Event Date <span className="text-red-500">*</span></FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Time */}
+            <FormField
+              control={form.control}
+              name="time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Event Time <span className="text-red-500">*</span></FormLabel>
+                  <FormControl>
+                    <Input type="time" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Category */}
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category <span className="text-red-500">*</span></FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(EEventCategory).map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Format */}
+            <FormField
+              control={form.control}
+              name="format"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Format <span className="text-red-500">*</span></FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a format" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(EEventFormat).map((format) => (
+                        <SelectItem key={format} value={format}>
+                          {format}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        {/* =================== CONTACT =================== */}
+        <div className="space-y-6">
+          <h2 className="text-lg font-semibold text-gray-800">Contact Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <FormField
+              control={form.control}
+              name="contact.email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter contact email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="contact.phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone <span className="text-red-500">*</span></FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter contact phone" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        {/* =================== ADVANCED OPTIONS =================== */}
+        <div className="pt-4">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced((prev) => !prev)}
+            className="text-sm text-primary hover:underline transition"
+          >
+            {showAdvanced ? "Hide Advanced Options ▲" : "Show Advanced Options ▼"}
+          </button>
+
+          {showAdvanced && (
+            <div className="mt-6 space-y-6">
+              {/* Registration Deadline */}
               <FormField
                 control={form.control}
-                name="contact.email"
+                name="registrationDeadline"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>
+                      Registration Deadline{" "}
+                      <span className="text-xs text-muted-foreground">(Optional)</span>
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter contact email" {...field} />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
+              {/* Capacity */}
               <FormField
                 control={form.control}
-                name="contact.phone"
+                name="capacity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone</FormLabel>
+                    <FormLabel>
+                      Capacity{" "}
+                      <span className="text-xs text-muted-foreground">(Optional)</span>
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter contact phone" {...field} />
+                      <Input
+                        type="number"
+                        placeholder="Enter capacity"
+                        value={field.value}
+                        onChange={(e) =>
+                          field.onChange(e.target.value ? Number(e.target.value) : "")
+                        }
+                      />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Duration */}
+              <FormField
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Duration (minutes){" "}
+                      <span className="text-xs text-muted-foreground">(Optional)</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Enter event duration"
+                        value={field.value}
+                        onChange={(e) =>
+                          field.onChange(e.target.value ? Number(e.target.value) : "")
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Language */}
+              <FormField
+                control={form.control}
+                name="language"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Language{" "}
+                      <span className="text-xs text-muted-foreground">(Optional)</span>
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a language" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(EEventLanguage).map((lang) => (
+                          <SelectItem key={lang} value={lang}>
+                            {lang}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-          </div>
+          )}
         </div>
 
-        <Button
-          className="text-lg w-full mt-6"
-          type="submit"
-          loading={loading}
-          loaderProps={{ color: "white" }}
-        >
-          {event ? "Update Event" : "Create Event"}
-        </Button>
+        {/* =================== SUBMIT =================== */}
+        <div className="pt-4">
+          <Button
+            className="w-full text-lg"
+            type="submit"
+            loading={loading}
+            loaderProps={{ color: "white" }}
+          >
+            {event ? "Update Event" : "Create Event"}
+          </Button>
+        </div>
       </form>
     </Form>
+
   );
 };
 

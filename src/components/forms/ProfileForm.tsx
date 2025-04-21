@@ -20,6 +20,7 @@ import Image from "next/image";
 import { IUser } from "@/types/user.types";
 import { EApiRequestMethod } from "@/types/api.types";
 import { EEventCategory } from "@/types/event.types";
+import { FaUser } from "react-icons/fa";
 
 type TProfileFormProps = {
   user?: IUser | null;
@@ -122,7 +123,7 @@ function ProfileForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 bg-white p-6 rounded-xl w-full max-w-xl"
+        className="space-y-6 px-2 sm:px-6"
       >
         {/* Profile Picture Preview */}
         <div className="flex flex-col items-center gap-4">
@@ -135,21 +136,19 @@ function ProfileForm({
               height={96}
             />
           ) : (
-            <div className="h-24 w-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xl">
-              ?
+            <div className="h-24 w-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-3xl shadow">
+              <FaUser />
             </div>
           )}
 
           <div className="text-center">
-            <FormLabel className="text-lg font-medium">
-              Profile Picture
-            </FormLabel>
+            <FormLabel className="text-lg font-medium text-foreground">Profile Picture</FormLabel>
             <FormControl>
               <Input
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
-                className="text-sm mt-2"
+                className="text-sm mt-2 text-foreground placeholder:text-muted-foreground"
               />
             </FormControl>
           </div>
@@ -161,9 +160,13 @@ function ProfileForm({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-medium">Name</FormLabel>
+              <FormLabel className="text-sm font-semibold text-foreground">Name</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} />
+                <Input
+                  placeholder="Your name"
+                  className="p-3 border border-input rounded-lg text-foreground placeholder:text-muted-foreground"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -176,9 +179,14 @@ function ProfileForm({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-medium">Email</FormLabel>
+              <FormLabel className="text-sm font-semibold text-foreground">Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Your email" {...field} />
+                <Input
+                  type="email"
+                  placeholder="Your email"
+                  className="p-3 border border-input rounded-lg text-foreground placeholder:text-muted-foreground"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -191,26 +199,33 @@ function ProfileForm({
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-medium">Phone</FormLabel>
+              <FormLabel className="text-sm font-semibold text-foreground">Phone</FormLabel>
               <FormControl>
-                <Input type="tel" placeholder="Your phone number" {...field} />
+                <Input
+                  type="tel"
+                  placeholder="Your phone number"
+                  className="p-3 border border-input rounded-lg text-foreground placeholder:text-muted-foreground"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Date of Birth Field */}
+        {/* Date of Birth */}
         <FormField
           control={form.control}
           name="dateOfBirth"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-medium">
-                Date of Birth
-              </FormLabel>
+              <FormLabel className="text-sm font-semibold text-foreground">Date of Birth</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input
+                  type="date"
+                  className="p-3 border border-input rounded-lg text-foreground placeholder:text-muted-foreground"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -223,11 +238,11 @@ function ProfileForm({
           name="bio"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-medium">Bio</FormLabel>
+              <FormLabel className="text-sm font-semibold text-foreground">Bio</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Tell us about yourself..."
-                  className="resize-none"
+                  className="resize-none p-3 border border-input rounded-lg text-foreground placeholder:text-muted-foreground"
                   {...field}
                 />
               </FormControl>
@@ -236,37 +251,44 @@ function ProfileForm({
           )}
         />
 
-        {/* Interested Categories Field */}
+        {/* Interested Categories as Pills */}
         <FormField
           control={form.control}
           name="interestedCategories"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-semibold text-gray-800">
+              <FormLabel className="text-sm font-semibold text-foreground">
                 Interested Categories
               </FormLabel>
               <FormControl>
                 <div className="flex flex-wrap gap-2">
-                  {Object.values(EEventCategory).map((category) => (
-                    <label
-                      key={category}
-                      className="flex items-center space-x-2"
-                    >
-                      <input
-                        type="checkbox"
-                        value={category}
-                        checked={(field.value as any)?.includes(category)}
-                        onChange={(e) => {
-                          const isChecked = e.target.checked;
-                          const newValue = isChecked
-                            ? [...(field.value || []), category]
-                            : field.value?.filter((c) => c !== category);
-                          field.onChange(newValue);
-                        }}
-                      />
-                      <span className="text-sm">{category}</span>
-                    </label>
-                  ))}
+                  {Object.values(EEventCategory).map((category) => {
+                    const isChecked = (field.value || []).includes(category);
+                    return (
+                      <label
+                        key={category}
+                        className={`px-4 py-2 rounded-full border text-sm cursor-pointer transition
+                        ${isChecked
+                            ? "bg-primary text-white"
+                            : " text-muted-foreground border-muted-foreground/20"}
+                      `}
+                      >
+                        <input
+                          type="checkbox"
+                          value={category}
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const newValue = e.target.checked
+                              ? [...(field.value || []), category]
+                              : field.value?.filter((c) => c !== category);
+                            field.onChange(newValue);
+                          }}
+                          className="hidden"
+                        />
+                        {category}
+                      </label>
+                    );
+                  })}
                 </div>
               </FormControl>
               <FormMessage />
@@ -274,17 +296,19 @@ function ProfileForm({
           )}
         />
 
-        {/* Update Profile Button */}
+        {/* Submit Button */}
         <Button
-          className="text-lg w-full bg-black text-white hover:opacity-90 rounded-lg transition"
           type="submit"
           loading={loading}
           loaderProps={{ color: "white" }}
+          className="w-full text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition"
         >
           Update Profile
         </Button>
+
       </form>
     </Form>
+
   );
 }
 
