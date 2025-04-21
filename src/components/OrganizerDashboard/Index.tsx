@@ -50,24 +50,22 @@ const SectionToggle = ({
 
   return (
     <div className="flex justify-center">
-    <div className="flex bg-white p-1 rounded-full shadow-sm border border-border">
-      {Object.values(EOrganizerDashboardSection).map((value) => (
-        <Button
-          key={value}
-          onClick={() => handleClick(value)}
-          className={`px-5 py-2 rounded-lg font-medium transition-all ${
-            section === value
-              ? "bg-primary text-primary-foreground shadow"
-              : "text-muted-foreground hover:bg-muted"
-          }`}
-        >
-          {value}
-        </Button>
-      ))}
+      <div className="flex bg-white p-1 rounded-full shadow-sm border border-border">
+        {Object.values(EOrganizerDashboardSection).map((value) => (
+          <Button
+            key={value}
+            onClick={() => handleClick(value)}
+            className={`px-5 py-2 rounded-lg font-medium transition-all ${
+              section === value
+                ? "bg-primary text-primary-foreground shadow"
+                : "text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            {value}
+          </Button>
+        ))}
+      </div>
     </div>
-  </div>
-  
-  
   );
 };
 
