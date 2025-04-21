@@ -3,7 +3,6 @@ import { GoogleMap, useGoogleMap } from "@react-google-maps/api";
 import { useGoogleMapsContext } from "@/providers/GoogleMapsProvider";
 import { IEvent } from "@/types/event.types";
 import { GOOGLE_MAPS_MAP_ID } from "@/lib/credentials";
-import { FaMapMarker } from "react-icons/fa";
 import ReactDOMServer from "react-dom/server";
 import styles from "./eventMap.module.css";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
@@ -130,7 +129,6 @@ export function EventMarker({
         <div className={styles.innerDot} />
       </div>
     );
-    
 
     marker.content = div;
 

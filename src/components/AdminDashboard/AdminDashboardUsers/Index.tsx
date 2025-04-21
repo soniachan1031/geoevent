@@ -5,7 +5,6 @@ import axiosInstance from "@/lib/axiosInstance";
 import getErrorMsg from "@/lib/getErrorMsg";
 import { EApiRequestMethod, TPagination } from "@/types/api.types";
 import { IUser } from "@/types/user.types";
-import { MdEdit, MdDelete, MdEmail } from "react-icons/md";
 import Image from "next/image";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import toast from "react-hot-toast";

@@ -6,8 +6,6 @@ import {
   User,
   Phone,
   Mail,
-  Bookmark,
-  BookmarkCheck,
   Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -186,49 +184,62 @@ export default function EventPageOverview({
         </div>
 
         {/* Host Info */}
-        {event.external ? (
-          <div className="text-muted-foreground text-sm">{event.organizer as string}</div>
-        ) : typeof event.organizer === "object" ? (
-          <div className="flex items-center gap-4 mt-4  mb-4 ">
-            {/* Profile Photo */}
-            {event.organizer.photo?.url ? (
-              <Image
-                src={event.organizer.photo.url}
-                alt={event.organizer.name}
-                width={36}
-                height={36}
-                className="rounded-full object-cover"
-              />
-            ) : (
-              <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
-                ?
+        {(() => {
+          if (event.external) {
+            return (
+              <div className="text-muted-foreground text-sm">
+                {event.organizer as string}
               </div>
-            )}
+            );
+          }
 
-            {/* Name */}
-            <p className="text-sm text-foreground">
-              <span className="text-muted-foreground">Hosted by </span>
-              <span className="font-semibold">{event.organizer.name}</span>
-            </p>
+          if (typeof event.organizer === "object") {
+            return (
+              <div className="flex items-center gap-4 mt-4 mb-4">
+                {/* Profile Photo */}
+                {event.organizer.photo?.url ? (
+                  <Image
+                    src={event.organizer.photo.url}
+                    alt={event.organizer.name}
+                    width={36}
+                    height={36}
+                    className="rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
+                    ?
+                  </div>
+                )}
 
-            {/* Follow Button */}
-            {eventOrganizerId !== user?._id && (
-              <Button
-                variant={isFollowing ? "destructive" : "default"}
-                loaderProps={{ color: "white" }}
-                onClick={handleFollowToggle}
-                loading={followLoading}
-                disabled={followLoading}
-                className="ml-auto text-sm px-4 py-1"
-              >
-                {isFollowing ? "Unfollow" : "Follow"}
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="text-sm text-muted-foreground">Unknown Organizer</div>
-        )}
+                {/* Name */}
+                <p className="text-sm text-foreground">
+                  <span className="text-muted-foreground">Hosted by </span>
+                  <span className="font-semibold">{event.organizer.name}</span>
+                </p>
 
+                {/* Follow Button */}
+                {eventOrganizerId !== user?._id && (
+                  <Button
+                    variant={isFollowing ? "destructive" : "default"}
+                    loaderProps={{ color: "white" }}
+                    onClick={handleFollowToggle}
+                    loading={followLoading}
+                    disabled={followLoading}
+                    className="ml-auto text-sm px-4 py-1"
+                  >
+                    {isFollowing ? "Unfollow" : "Follow"}
+                  </Button>
+                )}
+              </div>
+            );
+          }
+
+          return (
+            <div className="text-sm text-muted-foreground">
+              Unknown Organizer
+            </div>
+          );
+        })()}
 
         {/* Event Details Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-card border border-border rounded-xl p-5 shadow-sm">
@@ -263,7 +274,8 @@ export default function EventPageOverview({
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <MapPin className="w-5 h-5" />
             <span>
-              {event.location.address}, {event.location.state}, {event.location.country}
+              {event.location.address}, {event.location.state},{" "}
+              {event.location.country}
             </span>
           </div>
 
@@ -277,7 +289,9 @@ export default function EventPageOverview({
           <div className="col-span-1 md:col-span-2 flex items-center gap-2 text-sm text-muted-foreground">
             <span className="font-medium">Registration Deadline:</span>
             <span>
-              {new Date(event.registrationDeadline ?? event.date).toLocaleDateString("en-US", {
+              {new Date(
+                event.registrationDeadline ?? event.date
+              ).toLocaleDateString("en-US", {
                 timeZone: "UTC",
                 weekday: "long",
                 month: "long",
@@ -357,18 +371,16 @@ export default function EventPageOverview({
 
         {/* Google maps direction */}
         <GoogleMapDirectionBtn event={event} />
-
-
       </div>
-      
+
       {/* Event Description */}
       <div className="mt-8">
-        <h2 className="text-lg md:text-xl font-semibold text-foreground mb-2">Description</h2>
+        <h2 className="text-lg md:text-xl font-semibold text-foreground mb-2">
+          Description
+        </h2>
 
         <div className="bg-white border border-muted/30 rounded-xl p-5 shadow-sm text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
-          <p className="text-foreground font-medium mb-2">
-            {event.title}
-          </p>
+          <p className="text-foreground font-medium mb-2">{event.title}</p>
           <p>
             {event.description ?? (
               <span className="italic">No description provided.</span>
@@ -377,59 +389,57 @@ export default function EventPageOverview({
         </div>
       </div>
 
-{/* Contact Information */}
-<div className="mt-8 p-5 bg-muted/20 border border-muted/30 rounded-lg">
-  <h2 className="text-lg font-semibold mb-3">Contact Information</h2>
-  <div className="flex flex-col gap-3 text-sm text-foreground">
-    {/* Email */}
-    <div className="flex items-center gap-2">
-      <Mail className="w-4 h-4 text-muted-foreground" />
-      {event.external ? (
-        <Link
-          href={TICKETMASTER_EMAIL_lINK}
-          className="underline hover:text-primary transition"
-          target="_blank"
-        >
-          Send an Email
-        </Link>
-      ) : (
-        <span>{event.contact.email}</span>
-      )}
-    </div>
+      {/* Contact Information */}
+      <div className="mt-8 p-5 bg-muted/20 border border-muted/30 rounded-lg">
+        <h2 className="text-lg font-semibold mb-3">Contact Information</h2>
+        <div className="flex flex-col gap-3 text-sm text-foreground">
+          {/* Email */}
+          <div className="flex items-center gap-2">
+            <Mail className="w-4 h-4 text-muted-foreground" />
+            {event.external ? (
+              <Link
+                href={TICKETMASTER_EMAIL_lINK}
+                className="underline hover:text-primary transition"
+                target="_blank"
+              >
+                Send an Email
+              </Link>
+            ) : (
+              <span>{event.contact.email}</span>
+            )}
+          </div>
 
-    {/* Phone */}
-    <div className="flex items-center gap-2">
-      <Phone className="w-4 h-4 text-muted-foreground" />
-      {event.external ? (
-        <Link
-          href={`tel:+${TICKETMASTER_PHONE}`}
-          className="hover:underline"
-        >
-          {TICKETMASTER_PHONE}
-        </Link>
-      ) : (
-        <span>{event.contact.phone}</span>
-      )}
-    </div>
-  </div>
-</div>
-
-
-     {/* Feedback Section */}
-{!event.external && (
-  <div className="mt-8">
-    {allowFeedback && (
-      <div className="mb-4">
-        <FeedbackBtn
-          eventId={event._id}
-          onSuccess={() => setFeedbackLeft(true)}
-        />
+          {/* Phone */}
+          <div className="flex items-center gap-2">
+            <Phone className="w-4 h-4 text-muted-foreground" />
+            {event.external ? (
+              <Link
+                href={`tel:+${TICKETMASTER_PHONE}`}
+                className="hover:underline"
+              >
+                {TICKETMASTER_PHONE}
+              </Link>
+            ) : (
+              <span>{event.contact.phone}</span>
+            )}
+          </div>
+        </div>
       </div>
-    )}
-    <EventFeedbackSection eventId={event._id} />
-  </div>
-)}
 
+      {/* Feedback Section */}
+      {!event.external && (
+        <div className="mt-8">
+          {allowFeedback && (
+            <div className="mb-4">
+              <FeedbackBtn
+                eventId={event._id}
+                onSuccess={() => setFeedbackLeft(true)}
+              />
+            </div>
+          )}
+          <EventFeedbackSection eventId={event._id} />
+        </div>
+      )}
     </div>
   );
 }

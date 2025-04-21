@@ -19,13 +19,13 @@ type TDeleteProfileBtnProps = {
   children?: React.ReactNode;
   onSuccess?: () => Promise<void> | void;
   variant?:
-  | "default"
-  | "destructive"
-  | "outline"
-  | "secondary"
-  | "ghost"
-  | "link"
-  | null;
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | null;
   className?: string;
 };
 
@@ -33,7 +33,6 @@ const DeleteProfileBtn: React.FC<TDeleteProfileBtnProps> = ({
   requestUrl,
   children,
   onSuccess,
-  variant = "destructive",
   className,
 }) => {
   const cancelBtnRef = createRef<HTMLButtonElement>();
@@ -65,11 +64,13 @@ const DeleteProfileBtn: React.FC<TDeleteProfileBtnProps> = ({
       <AlertDialogTrigger asChild>
         <Button
           variant="ghost"
-          className={className || "text-destructive hover:underline hover:bg-transparent focus-visible:ring-0"}
-  >
-    {children ?? "Permanently delete my account"}
+          className={
+            className ??
+            "text-destructive hover:underline hover:bg-transparent focus-visible:ring-0"
+          }
+        >
+          {children ?? "Permanently delete my account"}
         </Button>
-
       </AlertDialogTrigger>
 
       <AlertDialogContent>
@@ -94,7 +95,6 @@ const DeleteProfileBtn: React.FC<TDeleteProfileBtnProps> = ({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-
   );
 };
 export default DeleteProfileBtn;

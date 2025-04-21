@@ -39,11 +39,6 @@ import { eventTimeRegex } from "@/lib/regex";
 import { EApiRequestMethod } from "@/types/api.types";
 import AIEventDescriptionHelperBtn from "@/components/buttons/AIEventDescriptionHelperBtn";
 
-
-
-
-
-
 type TEventFormProps = {
   event?: IEvent | null;
   onSuccess?: (event: IEvent) => Promise<void> | void;
@@ -79,18 +74,24 @@ const formSchema = z
       }
     ),
     time: z.string().regex(eventTimeRegex, "Invalid time format, e.g. 11:00"),
-    registrationDeadline: z
-      .preprocess((val) => (val === "" ? undefined : val), z.string().optional()),
+    registrationDeadline: z.preprocess(
+      (val) => (val === "" ? undefined : val),
+      z.string().optional()
+    ),
 
-    duration: z
-      .preprocess((val) => (val === "" ? undefined : Number(val)), z.number().min(10).optional()),
+    duration: z.preprocess(
+      (val) => (val === "" ? undefined : Number(val)),
+      z.number().min(10).optional()
+    ),
     category: z.nativeEnum(EEventCategory, { message: "Invalid category" }),
     format: z.nativeEnum(EEventFormat, { message: "Invalid format" }),
     language: z
       .nativeEnum(EEventLanguage, { message: "Invalid language" })
       .optional(),
-    capacity: z
-      .preprocess((val) => (val === "" ? undefined : Number(val)), z.number().min(1).optional()),
+    capacity: z.preprocess(
+      (val) => (val === "" ? undefined : Number(val)),
+      z.number().min(1).optional()
+    ),
     image: z.instanceof(File).optional(),
     contact: z.object({
       email: z.string().email("Invalid email format"),
@@ -110,8 +111,7 @@ const formSchema = z
       message: "Registration deadline must be on or before the event date",
       path: ["registrationDeadline"],
     }
-  )
-
+  );
 
 const EventForm: FC<TEventFormProps> = ({
   event,
@@ -163,9 +163,7 @@ const EventForm: FC<TEventFormProps> = ({
 
   // Submit handler
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!values.language) {
-      values.language = EEventLanguage.ENGLISH;
-    }
+    values.language ??= EEventLanguage.ENGLISH;
     try {
       setLoading(true);
 
@@ -205,13 +203,12 @@ const EventForm: FC<TEventFormProps> = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
         {/* =================== EVENT BASICS =================== */}
         <div className="space-y-6">
-          <h2 className="text-lg font-semibold text-gray-800">Basic Information</h2>
+          <h2 className="text-lg font-semibold text-gray-800">
+            Basic Information
+          </h2>
 
           {/* Image Upload */}
           <FormField
@@ -270,7 +267,9 @@ const EventForm: FC<TEventFormProps> = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center gap-2">
-                  <span>Description <span className="text-red-500">*</span></span>
+                  <span>
+                    Description <span className="text-red-500">*</span>
+                  </span>
                   <AIEventDescriptionHelperBtn
                     eventTitle={form.getValues("title")}
                     onSuggestionApproval={(text) =>
@@ -313,7 +312,9 @@ const EventForm: FC<TEventFormProps> = ({
 
         {/* =================== DATE & TYPE =================== */}
         <div className="space-y-6">
-          <h2 className="text-lg font-semibold text-gray-800">Event Schedule & Type</h2>
+          <h2 className="text-lg font-semibold text-gray-800">
+            Event Schedule & Type
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Date */}
             <FormField
@@ -321,7 +322,9 @@ const EventForm: FC<TEventFormProps> = ({
               name="date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Event Date <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel>
+                    Event Date <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
@@ -336,7 +339,9 @@ const EventForm: FC<TEventFormProps> = ({
               name="time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Event Time <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel>
+                    Event Time <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input type="time" {...field} />
                   </FormControl>
@@ -351,8 +356,13 @@ const EventForm: FC<TEventFormProps> = ({
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category <span className="text-red-500">*</span></FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>
+                    Category <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
@@ -375,8 +385,13 @@ const EventForm: FC<TEventFormProps> = ({
               name="format"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Format <span className="text-red-500">*</span></FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>
+                    Format <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a format" />
                     </SelectTrigger>
@@ -397,14 +412,18 @@ const EventForm: FC<TEventFormProps> = ({
 
         {/* =================== CONTACT =================== */}
         <div className="space-y-6">
-          <h2 className="text-lg font-semibold text-gray-800">Contact Information</h2>
+          <h2 className="text-lg font-semibold text-gray-800">
+            Contact Information
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <FormField
               control={form.control}
               name="contact.email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel>
+                    Email <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Enter contact email" {...field} />
                   </FormControl>
@@ -418,7 +437,9 @@ const EventForm: FC<TEventFormProps> = ({
               name="contact.phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel>
+                    Phone <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Enter contact phone" {...field} />
                   </FormControl>
@@ -436,7 +457,9 @@ const EventForm: FC<TEventFormProps> = ({
             onClick={() => setShowAdvanced((prev) => !prev)}
             className="text-sm text-primary hover:underline transition"
           >
-            {showAdvanced ? "Hide Advanced Options ▲" : "Show Advanced Options ▼"}
+            {showAdvanced
+              ? "Hide Advanced Options ▲"
+              : "Show Advanced Options ▼"}
           </button>
 
           {showAdvanced && (
@@ -449,7 +472,9 @@ const EventForm: FC<TEventFormProps> = ({
                   <FormItem>
                     <FormLabel>
                       Registration Deadline{" "}
-                      <span className="text-xs text-muted-foreground">(Optional)</span>
+                      <span className="text-xs text-muted-foreground">
+                        (Optional)
+                      </span>
                     </FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
@@ -467,7 +492,9 @@ const EventForm: FC<TEventFormProps> = ({
                   <FormItem>
                     <FormLabel>
                       Capacity{" "}
-                      <span className="text-xs text-muted-foreground">(Optional)</span>
+                      <span className="text-xs text-muted-foreground">
+                        (Optional)
+                      </span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -475,7 +502,9 @@ const EventForm: FC<TEventFormProps> = ({
                         placeholder="Enter capacity"
                         value={field.value}
                         onChange={(e) =>
-                          field.onChange(e.target.value ? Number(e.target.value) : "")
+                          field.onChange(
+                            e.target.value ? Number(e.target.value) : ""
+                          )
                         }
                       />
                     </FormControl>
@@ -492,7 +521,9 @@ const EventForm: FC<TEventFormProps> = ({
                   <FormItem>
                     <FormLabel>
                       Duration (minutes){" "}
-                      <span className="text-xs text-muted-foreground">(Optional)</span>
+                      <span className="text-xs text-muted-foreground">
+                        (Optional)
+                      </span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -500,7 +531,9 @@ const EventForm: FC<TEventFormProps> = ({
                         placeholder="Enter event duration"
                         value={field.value}
                         onChange={(e) =>
-                          field.onChange(e.target.value ? Number(e.target.value) : "")
+                          field.onChange(
+                            e.target.value ? Number(e.target.value) : ""
+                          )
                         }
                       />
                     </FormControl>
@@ -517,9 +550,14 @@ const EventForm: FC<TEventFormProps> = ({
                   <FormItem>
                     <FormLabel>
                       Language{" "}
-                      <span className="text-xs text-muted-foreground">(Optional)</span>
+                      <span className="text-xs text-muted-foreground">
+                        (Optional)
+                      </span>
                     </FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a language" />
                       </SelectTrigger>
@@ -552,7 +590,6 @@ const EventForm: FC<TEventFormProps> = ({
         </div>
       </form>
     </Form>
-
   );
 };
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { useRouter } from "next/navigation";
 import { IEvent } from "@/types/event.types";
 import { EApiRequestMethod } from "@/types/api.types";
@@ -42,11 +42,14 @@ const EventOrganizerDropdown: FC<TEventOrganizerDropdownProps> = ({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="p-2 hover:bg-muted rounded-md">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="p-2 hover:bg-muted rounded-md"
+            >
               <MoreVertical className="h-4 w-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
-
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
@@ -58,9 +61,7 @@ const EventOrganizerDropdown: FC<TEventOrganizerDropdownProps> = ({
             className="block w-full px-4 py-2 text-sm text-center text-foreground hover:bg-muted rounded-md transition"
             asChild
           >
-            <Link href={`/events/${event._id}/analytics`}>
-              View Analytics
-            </Link>
+            <Link href={`/events/${event._id}/analytics`}>View Analytics</Link>
           </DropdownMenuItem>
 
           {/* Edit Event */}
