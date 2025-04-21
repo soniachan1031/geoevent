@@ -1,4 +1,6 @@
 import LandingPage from "@/components/LandingPage/Index";
+import serverSidePropsHandler from "@/lib/server/serverSidePropsHandler";
+import { EAuthStatus } from "@/types/user.types";
 
 export const metadata = {
   title: "GeoEvents - Discover Live Events",
@@ -10,3 +12,7 @@ const Landing = () => {
 };
 
 export default Landing;
+
+export const getServerSideProps = serverSidePropsHandler({
+  access: EAuthStatus.ANY,
+});
