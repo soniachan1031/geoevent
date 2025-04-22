@@ -19,7 +19,6 @@ function EventSearchProvider({
   const [error, setError] = useState<string | null>(null);
   const [searchOptions, setSearchOptions] = useState<TEventSearchOptions>({
     location: {
-      city: "kitchener",
       state: "Ontario",
       country: "canada",
     },
