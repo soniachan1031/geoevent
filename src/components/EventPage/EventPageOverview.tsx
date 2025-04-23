@@ -18,7 +18,7 @@ import axiosInstance from "@/lib/axiosInstance";
 import SocialShareBtn from "@/components/buttons/SocialShareBtn";
 import EventFeedbackSection from "@/components/EventFeedbackSection";
 import FeedbackBtn from "@/components/buttons/FeedbackBtn";
-import GoogleMapDirectionBtn from "@/components/buttons/GoogleMapDirectionsBtn";
+// import GoogleMapDirectionBtn from "@/components/buttons/GoogleMapDirectionsBtn";
 import Link from "next/link";
 import EventOrganizerDropdown from "@/components/EventOrganizerDropdown";
 import { TICKETMASTER_EMAIL_lINK, TICKETMASTER_PHONE } from "@/lib/credentials";
@@ -370,7 +370,7 @@ export default function EventPageOverview({
         <SocialShareBtn shareUrl={shareUrl} event={event} />
 
         {/* Google maps direction */}
-        <GoogleMapDirectionBtn event={event} />
+        {/* <GoogleMapDirectionBtn event={event} /> */}
       </div>
 
       {/* Event Description */}
