@@ -37,7 +37,7 @@ export const getUser = async (
     if (!user) return null;
 
     // return user
-    return user;
+    return user as TUserDocument;
   } catch {
     return null;
   }
